@@ -1,0 +1,419 @@
+%%
+%% This is file `sample-authordraft.tex',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% samples.dtx  (with options: `authordraft')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from sample-authordraft.tex.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file samples.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+%%
+%% The first command in your LaTeX source must be the \documentclass command.
+\documentclass[acmconf,authordraft,anonymous,review]{acmart}
+\usepackage{todonotes}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{listings}
+
+\newcommand{\tristan}[1]{\color{orange}\textbf{From Tristan:}#1\color{black}}
+\newcommand{\Yohan}[1]{\todo[inline,backgroundcolor=green]{YC:#1}}
+
+%% NOTE that a single column version may be required for 
+%% submission and peer review. This can be done by changing
+%% the \doucmentclass[...]{acmart} in this template to 
+%% \documentclass[manuscript,screen,review]{acmart}
+%% 
+%% To ensure 100% compatibility, please check the white list of
+%% approved LaTeX packages to be used with the Master Article Template at
+%% https://www.acm.org/publications/taps/whitelist-of-latex-packages 
+%% before creating your document. The white list page provides 
+%% information on how to submit additional LaTeX packages for 
+%% review and adoption.
+%% Fonts used in the template cannot be substituted; margin 
+%% adjustments are not allowed.
+%%
+%% \BibTeX command to typeset BibTeX logo in the docs
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    \normalfont B\kern-0.5em{\scshape i\kern-0.25em b}\kern-0.8em\TeX}}}
+
+%% Rights management information.  This information is sent to you
+%% when you complete the rights form.  These commands have SAMPLE
+%% values in them; it is your responsibility as an author to replace
+%% the commands and values with those provided to you when you
+%% complete the rights form.
+\setcopyright{acmcopyright}
+\copyrightyear{2018}
+\acmYear{2018}
+\acmDOI{10.1145/1122445.1122456}
+
+%% These commands are for a PROCEEDINGS abstract or paper.
+\acmConference[Supercomputing '21]{Supercomputing '21: The International Conference for High Performance
+Computing, Networking, Storage, and Analysis}{November 16--18, 2021}{St. Louis, MO}
+\acmPrice{}
+\acmISBN{}
+
+
+%%
+%% Submission ID.
+%% Use this when submitting an article to a sponsored event. You'll
+%% receive a unique submission ID from the organizers
+%% of the event, and this ID should be used as the parameter to this command.
+%%\acmSubmissionID{123-A56-BU3}
+
+%%
+%% The majority of ACM publications use numbered citations and
+%% references.  The command \citestyle{authoryear} switches to the
+%% "author year" style.
+%%
+%% If you are preparing content for an event
+%% sponsored by ACM SIGGRAPH, you must use the "author year" style of
+%% citations and references.
+%% Uncommenting
+%% the next command will enable that style.
+%%\citestyle{acmauthoryear}
+
+%%
+%% end of the preamble, start of the body of the document source.
+\begin{document}
+
+%%
+%% The "title" command has an optional parameter,
+%% allowing the author to define a "short title" to be used in page headers.
+\title{PyTracer: Detecting numerical instabilities in Python using Monte Carlo Arithmetic \tristan{title sounds like PyTracer is an MCA tool, emphasis should be put on comparing MCA traces. ``without instrumentation" or ``automatic" could also appear in the title.}}
+\title{PyTracer: Automatically profiling numerical instabilities in Python}
+
+%%
+%% The "author" command and its associated commands are used to define
+%% the authors and their affiliations.
+%% Of note is the shared affiliation of the first two authors, and the
+%% "authornote" and "authornotemark" commands
+%% used to denote shared contribution to the research.
+\author{Ben Trovato}
+\authornote{Both authors contributed equally to this research.}
+\email{trovato@corporation.com}
+\orcid{1234-5678-9012}
+\author{G.K.M. Tobin}
+\authornotemark[1]
+\email{webmaster@marysville-ohio.com}
+\affiliation{%
+  \institution{Institute for Clarity in Documentation}
+  \streetaddress{P.O. Box 1212}
+  \city{Dublin}
+  \state{Ohio}
+  \country{USA}
+  \postcode{43017-6221}
+}
+
+%%
+%% By default, the full list of authors will be used in the page
+%% headers. Often, this list is too long, and will overlap
+%% other information printed in the page headers. This command allows
+%% the author to define a more concise list
+%% of authors' names for this purpose.
+\renewcommand{\shortauthors}{Trovato and Tobin, et al.}
+
+%%
+%% The abstract is a short summary of the work to be presented in the
+%% article.
+\begin{abstract}
+  A clear and well-documented \LaTeX\ document is presented as an
+  article formatted for publication by ACM in a conference proceedings
+  or journal publication. Based on the ``acmart'' document class, this
+  article presents and explains many of the common variations, as well
+  as many of the formatting elements an author may use in the
+  preparation of the documentation of their work.
+\end{abstract}
+
+%%
+%% The code below is generated by the tool at http://dl.acm.org/ccs.cfm.
+%% Please copy and paste the code instead of the example below.
+%%
+\begin{CCSXML}
+<ccs2012>
+ <concept>
+  <concept_id>10010520.10010553.10010562</concept_id>
+  <concept_desc>Computer systems organization~Embedded systems</concept_desc>
+  <concept_significance>500</concept_significance>
+ </concept>
+ <concept>
+  <concept_id>10010520.10010575.10010755</concept_id>
+  <concept_desc>Computer systems organization~Redundancy</concept_desc>
+  <concept_significance>300</concept_significance>
+ </concept>
+ <concept>
+  <concept_id>10010520.10010553.10010554</concept_id>
+  <concept_desc>Computer systems organization~Robotics</concept_desc>
+  <concept_significance>100</concept_significance>
+ </concept>
+ <concept>
+  <concept_id>10003033.10003083.10003095</concept_id>
+  <concept_desc>Networks~Network reliability</concept_desc>
+  <concept_significance>100</concept_significance>
+ </concept>
+</ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Computer systems organization~Embedded systems}
+\ccsdesc[300]{Computer systems organization~Redundancy}
+\ccsdesc{Computer systems organization~Robotics}
+\ccsdesc[100]{Networks~Network reliability}
+
+%%
+%% Keywords. The author(s) should pick words that accurately describe
+%% the work being presented. Separate the keywords with commas.
+\keywords{datasets, neural networks, gaze detection, text tagging}
+
+%%
+%% This command processes the author and affiliation and title
+%% information and builds the first part of the formatted document.
+\maketitle
+
+\section{Introduction}
+
+Although it has been an intense subject of research since the early days of computer science, the analysis of numerical instabilities recurrently comes to the forefront in every field that is confronted with it.
+Indeed numerical instabilities are inherent to numerical computations and have been studied from a mathematical
+point of view through the numerical analysis. However, the increasing complexity 
+of nowadays computation codes makes pen and paper proofs not always sufficient to understand the overall 
+numerical quality of computed results. In addition to the traditional floating-point model, backward error and 
+condition number analyses, they are the library updates, parallelization schemes and hardware innovations.
+
+This complexity requires new tools to estimate the numerical quality of computations that
+must be adapted to new languages like Python. Indeed, Python, especially 
+scientific python (Scipy) is critical to scientific computing but 
+is under studied due to lack of tools.  
+
+\begin{itemize}
+    \item Numerical instabilities are inherent to numerical computations \tristan{not only to HPC, also software updates, small perturbations in parameters or data}
+    \item 
+    \item Neuroimaging tools are facing reproducibility issues, one factor of which is numerical stability \tristan{neuroimaging should be an illustration, your intro should rather focus on Python in general, it's much more impactful} 
+    \item Detecting those instabilities is challenging: large data sets, large pipeline, long computation time, complex physics \tristan{Here you could illustrate the point with neuroimaging pipelines}
+    \item Needs tools for automatically detecting these instabilities
+    \item Needs tools to quickly identify unstable functions among large number of calls
+\end{itemize}
+
+\tristan{explain that it can be used with any type of perturbation, including random seed, input noise, etc}
+
+\subsection{Contributions}
+\begin{itemize}
+    \item Pytracer, a tool to automatically instrument Python functions 
+    to trace their inputs and outputs fidelity over time
+    \item A visualizer that allows visualizing large traces 
+    \item A graph-based summary view to easily identify numerically unstable functions 
+    \item \tristan{An evaluation of the above tools on Scipy libraries}
+\end{itemize}
+
+\section{Motivating example}    
+
+\Yohan{Find motivating example}
+%\tristan{Could be Greg's pipeline and paper}
+
+\tristan{weave in intro. Logic could be: scientific python (SciPy) is critical to scientific computing, numerical stability is critical but it's under studied in python due to lack of tools. Mention a list of references on numerical stability issues, from various application domains (beam, greg's, numpy/scipy, sklearn, etc). Numerical perturbations can be triggered from various computational factors (OS, parallelization, hardware, etc).}
+
+\section{Background}
+
+Several methods exist to assess the numerical quality of a code.
+Among them, the stochastic arithmetic proposes to modelize round-off errors 
+of the floating-point arithmetic by a random variable. This method exists 
+in two major flavors: the Discrete Stochastic Arithmetic~\cite{vignes2004discrete} (DSA)
+and the Monte Carlo Arithmetic~\cite{parker1997monte} (MCA).
+
+\subsection{Tools for assessing the numerical quality}
+
+It exist several tools in the literature for detecting or assessing numerical quality.
+Most of these tools are dedicated to C,C++ or FORTRAN codes even if Dynamic Binary Instrumentation (DBI)
+technique allows examining any binary executable and are thus languages agnostic.
+CADNA~\cite{jezequel2008cadna} is a library for C,C++ and Fortran codes implementing
+the CESTAC~\cite{vignes1993stochastic} method. 
+CraftHPC~\cite{lam2013dynamic} uses DBI to detect catastrophic cancellations at runtime.
+Verrou~\cite{fevotte2016verrou} is a Valgrind~\cite{nethercote2007valgrind} based tool 
+thus language agnostic that uses stochastic arithmetic.
+Veritracer~\cite{chatelain2018veritracer} is an extension of Verificarlo
+that aims at visualizing the numerical stability over time for C,C++ and Fortran codes.
+Verificarlo~\cite{denis2015verificarlo} is compiler based upon clang that 
+allows replacing floating point operations by generic calls to 
+different alternative floating-point arithmetic, including MCA.
+Shaman \cite{demeure_phd} is C++ library that uses a first order error model for 
+propagating numerical error. 
+Herbgring~\cite{sanchez2017finding} is a Valgrind based tool for detecting 
+numerical instabilities in code. It uses a shadow memory to do computations  
+in high precision by using MPFR~\cite{fousse2007mpfr} and compare this results with the actual one
+for detecting precision losses. It is combines with a symbolic computation for backtracking the root of the error.
+Anteater~\cite{faust2019anteater} is Python tracer tool that aims at debugging python application. 
+It operates source transformation at AST level and deals with native numeric python types only.
+While DBI solutions can be used for python code because they are language agnostic, 
+they are not intended to analyze Python code. Moreover, few tools embed a visualizer for 
+analyzing numerical quality over time letting the postprocessing to the user. 
+
+Existing tools for tracing Python code are dedicated to performance profiling, for time (cProfile) 
+or memory consumption (memprofile). 
+To the best of our knowledge, there is currently no tool dedicated to numerical analysis.
+We can however compare the methodology used by these tools against the one used in Pytracer.
+These tools use an instrumentation based on decorator, a Python mechanism allowing 
+to wrap a function by adding a line over a function declaration.
+If this method is useful for targeting specific functions, it becomes time consuming 
+when applying to all functions of a code. Moreover, this technique becomes intractable
+when the target code is a Python package like numpy due to the several modules to instrument
+multiply by the different version targeted.
+
+
+\tristan{Refer to cprofile, memprofile, explain why pytracer is different (e.g. trace density/resolution). Decorator vs systematic instrumentation. Explain the differences.}
+
+\subsection{Monte Carlo Arithmetic}
+MCA simulates round-off errors by introducing random perturbations in floating point computations. Each floating point number is replaced by its MCA counterparts:
+\[
+inexact(x) =  x + \beta^{e_x - t}\xi
+\]
+where $\beta$ is the basis, $t$ the virtual precision and $\xi \in (-\frac{1}{2},\frac{1}{2})$ a random variable.
+Virtual precision is one strength of the MCA method since it allows simulating 
+reduced working precision.
+MCA comes with three modes: Random Rounding (RR), Precision Bounding (PB) and FullMCA where either the output, either the inputs or both are perturbed with the $inexact$ function.
+While the RR mode is equivalent to stochastic rounding, PB mode allows identifying 
+catastrophic cancellations.
+
+MCA provides a formula to compute the number of significant digits:
+\[
+s = -\log_{\beta}{ \left| \dfrac{\sigma}{\mu} \right|}
+\]
+where $\sigma$ and $\mu$ are respectively the empirical standard deviation and expected value of a variable $x$ evaluating several times with MCA. 
+Note that this formula gives an approximation of the real $s$ and 
+one can refer to~\cite{sohier2018confidence} to obtain associated rigorous confidence intervals.
+
+\subsection{Fuzzy environment}
+
+\tristan{move to experimental design}
+
+We use the fuzzy~\cite{kiar2020comparing} environment to use MCA in Python.
+The fuzzy ecosystem provides a Python interpreter recompiled with Verificarlo.
+Verificarlo~\cite{denis2015verificarlo} is a compiler based upon clang~\cite{lattner2008llvm}
+that replaces all floating-point operations by a generic call. 
+The user can then link these generic calls with different floating-point models 
+(called backends) during the execution. Verificarlo propose several 
+backends~\cite{chatelain2019automatic,chatelain2019outils} including for MCA.
+
+The main advantage of the fuzzy ecosystem is its transparency for the user.
+One can directly use its python code with the fuzzy python interpreter
+without manual interventions. Moreover, the fuzzy ecosystem is intended to be
+modular by providing fuzzy version of numpy, scipy and scikit-learn modules.
+One can thus choose the fuzzy stack desired.
+
+\section{Design principles}
+
+Pytracer follows a three step approach. First, selected functions are automatically
+instrumented before executing the targeted application. During the execution, instrumented
+functions will dump their inputs and outputs in a file called a trace. 
+The idea is to profile several times the application to measure discrepancies between runs.
+Based on the set of traces obtained from multiple executions, Pytracer 
+will gather them into one trace containing statistics about each traced variables.
+With all information gathered, the user can visualize and interact with it through a Ploty/Dash server.
+
+\subsection{Pytracer workflow}
+
+\Yohan{Add figure for the workflow}
+
+\begin{itemize}
+    \item Trace application
+    \item Merge traces
+    \item Visualize trace
+\end{itemize}
+
+\subsection{Instrumentation}
+Pytracer dynamically instruments the Python modules selected by the user
+without requiring modifications of the targeted application.
+To do so, Pytracer creates a new version of each selected module 
+by preserving the attributes' signature, allowing to use them
+transparently in the original application.
+If by default Pytracer instruments all attributes present
+in a given module, except the special attributes of the form \texttt{\_\_*\_\_},
+the wrapping is not always be feasible as detailed in section ?.
+The original attributes are then preserved and the user is warned.
+The user can also restrict the list of attributes to trace through
+a mechanism of inclusion/exclusion.
+
+\subsubsection{Module functions}
+
+The module function is the simplest case to deal with.
+For each function encountered in a module, Pytracer
+creates a wrapper around this function that is dynamically compiled with the \textit{compile}
+builtin function. The original function is then replaced by its wrapped counterpart.
+
+\begin{figure}
+    \centering
+\begin{lstlisting}
+wrapper_code = f"""
+def {function_wrapper_name}(*args, **kwargs):
+    return generic_wrapper({info},*args,**kwargs)"""
+\end{lstlisting}
+    \caption{Caption}
+    \label{fig:my_label}
+\end{figure}
+
+\subsubsection{Class}
+
+Overriding python classes is similar to module functions.
+Pytracer goes through the attributes and replaces each callable attribute (method) by its wrapped counterpart.
+The resulting class has the same type as the original one, avoiding type conflicts.
+However, Python forbids overwriting classes that are a base type. 
+In Python, classes are type creators that will produce new instances.
+However, Python restricts the inheritance of base type. 
+
+    Some classes forbid overwriting attributes of their instances \tristan{why do you need to edit attributes and not just functions?}.
+The solution consisting in replacing function by a wrapper cannot be applied here.
+\begin{itemize}
+    \item Class is not a base type, i.e. can be inherited, we create a new class from the original class by filling its namespace with the callable attributes being replaced by their wrapper counterpart.
+    \item Class is a base type, as for \texttt{numpy ufunc}, no 
+    general solution can be provided since heritage is forbidden.
+    Solutions on a case-by-case basis are provided. 
+    \item \texttt{numpy.frompyfunc} can cause errors since signature is not preserved. The function wrapped with this technique always returns \texttt{Python Object} that cause \texttt{TypeError} when the numpy array
+    over witch the function is applied is used for indexing another array.
+    Tracing \texttt{ufunc} instances can be disabled by the user.
+\end{itemize}
+
+\subsection{Detecting instabilities}
+
+\subsection{Visualization}
+
+\subsubsection{Plotly}
+
+\section{Use cases}
+
+\subsection{Numpy}
+\subsection{Scikit learn}
+\subsection{Dipy}
+
+\section{Performance evaluation}
+\subsection{Overhead}
+\subsection{Postprocessing}
+
+\section{Discussion}
+
+\section{Conclusion}
+
+
+%%
+%% The next two lines define the bibliography style to be used, and
+%% the bibliography file.
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{sample-base}
+
+%%
+%% If your work has an appendix, this is the place to put it.
+\appendix
+
+\end{document}
+\endinput
+%%
+%% End of file `sample-authordraft.tex'.
