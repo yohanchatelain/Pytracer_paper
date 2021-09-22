@@ -101,38 +101,30 @@ $^2$Center for the Developing Brain, Child Mind Institute, New York, NY, USA}
 \section{Introduction}
 
 The scientific Python ecosystem is a central component of scientific
-analyses due to its rich offering of data manipulation, array programming,
+analyses due to its rich data manipulation, array programming,
 numerical analysis, and visualization tools. In particular, libraries such
-as NumPy~\cite{harris2020array}, SciPy~\cite{virtanen2020scipy}, scikit-learn~\cite{pedregosa2011scikit} or PyTorch~\cite{paszke2019pytorch} are used in hundreds of publications every year, providing a reference set of high-quality open-source core scientific libraries. Numerous domain-specific data analysis pipelines were built from this ecosystem by diverse research groups, leveraging Python's simplicity and expressivity. 
+as NumPy~\cite{harris2020array}, SciPy~\cite{virtanen2020scipy}, scikit-learn~\cite{pedregosa2011scikit} or PyTorch~\cite{paszke2019pytorch} are used in hundreds of publications every year, providing a reference set of high-quality open-source core scientific libraries. Diverse research groups built numerous domain-specific data analysis pipelines from this ecosystem, leveraging Python's simplicity and expressivity. 
 
 Numerical stability is a crucial requirement of reliable scientific data
-processing. In unstable analyses, small numerical perturbations introduced
-by data noise, software and hardware updates, or parallelization lead to
-substantial deviations in final results and potentially different scientific conclusions, threatening the reliability of computational analyses. To address this issue, numerical stability analyses need to be conducted systematically. However, no practical tool currently exists to conduct such analyses on Python programs.
+processing. In unstable analyses, small numerical perturbations introduced by data noise, software and hardware updates, or parallelization lead to substantial deviations in final results and potentially different scientific conclusions, threatening the reliability of computational analyses. Numerical stability analyses need to be conducted systematically to address this issue. However, no practical tool currently exists to conduct such analyses on Python programs.
 
 We present PyTracer, a numerical stability analyzer for Python programs.
-PyTracer adopts a dynamic approach that evaluates numerical stability using program execution traces, enabling scaling to large programs without manual intervention. In contrast, theoretical approaches based on condition number or backward error analyses require detailed modelling of the program and its numerical implementation. Similarly, static code analysis techniques such as Frama-C~\cite{cuoq2012frama}, Gappa~\cite{de2010certifying} or Flocq~\cite{boldo2011flocq} hardly scale to large codebases, particularly in dynamically-typed languages such as Python.
+PyTracer adopts a dynamic approach that evaluates numerical stability using program execution traces, enabling scaling to large programs without manual intervention. In contrast, theoretical approaches based on condition number or backward error analyses require detailed modeling of the program and its numerical implementation. Similarly, static code analysis techniques such as Frama-C~\cite{cuoq2012frama}, Gappa~\cite{de2010certifying} or Flocq~\cite{boldo2011flocq} hardly scale to large codebases, particularly in dynamically-typed languages such as Python.
 
-PyTracer estimates the significant digits of Python floating-point variables by combining program traces obtained with different numerical perturbations, which requires (1) tracing floating-point computations along program executions, (2) generating numerically-perturbed executions, and (3) visualizing stability evaluations. PyTracer addresses these requirements with (1) dynamic instrumentation of Python functions, modules and classes through meta-programming, (2) a ``fuzzy" Python interpreter instrumented with Monte-Carlo arithmetic, and (3) an interactive Plotly dashboard to visualize stability measures throughout program executions.
+PyTracer estimates the significant digits of Python floating-point variables by combining program traces obtained with different numerical perturbations, which requires (1) tracing floating-point computations along program executions, (2) generating numerically-perturbed executions, and (3) visualizing stability evaluations. PyTracer addresses these requirements with:
+Dynamic instrumentation of Python functions, modules, and classes through meta-programming
+A ``fuzzy" Python interpreter instrumented with Monte-Carlo arithmetic
+An interactive Plotly dashboard to visualize stability measures throughout program executions
 
 Through stability evaluations of 
-SciPy, scikit-learn, and pyAFQ~\cite{kruper2021evaluating} --- an analysis toolbox for diffusion magnetic resonance imaging --- we demonstrate PyTracer as a practical solution to review the numerical stability of extensive code bases. The remainder of this manuscript describes related approaches, presents the design of PyTracer, and demonstrates its potential on various use cases.
+SciPy, scikit-learn, and pyAFQ~\cite{kruper2021evaluating} --- an analysis toolbox for diffusion magnetic resonance imaging --- we demonstrate PyTracer as a practical solution to review the numerical stability of extensive code bases. The remainder of this manuscript describes related approaches, presents the design of PyTracer, and demonstrates its potential in various use cases.
 
-% \begin{itemize}
-%     \item Numerical instabilities are inherent to numerical computations \tristan{not only to HPC, also software updates, small perturbations in parameters or data}
-%     \item 
-%     \item Neuroimaging tools are facing reproducibility issues, one factor of which is numerical stability \tristan{neuroimaging should be an illustration, your intro should rather focus on Python in general, it's much more impactful} 
-%     \item Detecting those instabilities is challenging: large data sets, large pipeline, long computation time, complex physics \tristan{Here you could illustrate the point with neuroimaging pipelines}
-%     \item Needs tools for automatically detecting these instabilities
-%     \item Needs tools to quickly identify unstable functions among large number of calls
-% \end{itemize}
 
 \section{Related work}
 
-Several tools have been and continue to be developed to assess numerical quality. Those tools can be divided in two main categories depending whether they adopt a static or a dynamic approach.
-Static analysis produces theoretically-valid error bounds 
-while dynamic analysis is generally more scalable although it only provides experimental estimations.
-\pytracer adopts the dynamic approach, due to its scalability to large existing code bases. Dynamic approaches typically rely on the tracing of floating-point computations to detect instabilities and visualize them. The remainder of this section reviews existing approaches for each of these three steps. 
+Several tools have been and continue to be developed to assess numerical quality. Those tools can be divided into two main categories depending on whether they adopt a static or a dynamic approach.
+The static analysis produces theoretically valid error bounds, while dynamic analysis is generally more scalable, although it only provides experimental estimations.
+\pytracer adopts the dynamic approach due to its scalability to large existing code bases. Dynamic approaches typically rely on the tracing of floating-point computations to detect instabilities and visualize them. The remainder of this section reviews existing approaches for each of these three steps. 
 
 % In this section, we review tools and theoretical frameworks related to \pytracer components.
 % We start by reviewing state-of-the-art dynamic tools for detecting numerical instabilities.
@@ -142,57 +134,46 @@ while dynamic analysis is generally more scalable although it only provides expe
 
 \label{sec:soa}
 \subsection{Numerical tracing techniques}
+Tools to trace floating-point computations for C, C++, or FORTRAN programs are plethora due to the prevalence of these languages in High-Performance Computing (HPC). 
+The main tracing techniques are source-to-source, compiler-based transformations, and dynamic binary instrumentation.
 
-Many tools  are dedicated to the tracing of floating-point computations in C, C++ or FORTRAN programs due to the prevalence of these languages in High-Performance Computing (HPC). 
-The main tracing techniques are source-to-source and compiler based transformations. \tristan{Re-organize the following in two paragraphs, (1) source-to-source, (2) compiler-based. For each paragraph, define the technique in 1 sentence, then list the tools} 
-CADNA~\cite{jezequel2008cadna} is a library for C, C++ and Fortran  implementing the
-CESTAC~\cite{vignes1993stochastic} stochastic arithmetic \tristan{is it source-to-source or compiler-based?}.
-Verificarlo~\cite{verificarlo} is a compiler that supports different types of arithmetic instrumentations, including
-Monte Carlo Arithmetic (MCA)~\cite{parker1997monte}. The work in ~\cite{bao2013fly} modified the GNU Compiler Collection (GCC) to track local floating-point errors across executions. pLiner~\cite{guo2020pliner} is a root cause analyzer based on the Clang compiler that detects floating-point operations 
-responsible for result variability. 
-pLiner uses source-to-source transformation at the AST \tristan{expand acronym} level  to rewrite parts of code with higher precision. PFPSanitizer~\cite{chowdhary2020debugging,chowdhary2021parallel}, is a compiler that uses parallel shadow execution to detect numerical issues using higher precision.
+The Source-to-source technique requires a rewriting of the application to use modify floating-point types.
+CADNA~\cite{jezequel2008cadna} is a library for C, C++ and Fortran  implementing the CESTAC~\cite{vignes1993stochastic} stochastic arithmetic.
+pLiner uses source-to-source transformation at the Abstract Syntax Tree (AST)  level to rewrite parts of code with higher precision. 
 Shaman~\cite{demeure_phd} is a C++ library that uses a first-order error model to propagate numerical error. 
-FLiT~\cite{sawaya2017flit} is framework to detect variability induced by compilers and their optimizations.
-The work in~\cite{tang2016software} proposed a source-to-source framework for executing targeted code 
-in infinite and fixed precision with and without using stochastic arithmetic.
-The work in~\cite{wang2012development} proposes a numerical debugger based on GDB~\cite{stallman1988debugging} for 
-Discrete Stochastic Arithmetic (DSA) on FPGA as an Eclipse plugging. Similarly, Cadtrace~\cite{jezequel2008cadna}
-and Shaman propose a GDB based tool to respectively use the CADNA and Shaman libraries with GDB.
+MCAlib~\cite{frechtling2015mcalib} is a C library that implements the Monte Carlo Arithmetic (MCA)~\cite{parker1997monte} using the MPFR~\cite{fousse2007mpfr} library.
+The work in~\cite{tang2016software} proposed a source-to-source framework for executing targeted code in infinite and fixed precision with and without using stochastic arithmetic.
 
+The compiler-based approach uses a compiler to analyze or replace floating-point expressions with other models automatically. 
+Verificarlo~\cite{verificarlo} is a compiler that supports different types of arithmetic instrumentations, including MCA. 
+The work in ~\cite{bao2013fly} modified the GNU Compiler Collection (GCC) to track local floating-point errors across executions. pLiner~\cite{guo2020pliner} is a root cause analyzer based on the Clang compiler that detects floating-point operations responsible for result variability. 
+PFPSanitizer~\cite{chowdhary2020debugging,chowdhary2021parallel}, is a compiler that uses parallel shadow execution to detect numerical issues using higher precision.
+FLiT~\cite{sawaya2017flit} is a framework to detect variability induced by compilers and their optimizations.
+The work in~\cite{wang2012development} proposes a numerical debugger based on GDB~\cite{stallman1988debugging} for Discrete Stochastic Arithmetic (DSA) on FPGA as an Eclipse plugging. Similarly, Cadtrace~\cite{jezequel2008cadna} and Shaman propose a GDB-based tool to use the CADNA and Shaman libraries with GDB, respectively.
 
-Another technique, Dynamic Binary Instrumentation (DBI), evaluates numerical stability at the binary level,
-enabling the analysis of any binary regardless of the programming language. However, working at binary level makes it difficult to access high-level information needed
-for debugging and understanding the source code logic. In particular, analyzing Python code with DBI is feasible but provides very limited insights on the stability of specific Python code sections.
+Dynamic Binary Instrumentation (DBI) operates on an executable directly, without the need for recompilation or manual changes, and is thus
+transparent to the programming language used. However, working at a binary level makes it difficult to access high-level information needed
+to debug and understand the source code logic. In particular, analyzing Python code with DBI is feasible but provides minimal insights on the stability of specific Python code sections.
 CraftHPC~\cite{lam2013dynamic} uses DBI to detect catastrophic cancellations at runtime.
 Verrou~\cite{fevotte2016verrou} is a Valgrind~\cite{nethercote2007valgrind} based tool that replaces on-the-fly
-floating-point operations by their stochastic arithmetic counterparts. FPDebug~\cite{benz2012dynamic} uses DBI to detect numerical 
-inaccuracies by using shadow computations with a higher precision.
+floating-point operations by their stochastic arithmetic counterparts. FPDebug~\cite{benz2012dynamic} uses DBI to detect numerical inaccuracies by using shadow computations with higher precision.
 Herbgring~\cite{sanchez2017finding} is a Valgrind-based tool to detect
-numerical instabilities. It uses a shadow memory to do detect precision losses by comparison with results obtained with the high-precision 
+numerical instabilities. It uses a shadow memory to detect precision losses by comparison with results obtained with the high-precision 
 MPFR library~\cite{fousse2007mpfr}. It is combined with symbolic computation to backtrack the root of the error.
-We can note that all methods based on a high-precision oracle suppose that computing with
-a large number of bits is sufficient to obtain an accurate result, which is not always true, see for example the famous Muller's sequence ~\cite{chatelain2018veritracer}.
+We can note that all methods based on a high-precision oracle suppose that computing with a large number of bits is sufficient to obtain an accurate result, which is not always true, see, for example, the famous Muller's sequence ~\cite{chatelain2018veritracer}.
 
-To the best of our knowledge, there is currently no tool dedicated to numerical analysis of Python code. Existing tools for tracing Python code are dedicated to performance profiling, for time (cProfile) 
+Being agnostic to the programming language is a serious advantage of the DBI method compare to source-to-source and compiler-bases methods. However, working at a binary level makes it difficult to access high-level information needed to debug and understand the source code logic. On the other hand, Source-to-source presents the advantage of having a fine-grained control on code analyzed but lacks scalability, as rewriting large codes can be a tedious task if done by hand. Finally, the compiler-based approach takes advantage of the best of both by being automatic and having access to high-level information. However, like source-to-source, the compiler-based method is not suitable for analyzing closed-source proprietary libraries.
+
+
+To the best of our knowledge, there is currently no tool dedicated to the numerical analysis of Python code. Existing tools for tracing Python code are dedicated to performance profiling, for time (cProfile) 
 or memory consumption (memprofile). 
-Anteater~\cite{faust2019anteater} is a Python tracer tool that aims at debugging Python application. 
-It operates source transformation at AST level but only deals with native numeric Python types.
-Moreover, the user needs to manually tag each variable to trace. Finally, according to the authors,
-Anteater do not scale to large traces.
-However, we can compare the methodology used by these tools \tristan{are you referring to Anteater here? if so, it should be "this" tool. Otherwise, list which tools you're referring to.} against the one used in Pytracer.
-These tools use an instrumentation based on decorators, a Python mechanism allowing 
-to instrument a function by adding a line over a function declaration.
-While this method is useful when targeting specific functions, it becomes time consuming 
-when applied to a large number of functions since one needs to tag functions manually,
-which is not feasible for large code bases where potentially unstable code sections are not known.
+Anteater~\cite{faust2019anteater} is a Python tracer tool that aims at debugging Python applications. 
+It operates source transformation at the AST level but only deals with native numeric Python types.
+Moreover, the user needs to tag each variable to trace manually. Finally, according to the authors, Anteater does not scale to large traces.
+However, we can compare the methodology used by cProfile, memprofile, and Anteater against the one used in Pytracer.
+These tools use instrumentation based on decorators, a Python mechanism allowing to instrument a function by adding a line over a function declaration.
+While this method is proper when targeting specific functions, it becomes time-consuming when applied to many functions since one needs to tag functions manually, which is not feasible for large codebases where potentially unstable code sections are unknown.
 
-% Moreover, the user has most of the time no clues
-% about where numerical instability comes from and must therefore all functions as potentially suspect. 
-% This issue enforces the need to use automatic approaches.
-%  Moreover, few tools embed a visualizer for 
-% analyzing numerical quality over time letting the postprocessing to the user. 
-
-% \tristan{The content of this section is excellent but the structure is a bit messy. Would you like to restructure in 3 paragraphs as follows? (1) There's no numerical instrumentation tools in Python (your last paragraph + anteater), (2) DBI tools could be used but won't provide a detailed stack trace, (3) tools for other languages.}
 
 \label{sec:detecting-instabilities}
 \subsection{Detecting numerical instabilities}
@@ -239,53 +220,34 @@ general theoretical framework that includes DSA and MCA formulae and allows to o
 \subsubsection{Uncertainty and sensitivity analysis}
 
 Uncertainty analysis (UA) is a method to derive the output distribution response from an input distribution.
-The idea is to model uncertainty on data due to limited precision measurement for example by a probability distribution and 
-to estimate the impact on the result. 
+The idea is to model uncertainty on data due to limited precision measurement, for example, by a probability distribution, and to estimate the impact on the result. 
 Sensitivity analysis (SA) is quite close to uncertainty analysis but differs from the scale observed.
-While uncertainty analysis attempts to describe the whole output distribution, sensitivity analysis 
-measure the local response to a small perturbation~\cite{loucks2017water}. 
-Several approaches for UA and SA exist among them differential analysis, response surface methodology, Monte Carlo analysis
-and variance decomposition (see~\cite{helton2006survey}). In particular, Monte Carlo Analysis is a sampling-based technique
-that samples inputs space to estimate output response. Monte Carlo analysis shares similarities with Monte Carlo Arithmetic. For instance, the PRECISE framework~\cite{chaitin1996lectures} shares with MCA the idea of varying virtual precision to estimate output sensitivity.
+While uncertainty analysis attempts to describe the whole output distribution, sensitivity analysis measures the local response to a small perturbation~\cite{loucks2017water}. 
+Several approaches for UA and SA exist, among them differential analysis, response surface methodology, Monte Carlo analysis, and variance decomposition (see~\cite{helton2006survey}). In particular, Monte Carlo Analysis is a sampling-based technique that samples inputs space to estimate output response. Monte Carlo analysis shares similarities with Monte Carlo Arithmetic. For instance, the PRECISE framework~\cite{chaitin1996lectures} shares with MCA the idea of varying virtual precision to estimate output sensitivity.
 
 \subsubsection{Random seed sensitivity}
 
-The quality of a Random Number Generator is a key characteristic when dealing with stochastic model and differ from cryptography requirements.
-For numerical simulation a RNG of quality must have a good tradeoff between performance, period, correlation or uniformity~\cite{james2020review}.
-Poor quality RNGs may have a substantial impact on results~\cite{click2011quality}. As a first step, measuring variation induced by seed is 
-a good indicator about the program stability that can be compared against variability induced by floating-point arithmetic.
-\Yohan{This section lacks of strong arguments. Needs improvement}
+
+The quality of a Random Number Generator is a crucial characteristic when dealing with stochastic model and differ from cryptography requirements. For numerical simulation, an RNG of quality must have a good tradeoff between performance, period, correlation, or uniformity~\cite{james2020review}. Poor quality RNGs may have a substantial impact on results~\cite{click2011quality}. First, measuring variation induced by seed is a good indicator of program stability that we can compare against variability induced by floating-point arithmetic.
+\Yohan{This section lacks solid arguments. Needs improvement}
 
 \subsection{Visualization}
 
-Visualization covers a wide range of specific domains in the numerical simulation area, from general purpose numerical visualization with tools
-like VTK~\cite{schroeder2000visualizing},
-to topological data analysis~\cite{tierny2018topological}, including matrix~\cite{wu2008matrix} or tensor~\cite{kindlmann2006diffusion} visualization.
-We review here tools dedicated to the analysis of the numerical variability induced by the floating-point model.
-We can first highlight the fact that despite the large number of existing tools dedicated to pinpoint 
-source code instructions, few of them allow the user to have a global view of the numerical accuracy of their computations
-or compare several executions of the same program under various perturbations.
-% Indeed, all methods based on an high-precision oracles cannot capture variability between several executions as they only refer 
-% to one oracle. In other words, the actual computation is compared against the same computation with higher-precision by 
-% using the same inputs data in a synchronous way. 
+The visualization covers a wide range of specific domains in the numerical simulation area, from general-purpose numerical visualization with tools
+like VTK~\cite{schroeder2000visualizing}, to topological data analysis~\cite{tierny2018topological}, including matrix~\cite{wu2008matrix} or tensor~\cite{kindlmann2006diffusion} visualization.
+We review here tools dedicated to the analysis of the numerical variability induced by the floating-point model. We can first highlight that despite the large number of existing tools dedicated to pinpoint source code instructions, few of them allow the user to have a global view of the numerical accuracy of their computations or compare several executions of the same program under various perturbations.
 
-Veritracer~\cite{chatelain2018veritracer} was the first tool to propose an embedded visualizer to 
-visualize the numerical stability over time for C, C++ and Fortran codes.
-It is a trace-based tool built as an extension of Verificarlo~\cite{verificarlo} that offers contextual 
-information about variables traced to allow the user to quickly identify instabilities.
-However, it does not offer a dynamic interface neither takes into account information about 
-high-level structures like \texttt{struct} or \texttt{array}.
-FPAvizual~\cite{gu2014fpavisual} is a tool for visualizing effects of floating-point arithmetic but only for educational purposes.
-Anteater~\cite{faust2019anteater} proposes a visualizer for Python codes but as mentioned previously,
-it only deals with native Python types and the user needs to manually select variables to trace. 
-However, Anteater provides a real reflection around visual debugging beyond floating-point 
-analysis, which has inspired the design of \pytracer's visualization interface.
+Veritracer~\cite{chatelain2018veritracer} was the first tool to propose an embedded visualizer to visualize the numerical stability over time for C, C++, and Fortran codes. It is a trace-based tool built as an extension of Verificarlo~\cite{verificarlo} that offers contextual information about variables traced to allow the user to identify instabilities quickly.
+However, it does not offer a dynamic interface neither takes into account information about high-level structures like \texttt{struct} or \texttt{array}.
+FPAvizual~\cite{gu2014fpavisual} is a tool for visualizing the effects of floating-point arithmetic but only for educational purposes.
+Anteater~\cite{faust2019anteater} proposes a visualizer for Python codes, but as mentioned previously, it only deals with native Python types, and the user needs to select variables to trace manually. However, Anteater provides an accurate reflection around visual debugging beyond floating-point analysis, which has inspired the design of \pytracer's visualization interface.
+
 
 \section{\pytracer design}
 
 % \subsection{Pytracer workflow}
 
-The PyTracer workflow follows a three step approach (Figure~\ref{fig:workflow}). When a Python application is loaded, \pytracer instruments it using ``monkey patching", a technique to modify Python programs without editing their source code. The instrumentation replaces all the functions with a wrapper that saves their arguments and outputs in a trace file using ``pickle", Python's object serialization mechanism. \pytracer then aggregates trace files obtained from multiple perturbed executions, computing summary statistics about each traced variable. Finally, a Plotly dashboard provides interactive visualizations highlighting unstable code sections.
+The PyTracer workflow follows a three-step approach (Figure~\ref{fig:workflow}). First, when a Python application is loaded, \pytracer instruments using ``monkey patching", a technique to modify Python programs without editing their source code. The instrumentation replaces all the functions with a wrapper that saves their arguments and outputs in a trace file using ``pickle", Python's object serialization mechanism. \pytracer then aggregates trace files obtained from multiple perturbed executions, computing summary statistics about each traced variable. Finally, a Plotly dashboard provides interactive visualizations highlighting unstable code sections.
 
 % \tristan{mention monkey patching}
 
@@ -314,9 +276,9 @@ an inclusion/exclusion mechanism. The main advantage of this instrumentation app
 
 Python loads modules through an import mechanism triggered by the \texttt{import} keyword, using two objects: \texttt{finders} and \texttt{loaders}.
 The \texttt{finder} is responsible for finding the package (or 
-namespace\footnote{Python makes a distinction between \texttt{regular} and \texttt{namespace} packages.
+namespace\footnote{Python distinguishes between \texttt{regular} and \texttt{namespace} packages.
 A regular package is a directory that contains a \_\_init\_\_.py file and potentially subdirectories (sub-packages) 
-that contain themselves a \_\_init\_\_.py file and so on recursively. 
+that contain themselves a \texttt{\_\_init\_\_.py} file and so on recursively. 
 The package hierarchy follows those of the directory. 
 Namespace packages introduced in Python 3.3 (\href{https://www.python.org/dev/peps/pep-0420/}{PEP 420}) do not contain an
 \_\_init\_\_.py file and allow for flexible directory structures. Hence, parts of the package can be located in zip files, on the network, or in separated directories. There are no functional differences between both types of packages.}) from its fully qualified name, whether it is located on the local storage, such as standard packages installed through the pip package manager, or on a distant server.
@@ -327,18 +289,16 @@ such as \texttt{\_\_spec\_\_}.
 Then, the \texttt{loader} executes the module and populates its namespace. Finally, the module is bound to its import name in the \texttt{sys.modules} dictionary.
 
 
-Python implements default \tristanmod{\texttt{importers}}{\texttt{finder} and \texttt{loader}} classes as well as search paths for importing a module, but it also provides a way to create custom \texttt{finder} and \texttt{loader} classes.
+Python implements default \texttt{finder} and \texttt{loader} classes and search paths for importing a module, but it also provides a way to create custom \texttt{finder} and \texttt{loader} classes.
 To register a new \texttt{finder} class, one needs to add it to the \texttt{sys.meta\_path} list.
-When an \texttt{import} statement is encountered, Python first looks for a binding in the \texttt{sys.modules}
+When Python encounters an \texttt{import} statement, it first looks for a binding in the \texttt{sys.modules}
 and then iterates over \texttt{sys.meta\_path}.
-Python queries each \texttt{finder} class successively until it finds the module or it reaches the end of the list, raising a \texttt{ModuleNotFoundError}. \pytracer adds  a custom \texttt{finder} class at the head of the list that intercepts
+Python queries each \texttt{finder} class successively until it finds the module or reaches the end of the list, raising a \texttt{ModuleNotFoundError}. Then, \pytracer adds a custom \texttt{finder} class at the head of the list that intercepts
 the module import and creates the module with a custom \texttt{loader} class.
 
-\pytracer's \texttt{loader} class first loads the original module, then copies it as a new instance of the \texttt{ModuleType} class.
-It then calls the appropriate instrumentation function for each module attribute depending on its type (function, class or submodule). Once all the attributes are instrumented, 
-\pytracer replaces the original module by its instrumented counterpart
-in the \texttt{sys.modules} map \tristan{is the non-instrumented version ever added to sys.modules? If so, could this lead to race conditions? If not, replace with ``adds the instrumented module to the sys.modules map"}. Hence, the calling convention remains unchanged and the application will transparently call 
-the instrumented module.
+\pytracer's \texttt{loader} class first loads the original module then copies it as a new instance of the \texttt{ModuleType} class. It then calls the appropriate instrumentation function for each module attribute depending on its type (function, class, or instances). Next, \pytracer replaces the original module with its instrumented counterpart in the \texttt{sys.modules} map once it has instrument all the attributes. Hence, the calling convention remains unchanged, and the application will transparently call the instrumented module. Finally, Pytracer updates all references to the original module that an object may hold. For example, functions have a \texttt{\_\_globals\_\_} attribute that contains references to internal objects that the function needs. Since those references point to non-instrumented objects, Pytracer must update them.
+\tristan{is the non-instrumented version ever added to sys.modules? If so, could this lead to race conditions? If not, replace with ``adds the instrumented module to the sys.modules map"}. 
+\Yohan{Yes, it replaces the original module. You can't have a race-condition since sys.modules is a dict with only one value for a given key. The trick is that the wrapped module keeps a reference to the original module, it's just that this reference is invisible for the others object since it's not in sys.modules and globals. By the way, Pytracer needs to update all possible references that original objects may hold, like functions in \_\_dict\_\_ attributes or locals references in \_\_globals\_\_ for example.}
 
 % \pytracer intercepts the modules loaded with the \texttt{Finder} and \texttt{Loader} mechanisms \tristan{is it restrictive? Are there other mechanisms?}.
 % The Finder searches the loader of a module that is being imported while the 
@@ -349,17 +309,26 @@ the instrumented module.
 
 \subsubsection{Instrumenting module functions}
 
-Module functions are the simplest case to deal with.
-For each function, \pytracer's \texttt{loader} class
-creates a wrapper function, dynamically compiles it with the \texttt{compile}
-builtin function, and substitutes it for the original module function.
-However, this technique cannot be applied to
-callable class instances, i.e., class instances that have the \texttt{\_\_call\_\_} attribute but are not of the \texttt{FunctionType} type.
-Indeed, applying the wrapper technique would 1) modify the type of the class instance to \texttt{FunctionType},
-which could cause semantic bugs, and 2) mask class attributes, leading to \texttt{AttributeError} exceptions.
-To overcome this issue, \pytracer overrides the \texttt{\_\_call\_\_} attribute with the wrapper function when 
-possible. When the \texttt{\_\_call\_\_} attribute is not writable,  
-the class is not instrumented and a warning is returned. Listings~\ref{fig:wrapper_creation} and ~\ref{fig:generic_wrapper} show \pytracer's wrapper creation function \tristan{add docstrings to all Python code examples and clarify captions accordingly: you don't need to explain the meaning of each attribute in the caption if it's in the docstring. The caption can focus on the main functionality, reusing the text currently in 3.1.5.}.
+Module functions are the most straightforward case to treat.
+For each function, \pytracer's loader class creates a wrapper function, dynamically compiles it with the compile builtin function, and substitutes it for the original module function.
+However, we cannot apply this technique to callable class instances, i.e., class instances that have the \texttt{\_\_call\_\_} attribute but are not of the \texttt{FunctionType} type. Indeed, applying the wrapper technique would 1) modify the type of the class instance to \texttt{FunctionType}, which could cause syntactic and semantic bugs, and 2) mask class attributes, leading to \texttt{AttributeError} exceptions.
+To overcome this issue, \pytracer overrides the \texttt{\_\_call\_\_} attribute with the wrapper function when possible. When the \texttt{\_\_call\_\_} attribute is not writable,  Pytracer does not instrument the class and returns a warning. 
+Listings~\ref{fig:wrapper_creation} and ~\ref{fig:generic_wrapper} show \pytracer's wrapper creation function.
+
+\tristan{add docstrings to all Python code examples and clarify captions accordingly: you don't need to explain the meaning of each attribute in the caption if it's in the docstring. The caption can focus on the main functionality, reusing the text currently in 3.1.5.}
+\Yohan{TODO}
+
+Listing~\ref{fig:wrapper_creation} shows how functions are instrumented.
+This function takes as inputs the information about the function to instrument (module name and full qualified name),
+the function itself, and the actual name of the function. It then creates a wrapper around the actual wrapper
+(\texttt{generic\_wrapper}) that will dump the values. Instead of passing the function, we pass the function's identifier, which is a unique 64-bits integer that references each Python object. This identifier is available
+with the \texttt{id} builtin function. it allows to get rid of aliases and to avoid instrumenting functions twice. 
+
+Listing~\ref{fig:generic_wrapper} shows what the instrumented code does. 
+It first unpacks the function's information to get the function's identifier to retrieve the original function.
+Then arguments are bound by creating a mapping from positional and keyword arguments to parameters, avoiding conflicts and mispositioning. It also allows getting names of arguments for the visualization.
+Once bound, the \texttt{inputs} function dumps the arguments in the pickle file.
+Finally, Pytracer calls the function with the correct arguments, dumps the result, and returns it.
 
 %
 % we can employ a case by case strategy depending on the class (i.e. numpy ufunc) or simply ignore
@@ -424,32 +393,21 @@ def generic_wrapper(self, info, *args, **kwargs):
 
 \pytracer instruments classes by wrapping their callable attributes as described previously. 
 This instrumentation preserves class types, avoiding type mismatches in the instrumented application.
-However, some classes, in particular base types, contain read-only attributes that cannot be instrumented. By default, \pytracer returns a warning when it encounters such classes, but it treats NumPy's universal functions (\texttt{ufuncs}) specifically since they are ubiquitous in scientific computing. NumPy's \texttt{ufuncs} are vectorized element-wise operators that apply to multidimensional arrays. In particular, all the element-wise elementary mathematical functions are \texttt{ufuncs}.  To increase performance, \texttt{ufuncs} are implemented in C which prevents their instrumentation using the technique described previously. Instead, \pytracer uses 
-NumPy's \texttt{frompyfunc} helper function to create an instrumented \texttt{ufunc} that wraps the original one.
-This approach works in many cases but it requires the instrumented function to return objects of type \texttt{PyObject}, which may create errors (Listing~\ref{fig:numpy_array_index_issue}). 
+However, some classes, in particular base types, contain read-only attributes that cannot be instrumented. 
+By default, \pytracer returns a warning when it encounters such classes, 
+but it treats NumPy's universal functions (\texttt{ufuncs}) specifically since they are ubiquitous in scientific computing. 
+NumPy's \texttt{ufuncs} are vectorized element-wise operators that apply to multidimensional arrays. 
+In particular, all the element-wise elementary mathematical functions are \texttt{ufuncs}.  
+To increase performance, \texttt{ufuncs} are implemented in C, which prevents their instrumentation using the technique described previously. 
+Instead, \pytracer uses NumPy's \texttt{frompyfunc} helper function to create an instrumented \texttt{ufunc} that wraps the original one.
+This approach works in many cases but it requires the instrumented function to return objects of type \texttt{PyObject}, 
+which may create errors (Listing~\ref{fig:numpy_array_index_issue}). 
 As a last resort, the user may disable \texttt{ufunc} tracing in Pytracer.
 
+
 \subsubsection{Instrumenting iterators}
-
-In functional programming, iterators traverse containers lazily, meaning that the next element in the sequence is only computed when it is used by the application. This allows for the manipulation of virtually infinite sequences within finite memory. However, it implies that there is no full mapping of the container returned by an iterator in memory since each element is computed on the fly. Therefore, iterators are not serializable and \pytracer cannot save them to output traces. 
-A workaround would be to convert iterators into explicit containers, and then return a new iterator on the explicit container. However, this would increase the memory footprint, possibly very importantly, and \pytracer therefore does not instrument iterators.
-
-\subsubsection{Instrumented code}
-\tristan{this text should be in 3.1.2. Given that it's quite specific to the code shown in the Listings, I think it could be part of the listing captions. }
-Listing~\ref{fig:wrapper_creation} shows how functions are instrumented.
-This function takes as inputs the information about the function to instrument (module name and full qualified name),
-the function itself and the actual name of the function. It then creates a wrapper around the actual wrapper
-(\texttt{generic\_wrapper}) that will dump the values. Instead of passing the function, we pass the identifier of 
-the function, which an unique 64-bits integer that references each Python object. This identifier is available
-with the \texttt{id} builtin function. it allows to get rid of aliases and to avoid instrumenting functions twice. 
-
-Listing~\ref{fig:generic_wrapper} shows what the instrumented code does. 
-It first unpack function's information to get function's identifier to retrieve the original function.
-Then arguments are bound by creating a mapping from positional and keyword arguments to parameters, avoiding 
-conflicts and mispositioning. It also allows to get names of arguments for the visualization.
-Once arguments bound, they are dumped in the pickle file through the help of the \texttt{inputs} function.
-The function is then called with the right arguments and its returned valued dumped.
-Finally, the result of the original function is returned.
+In functional programming, iterators traverse containers lazily, meaning that the next element in the sequence is only computed when the application uses it. This technique allows for the manipulation of virtually infinite sequences within finite memory. However, it implies no complete mapping of the container returned by an iterator in memory since the application computes each element on the fly. Therefore, iterators are not serializable, and \pytracer cannot save them to output traces. 
+A workaround would be to convert iterators into explicit containers and then return a new iterator on the explicit container. However, this would increase the memory footprint, possibly significantly, and \pytracer, therefore, does not instrument iterators.
 
 \begin{listing}
 \begin{minipage}[t]{0.4\linewidth}
@@ -472,24 +430,21 @@ Traceback (most recent call last):
 IndexError: arrays used as indices must be of integer (or boolean) type
     \end{lstlisting}
 \end{minipage}
-\caption{Illustration of the issue of using \texttt{frompyfunc} function to convert function to \texttt{ufunc}. Left: original code. Right: instrumented code. \tristan{This needs more explanation: where is the ufunc, what is the type returned by the original ufunc, and why does it crash in the instrumented version.}}
+\caption{Illustration of the issue of using \texttt{frompyfunc} function to convert function to \texttt{ufunc}. Left: original code. Right: instrumented code. 
+\tristan{This needs more explanation: where is the ufunc, what is the type returned by the original ufunc, and why does it crash in the instrumented version.} \Yohan{TODO}}
     \label{fig:numpy_array_index_issue}
 \end{listing}
 
 \subsection{Detecting numerical instabilities}
 
-\pytracer detects numerical instabilities by computing summary statistics across multiple application executions perturbed with numerical noise. While \pytracer's instrumentation, trace aggregation and visualization are applicable to various types of numerical noise, we experimented primarily with Monte-Carlo Arithmetic (MCA) as it is the most accurate model for floating-point errors.
+\pytracer detects numerical instabilities by computing summary statistics across multiple application executions perturbed with numerical noise. While \pytracer's instrumentation, trace aggregation, and visualization work with various types of numerical noise, we experimented primarily with Monte-Carlo Arithmetic (MCA) as it is the most accurate model for floating-point errors.
 
 \subsubsection{Noise injection}
 \label{sec:fuzzy}
 
-We enable MCA in Python programs via Verificarlo~\cite{verificarlo}, a clang-based compiler~\cite{lattner2008llvm}
-that replaces floating-point operations by a generic call to
-a configurable floating-point model. Several floating-point models, also called
-backends, are available~\cite{chatelain2019automatic,chatelain2019outils}.
-We leverage the fuzzy~\cite{kiar2020comparing} environment, a collection of software tools recompiled with Verificarlo. In particular, fuzzy provides MCA-instrumented versions of the Python interpreter as well as BLAS, LAPACK, NumPy, SciPy and scikit-learn, 
-which allows for the injection of MCA perturbations to a wide range of existing scientific Python programs. Fuzzy is available in Verificarlo's GitHub organization at \href{https://github.com/verificarlo/fuzzy}{\url{github.com/verificarlo/fuzzy}} 
-and provides Docker images for each MCA-enabled tools.
+
+We enable MCA in Python programs via Verificarlo~\cite{verificarlo}, a clang-based compiler~\cite{lattner2008llvm} that replaces floating-point operations by a generic call to a configurable floating-point model. Several floating-point models, also called backends, are available~\cite{chatelain2019automatic,chatelain2019outils}.
+We leverage the fuzzy~\cite{kiar2020comparing} environment, a collection of software tools recompiled with Verificarlo. In particular, fuzzy provides MCA-instrumented versions of the Python interpreter and BLAS, LAPACK, NumPy, SciPy, and scikit-learn, which allows for MCA injection perturbations to a wide range of existing scientific Python programs. Fuzzy is available in Verificarlo's GitHub organization at \href{https://github.com/verificarlo/fuzzy}{\url{github.com/verificarlo/fuzzy}} and provides Docker images for each MCA-enabled tool.
 
 % As the time of writing this article, fuzzy provides 5 levels of instrumentation (each level N including the lower levels):
 % \begin{enumerate}
@@ -502,19 +457,15 @@ and provides Docker images for each MCA-enabled tools.
 
 \subsubsection{Trace format}
 
-\pytracer stores traces in the pickle format, a compressed binary Python format to serialize Python objects.
-The main advantages of the pickle format compared to other serialization approaches such as marshal or JSON are its ability to serialize most Python objects, and its native compression.  In addition, pickle writes Python objects sequentially according to their serialization order, which preserves the temporal ordering required by subsequent trace analyses.
+\pytracer stores the traces in the pickle format, a compressed binary Python format to serialize Python objects.
+The main advantages of the pickle format compared to other serialization approaches such as marshal or JSON are its ability to serialize most Python objects and its native compression.  In addition, pickle writes Python objects sequentially according to their serialization order, which preserves the temporal ordering required by subsequent trace analyses.
 
 Traces record numerical values at the granularity of a function. When the application invokes a function, \pytracer saves a call input object containing contextual information (function's name, module's function, stacktrace) and the values of the function arguments. When the function returns, \pytracer saves a similar call output object containing the returned value. 
 
 
-
 \subsubsection{Trace aggregation}
 
-Once traces are available, \pytracer sequentially parses them and computes the mean, standard deviation and
-number of significant digits (using Equation~\ref{eq:sig-digits}) of all saved values. These summary statistics are saved in an HDF5 file,
-a hierarchical format that facilitates browsing during the visualization.
-This operation critically relies on the ordering of call input and output objects in the traces. It assumes that the application is deterministic, and in particular that it is single threaded and that the control flow does not depend on a random state. Techniques to overcome this limitation are discussed in the discussion section.
+Once traces are available, \pytracer sequentially parses them and computes the mean, standard deviation, and the number of significant digits (using Equation~\ref{eq:sig-digits}) of all saved values. Pytracer saves these summary statistics in an HDF5 file, a hierarchical format that facilitates browsing during the visualization. This operation critically relies on the ordering of call input and output objects in the traces. Furthermore, it assumes that the application is deterministic, and in particular, assumes it is single-threaded and that the control flow does not depend on a random state. Techniques to overcome this limitation are discussed in the discussion section.
 
 \begin{figure}
     \centering
@@ -526,53 +477,40 @@ This operation critically relies on the ordering of call input and output object
 
 To aggregate traces, \pytracer successively unpickles call objects in each trace, checks
 that the call objects refer to the same function and stacktrace, and terminates the parsing otherwise.
-For each matching call object, \pytracer stores function arguments or returned values in a NumPy array from which statistics are computed. 
+For each matching call object, \pytracer stores function arguments or returned values in a NumPy array to compute statistics. 
 For compound objects such as tuples, dictionaries, or objects, it recursively parses the fields until finding
 numeric types or NumPy arrays of numeric types.
 
 \subsection{Interactive visualization}
-
 The third main component of \pytracer is its interactive trace visualizer built with Plotly Dash~\cite{plotly}, a Python framework for web visualization.
 Plotly Dash abstracts the low-level details of web applications in a highly customizable development interface allowing to offload heavy computations to a server. 
-\subsubsection{General layout}
-Figure~\ref{fig:visu-layout} presents the general layout of the \pytracer visualizer, divided into 5 sub-components:
+Figure~\ref{fig:visu-layout} presents the general layout of the \pytracer visualizer, divided into five sub-components:
 \begin{enumerate}
- \item Timeline view: This view displays the values of each inputs and outputs for a given function at a given
-    invocation. By default, \pytracer shows the number of significant digits computed across the traces but the user 
-    can switch to the mean or the standard deviation. To differentiate inputs from outputs, the visualizer
-    uses an upper triangle for inputs and a down triangle for outputs. \pytracer represents internally all values 
-    as NumPy arrays.
-    In the case of non-scalar values or types that 
-    cannot be trivially cast into NumPy arrays, \pytracer splits the value in several variables. Hence, a class containing
-    $n$ floating point parameters will be transformed into $n$ variables. Each variable is prefixed with the original value
-    and postfixed with the name of the parameter. 
-    Finally, for non-scalar values (vectors or matrices), \pytracer shows the average of elements for non-scalar value (like vectors or matrices). Non-scalar values can be inspected with the Zoom view (see below).
- \item Gantt chart view: This view displays the call graph as a Gantt chart representing the instrumented functions. Each function call
-    is represented with a bar starting and ending at the function call and return.
+ \item Timeline view: This view displays the values of each input and output for a given function at a given invocation. By default, \pytracer shows the number of significant digits computed across the traces, but the user can switch to the mean or the standard deviation. The visualizer uses an upper triangle for inputs and a down triangle to differentiate inputs from outputs. \pytracer internally represents all values as NumPy arrays.    In the case of non-scalar values or types that cannot be trivially cast into NumPy arrays, \pytracer splits the value into several variables. Hence, \pytracer will transform a class containing $n$ floating-point parameters into $n$ variables. Each variable is prefixed with the original value and postfixed with the name of the parameter. 
+    Finally, for non-scalar values (vectors or matrices), \pytracer shows the average elements for non-scalar values (like vectors or matrices). non-scalar values can be inspected with the Zoom view (see below).
+ \item Gantt chart view: This view displays the call graph as a Gantt chart representing the instrumented functions. Each function call is represented with a bar starting and ending at the function call and return.
     The caller/callee relation is then determined by looking at the time overlaps.
     For example, in the figure, \texttt{function1} calls \texttt{function2} that itself calls \texttt{function4} and \texttt{function5}. 
-    This view provides insights on the calling context for each function since the same function can be called from different 
-    parents, which may influence numerical stability. 
+    This view provides insights on the calling context for each function since different parents functions can call the same function, which may influence numerical stability. 
  \item  Source code view: This view displays the source code file of the variable hovered in the timeline view. 
- \item  Zoom view: This view allows to closely examine non-scalar values, which is useful to see local differences that might
-    be masked by the averaging done in the timeline view. For example, a matrix can have instabilities around its diagonal but not in other regions.
+ \item Zoom view: This view allows closely examine non-scalar values, which is helpful to see local differences that might be masked by the averaging done in the timeline view. For example, a matrix can have instabilities around its diagonal but not in other regions.
     The visualizer also provides metrics about the value, such as the array shape, infinite norm, or condition number.
 \item  Functions list view: This view allows the user to select the functions to plot in the timeline view.
 \end{enumerate}
 
-
 \section{Numerical evaluations}
 
-We evaluated \pytracer on widely-used Python libraries, namely SciPy, scikit-learn, and PyAFQ, demonstrating its its scalability and usability for real-world Python programs.  For SciPy and Scikit-learn, we traced each application 5 times \tristanmod{by using the level 5 of the fuzzy ecosystem (cf. section~\ref{sec:fuzzy})}{ having activated MCA in the Python interpreter, BLAS, LAPACK, [CHECK THIS LIST]}. We repeated the experiment with two MCA modes, Random Rounding (RR) and Full MCA, and having enabled or disabled the instrumentation of NumPy's universal functions (\texttt{ufuncs}),
-resulting in 4 experiments for each application. We used the default virtual precision in Verificarlo, namely 24 bits for single-precision floating point values and 53 bits for double-precision values, which simulate machine error. For each library, we executed the software tests provided in the GitHub repositories \tristan{add a sentence for each library to summarize what they contain}. 
+We evaluated \pytracer on widely-used Python libraries, namely SciPy, scikit-learn, and PyAFQ, demonstrating its scalability and usability for real-world Python programs. 
+SciPy is a Python-based ecosystem of open-source software for mathematics, science, and engineering, including NumPy.
+Scikit-learn is an open-source Python library for machine learning built upon SciPy.
+PyAFQ is a software package focused on automated delineation of the major fiber tracts in individual human brains, and quantification of the tissue properties within the tracts.
+For SciPy and scikit-learn, we traced each application five times, having activated MCA in the Python interpreter, BLAS, LAPACK, NumPy, SciPy, and scikit-learn. We repeated the experiment with two MCA modes, Random Rounding (RR) and Full MCA, and having enabled or disabled the instrumentation of NumPy's universal functions (\texttt{ufuncs}), resulting in 4 experiments for each application. We used the default virtual precision in Verificarlo, namely 24 bits for single-precision floating-point values and 53 bits for double-precision values, which simulates machine error. For each library, we executed the software tests provided in the GitHub repositories.
 
 \subsection{Results overview}
 
 Tables~\ref{tab:pytracer_scipy_results_summary} and~\ref{tab:pytracer_sklearn_results_summary} summarize 
-the outcome of \pytracer experiments on SciPy and Scikit-learn.
+the outcome of \pytracer experiments on SciPy and scikit-learn.
 Each table reports on the tracing and trace aggregation steps with three possible outcomes: green for success, red for numerical error in the application, and orange for errors in the fuzzy noise injection or due to the instrumentation of NumPy \texttt{ufuncs}. Overall, the tracing and parsing of SciPy and scikit-learn tests in Random Rounding mode and without \texttt{ufunc} instrumentation was entirely successful (tracing and parsing steps) for 31/40 tests. The remaining tests failed due to numerical errors in the libraries, which we discuss hereafter. The instrumentation with Full MCA is more invasive and reduced the number of successful executions without \texttt{ufunc} instrumentation to 11/40.  The instrumentation of \texttt{ufuncs} also reduced the success rate substantially, to 17/40 in Random Rounding mode and to 8/40 in Full MCA. 
-
-
 
 \begin{table}[]
     \centering
@@ -658,22 +596,20 @@ Each table reports on the tracing and trace aggregation steps with three possibl
 
 \subsubsection{Effect of MCA modes}
 \label{sec:impact_mca_modes}
-
-Random Rounding perturbs only on the result of a floating-point operation while 
-Full MCA mode perturbs both the inputs and the result or the operation. 
+Random Rounding perturbs only the result of a floating-point operation, while Full MCA mode perturbs both the inputs and the operation's result. 
 Therefore, full MCA mode may trigger catastrophic cancellations while Random Rounding only introduces round-off errors which generally have a lesser impact.
-\Yohan{It is a strong assertion and I do not have literature to support it. Should be more precautionary. Even if, I believe, it's true.} \tristan{See how I reworded it.} Moreover, Random Rounding preserves exact operations,
-i.e., operations where the result can be exactly represented on the virtual precision, while Full MCA does not.
+Moreover, Random Rounding preserves exact operations, i.e., operations where the result can be exactly represented on the virtual precision, while Full MCA does not.
 
-\pytracer can only aggregate traces obtained from the same control flow path.
-In particular program branches triggered by an unstable floating-point comparison 
-lead to different control flows and result in parsing errors. 
+\pytracer can only aggregate traces obtained from the same control flow path. In particular, program branches triggered by an unstable floating-point comparison lead to different control flows and result in parsing errors. 
 For example, comparing a residual error to a strict threshold in an iterative scheme or comparing the distance between two points generally results in unstable branches. 
-With Full MCA, even exact values such as integers represented with floating-point values are perturbed, which leads to a number of execution failures. For instance,  the \texttt{fft1} test from SciPy raised an \texttt{ValueError: operands could not be broadcast together with shapes (601,) (600,)} error due to an array shape mismatch. A closer inspection showed that one of the arrays involved in the error is created with the NumPy function \texttt{linspace} \tristan{I removed the linspace code, I think the most interesting part is what's going on in arange. Feel free to add it back if it's really necessary.} that itself calls function 
-\texttt{arange} (Listing~\ref{fig:pyarray_range_code}). As can be seen in lines  3174-3178, the array size is stored in a floating-point value which will therefore be perturbed in Full MCA mode, as shown in Table~\ref{tab:mca_result_linspace}, resulting in array sizes that fluctuate
+With Full MCA, even exact values such as integers represented with floating-point values are perturbed, leading to many execution failures. For instance,  the \texttt{fft1} test from SciPy raised an \texttt{ValueError: operands could not be broadcast together with shapes (601,) (600,)} error due to an array shape mismatch. A closer inspection showed that one of the arrays involved in the error is created with the NumPy function \texttt{linspace} that itself calls function \texttt{arange} (Listing~\ref{fig:pyarray_range_code}). As can be seen in lines  3174-3178, the array size is stored in a floating-point value which will therefore be perturbed in Full MCA mode, as shown in Table~\ref{tab:mca_result_linspace}, resulting in array sizes that fluctuate
 between N and N+1. 
 It is worth noting that 78\% of execution issues encountered in Full MCA mode without \texttt{ufunc} instrumentation
-are due to this type of ``typing" errors. While they do not lead to any numerical issue, such typing errors should still be fixed to preserve code quality \tristan{Check this last sentence, we need to provide some sort of recommendations}. \tristan{how about opening a PR in numpy to fix this error?}
+are due to this type of ``typing" errors. While they do not lead to any numerical issue, such typing errors should still be fixed to preserve code quality. We provide solutions to help MCA better work with those cases in the discussion section.
+
+\tristan{Check this last sentence, we need to provide some sort of recommendations}. \tristan{how about opening a PR in numpy to fix this error?}
+\Yohan{For this case, they use the math.ceil to correctly round the number, I think the fix is more on the MCA side to
+correctly handle exact number than on the NumPy side.}
 
 
 % \begin{figure}
