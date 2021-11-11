@@ -12,6 +12,7 @@
 \usepackage{hyperref}
 \hypersetup{colorlinks=true,linkcolor=black,citecolor=blue,filecolor=black,urlcolor=blue}
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{xspace}
 \usepackage{makecell}
 \usepackage{ulem} % provides sout
@@ -27,7 +28,12 @@
 \newcommand{\cross}[0]{\cellcolor{red!65}\ding{53}}
 \newcommand{\valid}[0]{\cellcolor{green!75!black}\ding{51}}
 \newcommand{\warn}[0]{\cellcolor{orange!75}?}
+\newcommand{\scross}[0]{\ding{53}~}
+\newcommand{\svalid}[0]{\ding{51}~}
+\newcommand{\swarn}[0]{?~}
 \newcommand{\pytracer}[0]{PyTracer\xspace}
+
+\include{href}
 
 \usepackage{tabularx} % provides tabularx to adjust table column sizes to page size
 % define thickline for use in tables
@@ -97,8 +103,10 @@ $^2$Center for the Developing Brain, Child Mind Institute, New York, NY, USA}
 \maketitle
 
 \begin{abstract}
-Numerical stability is a crucial requirement of reliable scientific computing. However, despite the pervasiveness of Python in data science, analyzing large Python programs remains challenging due to the lack of scalable numerical analysis tools available for this language. To address this issue, we developed \pytracer, a profiler to quantify numerical instability in Python applications. \pytracer automatically instruments Python code to produce numerical traces and visualize them interactively in a Plotly dashboard.
-\pytracer is designed to work with any type of numerical noise model, including Monte-Carlo Arithmetic, random rounding or random data perturbations. We illustrate \pytracer's capabilities by testing the numerical stability of key functions in the SciPy and Scikit-learn Python libraries. \tristan{Add one sentence to summarize the findings} Finally, \pytracer slows down executions by only $3.5 \times$ on average.
+Numerical stability is a crucial requirement of reliable scientific computing. However, despite the pervasiveness of Python in data science, analyzing large Python programs remains challenging due to the lack of scalable numerical analysis tools available for this language. We developed \pytracer, a profiler to quantify numerical instability in Python applications to address this issue. \pytracer automatically instruments Python code at a low cost ($\simeq3.5\times$) to produce numerical traces and visualize them interactively in a Plotly dashboard. We designed \pytracer to work with any numerical noise model, including Monte-Carlo Arithmetic, random rounding or, random data perturbations. We illustrate \pytracer's capabilities by testing the numerical stability of key functions in the SciPy and Scikit-learn Python libraries. \pytracer permitted pinpointing numerical instabilities caused by a LAPACK library function and fixing them.
+% Numerical stability is a crucial requirement of reliable scientific computing. However, despite the pervasiveness of Python in data science, analyzing large Python programs remains challenging due to the lack of scalable numerical analysis tools available for this language. To address this issue, we developed \pytracer, a profiler to quantify numerical instability in Python applications. \pytracer automatically instruments Python code to produce numerical traces and visualize them interactively in a Plotly dashboard.
+% \pytracer is designed to work with any type of numerical noise model, including Monte-Carlo Arithmetic, random rounding or random data perturbations. We illustrate \pytracer's capabilities by testing the numerical stability of key functions in the SciPy and Scikit-learn Python libraries. Finally, \pytracer slows down executions by only $3.5 \times$ on average.
+\tristan{Add one sentence to summarize the findings} 
 \end{abstract}
 
 \section{Introduction}
@@ -154,7 +162,7 @@ Verrou~\cite{fevotte2016verrou} is a Valgrind~\cite{nethercote2007valgrind} base
 floating-point operations with their stochastic arithmetic counterparts. FPDebug~\cite{benz2012dynamic} uses DBI to detect numerical inaccuracies by using shadow computations with higher precision.
 Herbgring~\cite{sanchez2017finding} is a Valgrind-based tool to detect
 numerical instabilities. It uses a shadow memory to detect precision losses by comparison with results obtained at higher precision. It is combined with symbolic computation to backtrack the root of the error.
-We can note that all methods based on a high-precision oracle suppose that computing with a large number of bits is sufficient to obtain an accurate result, which is not always true (see for example, the famous Muller's sequence~\cite{chatelain2018veritracer} \tristan{it looks like your veritracer paper is the first time where the ``famous Muller's sequence" was described, is that so?}).
+We can note that all methods based on a high-precision oracle suppose that computing with a large number of bits is sufficient to obtain an accurate result, which is not always true (see for example, the famous Muller's sequence~\cite{bajard1996introduction}. %\tristan{it looks like your veritracer paper is the first time where the ``famous Muller's sequence" was described, is that so?}).
 
 Being agnostic to the programming language is a serious advantage of the DBI method compared to source-to-source and compiler-bases methods. However, working at a binary level makes it difficult to access high-level information needed to debug and understand the source code logic. Conversely, the source-to-source approach provides a fine-grained control on the analyzed code, but it lacks scalability, as rewriting large codes can be a tedious task. Finally, the compiler-based approach takes advantage of the best of both by being automatic and having access to high-level information. However, like source-to-source, the compiler-based method is not suitable for analyzing closed-source libraries.
 
@@ -184,7 +192,12 @@ While this method is appropriate when targeting specific functions, it is not fe
 
 % The Monte Carlo Arithmetic is a variant of so-called stochastic arithmetic, whose purpose is to model round-off errors by a random variable.
 
-Three main approaches exist to detect numerical instabilities: stochastic arithmetic, uncertainty or sensitivity analysis, and random seed analysis. \tristan{add key references for uq/sa if any} \pytracer focuses on stochastic arithmetic \tristan{due to...}
+Three main approaches exist to detect numerical instabilities: stochastic arithmetic, uncertainty or sensitivity analysis~\cite{helton2006survey}, and random seed analysis~\cite{click2011quality}.
+%\tristan{add key references for uq/sa if any}
+\pytracer focuses on stochastic arithmetic since it does not require assumptions about 
+the noise model contrary to the sensitivity analysis.
+Moreover, stochastic arithmetic allows evaluating the numerical quality of an implementation.
+%\tristan{due to...}
 Stochastic arithmetic leverages randomness to estimate numerical instabilities coming from the use of floating-point representations. The main idea is to treat round-off errors 
 % \tristan{only round-off errors or all numerical errors?} 
 as random variables and characterize them statistically.
@@ -286,7 +299,8 @@ Python supports custom \texttt{finder} classes registered in the \texttt{sys.met
 When Python encounters an \texttt{import} statement, it first looks for an existing binding in \texttt{sys.modules} and then iterates over the \texttt{finder} classes in the \texttt{sys.meta\_path} list until it finds the module. \pytracer adds a custom \texttt{finder} class at the head of \texttt{sys.meta\_path} that intercepts
 the module import and creates the module with a custom \texttt{loader} class.
 
-\pytracer's \texttt{loader} class first loads the original module, then copies it as a new instance of the \texttt{ModuleType} class. It then calls the appropriate instrumentation function for each attribute depending on its type (function, class, or instances --- see below \tristan{iterators?}) and replaces the original module in the \texttt{sys.modules} map with the instrumented version. Finally, it updates all existing references to the original module, such as those in \texttt{\_\_globals\_\_} function attributes containing references to internal function objects \tristan{this sentence doesn't make sense, please update}. As a result, the application will transparently call the instrumented module.
+\pytracer's \texttt{loader} class first loads the original module, then copies it as a new instance of the \texttt{ModuleType} class. It then calls the appropriate instrumentation function for each attribute depending on its type (function, class, or instances) and replaces the original module in the \texttt{sys.modules} map with the instrumented version. Finally, it updates all existing references to the original module contained in the global symbol table.
+As a result, the application will transparently call the instrumented module.
 
 % \tristan{is the non-instrumented version ever added to sys.modules? If so, could this lead to race conditions? If not, replace with ``adds the instrumented module to the sys.modules map"}. 
 % \Yohan{Yes, it replaces the original module. You can't have a race-condition since sys.modules is a dict with only one value for a given key. The trick is that the wrapped module keeps a reference to the original module, it's just that this reference is invisible for the others object since it's not in sys.modules and globals. By the way, Pytracer needs to update all possible references that original objects may hold, like functions in \_\_dict\_\_ attributes or locals references in \_\_globals\_\_ for example.}
@@ -396,10 +410,7 @@ def generic_wrapper(self, info, *args, **kwargs):
     return outputs
 \end{lstlisting}
     \caption{\pytracer's generic wrapper function that dumps
-    the inputs and outputs of the wrapped function.
-    \pytracer binds arguments to the function signature to avoid
-    mispositioning \tristan{what does mispositioning means here?} and to show readable names in the visualization.
-    }
+    the inputs and outputs of the wrapped function.}
     \label{fig:generic_wrapper}
 \end{listing}
 
@@ -517,94 +528,123 @@ Figure~\ref{fig:visu-layout} presents the general layout of the \pytracer visual
 \section{Numerical evaluations}
 
 We evaluated \pytracer on two widely-used Python libraries: SciPy~\cite{virtanen2020scipy}, the main library for scientific computing in Python, and  scikit-learn~\cite{pedregosa2011scikit}, a reference machine-learning framework that
- implements a wide range of state-of-the-art algorithms. For each library, we executed the software tests provided in their respective GitHub repositories. We traced each test five times, having activated MCA in the Python interpreter, BLAS, LAPACK, NumPy, SciPy, and scikit-learn. We repeated the experiment with two MCA modes, Random Rounding (RR) and Full MCA, resulting in 2 experiments for each test. We used the default virtual precision in Verificarlo, namely 24 bits for single-precision floating-point values and 53 bits for double-precision values, which simulates machine error. \tristan{Report scipy and sklearn versions used.}
+ implements a wide range of state-of-the-art algorithms. For each library, we executed the software examples provided in their respective GitHub repositories. We traced each example five times, having activated MCA in the Python interpreter, BLAS, LAPACK, NumPy, SciPy, and scikit-learn. We repeated the experiment with two MCA modes, Random Rounding (RR) and Full MCA, resulting in 2 experiments for each example. We used the default virtual precision in Verificarlo, namely 24 bits for single-precision floating-point values and 53 bits for double-precision values, which simulates machine error. We used Python-3.8.5, NummPy-1.19.1, SciPy-1.5.4, and scikit-learn-0.23.2.
+%  \tristan{Report scipy and sklearn versions used.}
 
 \subsection{Results overview}
 
-Tables~\ref{tab:pytracer_scipy_results_summary} and~\ref{tab:pytracer_sklearn_results_summary} summarize 
-\pytracer's outcome on SciPy and scikit-learn tests.
-Each table reports on the tracing and trace aggregation steps with three possible outcomes: green for success, red for numerical error in the application, and orange for errors in the fuzzy noise injection \tristan{Explain what this is, in a setence here or with a subsubsection if it requires more}. Overall, the tracing and parsing of SciPy and scikit-learn tests in Random Rounding mode was entirely successful for 32/40 tests. The remaining tests failed due to numerical errors in the libraries, which we discuss hereafter. The instrumentation with Full MCA is more invasive and reduced the number of successful executions to 12/40.
+Table~\ref{tab:pytracer_results_summary} summarizes
+\pytracer's outcome on SciPy and scikit-learn examples.
+The columns \textit{trace} and \textit{parse} report on the tracing and trace aggregation steps with three possible outcomes: green for success, red for numerical error in the application, and orange for errors due to the fuzzy noise injection
+that are not considered as numerical errors, like for instance index errors due to an index shift.
+% \tristan{Explain what this is, in a setence here or with a subsubsection if it requires more}. 
+Overall, the tracing and parsing of SciPy and scikit-learn examples in Random Rounding mode was entirely successful for 32/40 examples. The remaining examples failed due to numerical errors in the libraries, which we discuss hereafter. The instrumentation with Full MCA is more invasive and reduced the number of successful executions to 12/40.
+
+The column \textit{result} summarizes the precision for main outputs of SciPy and scikit-learn examples. 
+We measured the precision in significant bits on the main example output by taking the element-wise mean for non-scalar values and, if the example produces many outputs, the average value among all of them. The numerical quality across all examples varies from 0 to 52, with an average of 44 significant bits. For both modes, we note that only one example failed due to a numerical error 
+% \tristan{can we see that in the table? if not, don't comment on it, it is puzzling. Could you show that in the table by using the same error symbols as in Table 2?} 
+(\texttt{face\_recognition} for RR and \textit{Bayesian Ridge Regression} for Full MCA) even though we underestimate this number since Full MCA mode is more intrusive than RR mode and most of the examples produce error caused by the fuzzy noise injection. 
 
 \begin{table}[]
     \centering
-    \begin{tabular}{|ll|c|c|c|c|}
+    \small
+    \begin{subfigure}[t]{\linewidth}
+    \centering
+    \begin{tabular}{|ll|c|c|c|c|c|c|}
     \hline
-    \multicolumn{2}{|c}{ \multirow{2}{*}{Application} } & \multicolumn{2}{|c|}{RR} & \multicolumn{2}{c|}{Full MCA} \\
-    \cline{3-6}
-    & & trace & parse & trace & parse  \\
+    \multicolumn{2}{|c}{ \multirow{2}{*}{Application} } & \multicolumn{3}{|c|}{Random Rounding (RR)} & \multicolumn{3}{c|}{Full MCA} \\
+    \cline{3-8}
+    & & trace & parse & result & trace & parse & result \\
     \hline
     %        &               RR                 &                 MCA               \\
     %        &  numpy         &   no numpy      &      numpy      &     no numpy    \\
     %        & run   & parse  &  run   &  parse &  run   & parse  & run    & parse  \\
     
     \multicolumn{1}{|c|}{ \multirow{3}{2em}{ \rotatebox{90}{FFT} } }
-    & discrete\_cosine\_transform &  \valid & \valid & \warn & \cross \\ 
-    \multicolumn{1}{|c|}{} & fft\_1D & \valid & \valid& \warn & \cross \\
-    \multicolumn{1}{|c|}{} & fft\_2D & \valid & \valid & \valid & \valid \\
+    & \discreteCosineRF &  \valid & \valid & 52 & \warn & \cross & 47 \\ 
+    \multicolumn{1}{|c|}{} & \fftOneDRf & \valid & \valid & 41 & \warn  & \cross & - \\
+    \multicolumn{1}{|c|}{} & \fftTwoDRf & \valid & \valid & 52 & \valid & \valid & 52 \\
     \hline 
     \multicolumn{1}{|c|}{  \multirow{5}{2em}{ \rotatebox{90}{Interpolation} } }
-    & interpolation\_1D & \valid & \valid & \warn & \cross  \\
-    \multicolumn{1}{|c|}{} & multivariate\_data & \valid & \valid & \warn & \cross \\
-     \multicolumn{1}{|c|}{} & bspline  & \valid & \valid & \valid & \valid \\
-     \multicolumn{1}{|c|}{} & spline\_1D & \valid & \cross & \warn & \cross \\
-     \multicolumn{1}{|c|}{} & spline\_2D & \valid & \valid & \warn & \cross \\
+    & \interOneDRf & \valid & \valid & 51 & \warn & \cross &  - \\
+     \multicolumn{1}{|c|}{} & \multiRf      & \valid & \valid & 51 & \warn  & \cross & - \\
+     \multicolumn{1}{|c|}{} & \bsplineRf    & \valid & \valid &10 &  \valid & \valid & 10\\
+     \multicolumn{1}{|c|}{} & \splineOneDRf & \valid & \cross & 52 & \warn  & \cross & 52 \\
+     \multicolumn{1}{|c|}{} & \splineTwoDRf & \valid & \valid & 10 &  \warn  & \cross & - \\
     \hline
      \multicolumn{1}{|c|}{ \multirow{12}{2em}{ \rotatebox{90}{Optimization} } }
-    & broyden\_fletcher\_goldfarb\_shanno & \valid & \valid & \valid & \valid \\
-     \multicolumn{1}{|c|}{} & global\_optimization & \valid & \cross  & \warn & \cross \\
-    \multicolumn{1}{|c|}{}  & slsqp & \valid & \valid  & \valid & \valid \\
-     \multicolumn{1}{|c|}{} & least\_square\_minimization & \valid & \valid  & \warn & \cross \\
-     \multicolumn{1}{|c|}{} & nelder\_mead\_simplex  & \valid & \valid  & \valid & \valid \\
-     \multicolumn{1}{|c|}{} & newton\_conjugate\_gradient  & \valid & \valid  & \valid & \cross \\
-     \multicolumn{1}{|c|}{} & root\_findings  & \valid & \cross & \warn & \cross \\
-    \multicolumn{1}{|c|}{}  & root\_finding\_large & \valid & \cross  & \valid & \cross \\
-     \multicolumn{1}{|c|}{} & root\_finding\_large\_preconditionned & \valid & \cross & \valid & \cross \\
-    \multicolumn{1}{|c|}{}  & trust\_region\_exact& \valid & \valid  & \valid & \valid \\
-     \multicolumn{1}{|c|}{} & trust\_region\_truncated\_generalized\_lanczos & \valid & \valid & \valid & \valid \\
-    \multicolumn{1}{|c|}{}  & trust\_region\_newton\_conjugate\_gradient & \valid & \valid & \valid & \valid \\
+    & \bfgsRf & \valid & \valid & 48  & \valid & \valid & 46 \\
+     \multicolumn{1}{|c|}{} & \globalRf & \valid & \cross & 17 & \warn  & \cross & - \\
+     \multicolumn{1}{|c|}{} & | SHGO\footnote{Simplicial Homology Global Optimization} & \valid & \cross & 25 & \warn  & \cross & - \\
+     \multicolumn{1}{|c|}{} & | Dual Annealing & \valid & \cross & 4 & \warn  & \cross & - \\
+     \multicolumn{1}{|c|}{} & | Differential Evolution & \valid & \cross & 0 & \warn  & \cross & - \\
+     \multicolumn{1}{|c|}{} & | Basin Hopping & \valid & \cross & 40 & \warn  & \cross & - \\
+     \multicolumn{1}{|c|}{} & | SHGO Sobol    & \valid & \cross & 45 & \warn  & \cross & - \\
+     \multicolumn{1}{|c|}{} & \slsqpRf  & \valid & \valid & 45 & \valid & \valid & 44 \\
+     \multicolumn{1}{|c|}{} & \lsmRf    & \valid & \valid & 48 & \warn  & \cross & - \\
+     \multicolumn{1}{|c|}{} & \nelderRf & \valid & \valid & 44 & \valid & \valid & 42 \\
+     \multicolumn{1}{|c|}{} & \ncgRf    & \valid & \valid & 48 & \valid & \cross & 47 \\
+     \multicolumn{1}{|c|}{} & \rootRf   & \valid & \cross & 52 & \warn  & \cross & 50 \\
+    \multicolumn{1}{|c|}{}  & \rootLargRf      & \valid & \cross & 29 & \valid & \cross & 26 \\
+     \multicolumn{1}{|c|}{} & \rootLargePredRf & \valid & \cross & 42 & \valid & \cross & 42 \\
+    \multicolumn{1}{|c|}{}  & \trustExactRf & \valid & \valid & 48  & \valid & \valid & 46 \\
+     \multicolumn{1}{|c|}{} & \trustTruncRf & \valid & \valid & 48  & \valid & \valid & 46 \\
+    \multicolumn{1}{|c|}{}  & \trustNCGRf   & \valid & \valid & 52  & \valid & \valid & 47 \\
     \hline
-    \end{tabular}
-    \caption{\pytracer execution summary on SciPy tests.\\RR: Random Rounding. trace: outcome of \pytracer tracing, parse: outcome of \pytracer trace parsing and aggregation.  \valid: successful run, \warn: error in fuzzy noise injection, \cross: numerical error or divergent traces.}
-    \label{tab:pytracer_scipy_results_summary}
-\end{table}
-
-\begin{table}[]
-    \centering
-    \begin{tabular}{|c|c|c|c|c|}
-    \hline
-    \multirow{2}{5em}{Application} & \multicolumn{2}{c|}{RR} & \multicolumn{2}{c|}{MCA} \\\cline{2-5}
-                                & trace & parse &  trace & parse \\
-    \hline
+%     \end{tabular}
+% \end{subfigure}
+%     \label{tab:pytracer_scipy_results_summary}
+% % \end{table}
+% % \begin{table}[]
+%     \centering
+% \begin{subfigure}[t]{.8\linewidth}
+%     \begin{tabular}{|c|c|c|c|c|c|c|}
+%     \hline
+%     \multirow{2}{5em}{Application} & \multicolumn{3}{c|}{RR} & \multicolumn{3}{c|}{MCA} \\\cline{2-7}
+%                                 & trace & parse & result &  trace & parse & result \\
+%     \hline
     %        &               RR                 &                 MCA               \\
     %        &  numpy         &   no numpy      &      numpy      &     no numpy    \\
     %        & run   & parse  &  run   &  parse &  run   & parse  & run    & parse  \\
-    Adaboost & \valid & \valid  & \warn & \cross \\
-    Bayesian Ridge Regression  & \valid & \valid  & \cross & \cross \\
-    Online classifier comparison & \valid & \valid  & \warn & \cross  \\
-    K-Means Clustering  & \valid & \valid  & \valid & \cross \\
-    Covariance estimation  & \valid & \cross  & \warn & \cross \\
-    Decision Tree Regression & \valid & \valid  & \valid & \valid \\
-    Digits Classification  & \valid & \valid  & \warn & \cross \\
-    Face Recognition  & \cross & \valid  & \warn & \cross \\
-    L1 Penalty  & \valid & \valid  & \valid & \valid \\
-    Lasso and elastic net  & \valid & \valid  & \warn & \cross \\
-    Separating hyperplan  & \valid & \valid  & \valid & \cross \\
-    MNIST classification  & \valid & \valid  & \warn & \valid \\
-    Multitask Lasso  & \valid & \valid  & \warn & \valid \\
-    Orthogonal matching & \valid & \valid  & \valid & \valid \\
-    PCA decomposition  & \valid & \valid  & \valid & \valid \\
-    Robust Linear Regression  & \valid & \valid  & \warn & \cross \\
-    Segmentation toy  & \valid & \valid  & \warn & \cross \\
-    SVM  & \valid & \valid  & \valid & \cross \\
-    Tomography  & \valid & \cross  & \warn & \cross \\
-    Weighted samples  & \valid & \valid  & \valid & \cross \\
+
+    \multicolumn{1}{|c|}{ \multirow{20}{2em}{ \rotatebox{90}{Scikit-learn} } }
+    & \AdaboostRf   & \valid & \valid & 48 & \warn  & \cross & - \\
+    \multicolumn{1}{|c|}{} & \brrRf        & \valid & \valid & 25 & \cross & \cross & - \\
+    \multicolumn{1}{|c|}{} & | $1^{st}$ dataset & \valid & \valid & 25 & \cross & \cross & - \\
+    \multicolumn{1}{|c|}{} & | $2^{nd}$ dataset & \valid & \valid & nan & \cross & \cross & - \\
+    \multicolumn{1}{|c|}{} & \onlineClassifierComparisonRf & \valid & \valid & 20 & \warn & \cross & -  \\
+    \multicolumn{1}{|c|}{} & \kmeansRf     & \valid & \valid & 52 & \valid & \cross & - \\
+    \multicolumn{1}{|c|}{} & \covarianceRf & \valid & \cross & 48 & \warn  & \cross & - \\
+    \multicolumn{1}{|c|}{} & \decisionRf   & \valid & \valid & 50 & \valid & \valid & 50 \\
+    \multicolumn{1}{|c|}{} & \digitsRf     & \valid & \valid & 52 & \warn  & \cross & 52 \\
+    \multicolumn{1}{|c|}{} & \faceRf       & \cross & \valid & -  & \warn  & \cross & - \\
+    \multicolumn{1}{|c|}{} & \penaltyRf    & \valid & \valid & -  & \valid & \valid & - \\
+    \multicolumn{1}{|c|}{} & \lassoRf      & \valid & \valid & 48 & \warn  & \cross & 47 \\
+    \multicolumn{1}{|c|}{} & \hyperplaneRf & \valid & \valid & 3  & \valid & \cross & - \\
+    \multicolumn{1}{|c|}{} & \mnistRf      & \valid & \valid & 43 & \warn  & \valid & - \\
+    \multicolumn{1}{|c|}{} & \multitaskRf  & \valid & \valid & 50 & \warn  & \valid & 48 \\
+    \multicolumn{1}{|c|}{} & \ompRf        & \valid & \valid & 52 & \valid & \valid & 52 \\
+    \multicolumn{1}{|c|}{} & \pcaRf        & \valid & \valid & 48 & \valid & \valid & 48 \\
+    \multicolumn{1}{|c|}{} & \robustRf     & \valid & \valid & 50 & \warn  & \cross & 48 \\
+    \multicolumn{1}{|c|}{} & | Linear        & \valid & \valid & 48 & \warn  & \cross & 46 \\
+    \multicolumn{1}{|c|}{} & | RANSAC        & \valid & \valid & 50 & \warn  & \cross & 48 \\
+    \multicolumn{1}{|c|}{} & \toyRf        & \valid & \valid & 35 & \warn  & \cross & - \\
+    \multicolumn{1}{|c|}{} & \svmRf        & \valid & \valid & 43.5 & \valid & \cross & - \\
+    \multicolumn{1}{|c|}{} & | Non-weighted  & \valid & \valid & 43 & \valid & \cross & - \\
+    \multicolumn{1}{|c|}{} & | Weighted      & \valid & \valid & 44 & \valid & \cross & - \\
+    \multicolumn{1}{|c|}{} & \tomographyRf & \valid & \cross & - & \warn  & \cross & - \\
+    \multicolumn{1}{|c|}{} & \weightedRf   & \valid & \valid & 44 & \valid & \cross & - \\
     \hline
     \end{tabular}
-    \caption{\pytracer execution summary on Scikit-learn tests. \\RR: Random Rounding. trace: outcome of \pytracer tracing, parse: outcome of \pytracer trace parsing and aggregation. \valid: successful run, \warn: error in fuzzy noise injection, \cross: numerical error or divergent traces.}
-    \label{tab:pytracer_sklearn_results_summary}
+    \end{subfigure}
+    \caption{\pytracer execution summary on SciPy and Scikit-learn examples. \\ \emph{trace}: outcome of \pytracer tracing, \emph{parse}: outcome of \pytracer trace parsing and aggregation, \emph{result}: precision for main outputs in significant bits. \valid: successful run, \warn: error from invalid noise injection, \cross: numerical error or divergent traces. \textit{nan} stands for (\texttt{Not-A-Number}). The names example are linked to their source code.}
+    \label{tab:pytracer_results_summary}
 \end{table}
 
 
+    % \caption{
+    % \pytracer execution summary on SciPy examples.\\RR: Random Rounding. trace: outcome of \pytracer tracing, parse: outcome of \pytracer trace parsing and aggregation.  \valid: successful run, \warn: error in fuzzy noise injection, \cross: numerical error or divergent traces.
+    % }
 
 \subsubsection{Effect of MCA modes}
 \label{sec:impact_mca_modes}
@@ -614,10 +654,18 @@ Moreover, Random Rounding preserves exact operations --- operations where the re
 
 \pytracer can only aggregate traces obtained from the same control flow path. In particular, program branches triggered by an unstable floating-point comparison lead to different control flows and result in parsing errors. 
 For example, comparing a residual error or the distance between two points to a strict threshold in an iterative scheme generally results in unstable branches. 
-Full MCA even perturbs exact values such as integers represented with floating-point values, leading to many execution failures. For instance, the \texttt{fft1} test from SciPy raised an \texttt{ValueError: operands could not be broadcast together with shapes (601,) (600,)} error due to an array shape mismatch. A closer inspection showed that one of the arrays involved in the error was created with the NumPy function \texttt{linspace} that itself calls function \texttt{arange} (Listing~\ref{fig:pyarray_range_code}). 
-Lines 3174-3178 show that the function stores the array size in a floating-point value that will be perturbed by Full MCA, as shown in table~\ref{tab:mca_result_linspace}, resulting in array sizes that fluctuate between N and N+1.
-It is worth noting that 78\% of execution issues encountered in Full MCA mode without \texttt{ufunc} instrumentation
-are due to this type of ``typing" errors. While they do not lead to any numerical issue, typing errors should still be fixed to preserve code quality \tristan{do we really mean that given your answer to my comment below?}. We provide solutions to help MCA better work with those cases in the discussion section.
+Full MCA even perturbs exact values such as integers represented with floating-point values, leading to many execution failures. For instance, the \texttt{fft1} example from SciPy raised an \texttt{ValueError: operands could not be broadcast together with shapes (601,) (600,)} error due to an array shape mismatch. A closer inspection showed that one of the arrays involved in the error was created with the NumPy function \texttt{linspace} that itself calls function \texttt{arange} (Listing~\ref{fig:pyarray_range_code}). 
+Lines 3174-3178 show that the function stores the array size in a floating-point value that will be perturbed by Full MCA, as shown in Table~\ref{tab:mca_result_linspace}, resulting in array sizes that fluctuate between N and N+1.
+It is worth noting that 78\% of execution issues encountered in Full MCA mode instrumentation
+are due to this type of ``typing" errors.  
+In conclusion, those regions of code should not be perturbed by MCA since the injected noise does not make sense.
+\tristan{conclusion: ces regions du code ne devraient pas etre bruitees car le bruit n'a pas de sens ici (exemple du spin dans -1/2,1/2. Ca correspond aux ?}
+% While they do not lead to any numerical issue, typing errors should still be fixed
+% by improving the Full MCA mode instrumentation in order to preserve code correctness.
+\tristan{do we really mean that given your answer to my comment below?}. 
+\Yohan{By reading again this sentence, I agree that it is confusing. 
+It suggests that we should fixed the code while my idea was to fix the MCA instrumentation.}
+We provide solutions to help MCA better work with those cases in the discussion section.
 
 \tristan{Check this last sentence, we need to provide some sort of recommendations}. \tristan{how about opening a PR in numpy to fix this error?}
 \Yohan{For this case, they use the math.ceil to correctly round the number, I think the fix is more on the MCA side to
@@ -706,120 +754,131 @@ PyArray_Arange(double start, double stop, double step /* default 1 */, int type_
     \label{tab:mca_result_linspace}
 \end{table}
 
-\subsubsection{Overall numerical quality}
+% \subsubsection{Overall numerical quality}
 
-Table~\ref{tab:pytracer_test_precision_summary} summarizes the precision for main outputs of SciPy and scikit-learn tests. 
-We measured the precision in significant bits on the main test output by taking the element-wise mean for non-scalar values and, if the test produces many outputs, the average value among all of them. The numerical quality across all tests varies from 0 to 52, with an average of 44 significant bits. For both modes, we note that only one test failed due to a numerical error \tristan{can we see that in the table? if not, don't comment on it, it is puzzling. Could you show that in the table by using the same error symbols as in Table 2?} (\texttt{face\_recognition} for RR and \textit{Bayesian Ridge Regression} for Full MCA) even though we underestimate this number since Full MCA mode is more intrusive than RR mode and most of the tests produce error caused by the fuzzy noise injection. 
 
-\begin{table}
-\small
-\begin{subfigure}[t]{.5\linewidth}
-    \centering
-    \begin{tabular}{|l|c|c|}
-    \hline 
-    Test & RR & MCA \\
-    \hline
-    discrete\_cosine\_transform & 52 & 47 \\ 
-    fft\_1D & 41 & - \\
-    fft\_2D & 52 & 52  \\
-    \hline
-    interpolation\_1D & 51 & -   \\
-    multivariate\_data & 51 & - \\
-    bspline  & 10 & 10  \\
-    spline\_1D & 52 & 52 \\
-    spline\_2D & 10 & - \\
-    \hline
-    broyden\_fletcher\_goldfarb\_shanno & 48 & 46 \\
-    global\_optimization & 17 & - \\
-    | SHGO\footnote{Simplicial Homology Global Optimization} & 25 & - \\
-    | Dual Annealing & 4 & - \\
-    | Differential Evolution & 0 & - \\
-    | Basin Hopping & 40 & - \\
-    | SHGO Sobol & 45 & - \\
-    slsqp & 45 & 44 \\
-    least\_square\_minimization & 48 & -  \\
-    nelder\_mead\_simplex  & 44 & 42  \\
-    newton\_conjugate\_gradient  & 48 & 47 \\
-    root\_findings  & 52 & 50 \\
-    root\_finding\_large & 29 & 26   \\
-    root\_finding\_large\_preconditioned & 42 & 42 \\
-    trust\_region\_exact& 48 & 46  \\
-    trust\_region\_truncated\_generalized\_lanczos & 48 & 46  \\
-    trust\_region\_newton\_conjugate\_gradient & 52 & 47 \\
-    \hline
-    \end{tabular}
-\end{subfigure}
-\hspace{1cm}
-\begin{subfigure}[t]{.5\linewidth}
-    \begin{tabular}{|l|c|c|}
-    \hline 
-    Test & RR & MCA \\
-    \hline
-    Adaboost & 48 & - \\
-    Bayesian Ridge Regression  & 25 & -  \\
-    | $1^{st}$ dataset & nan & - \\
-    | $2^{nd}$ dataset & 20 & - \\
-    Online classifier comparison & 48 & -  \\
-    K-Means Clustering  & 52 & -   \\
-    Covariance estimation  & 48 & -   \\
-    Decision Tree Regression & 50 & 50  \\
-    Digits Classification  & 52 & 52 \\
-    Face Recognition  & - & - \\
-    L1 Penalty  & - & -   \\
-    Lasso and elastic net  & 48 & 47  \\
-    Separating hyperplan  & 3 & -  \\
-    MNIST classification  & 43 & - \\
-    Multitask Lasso  & 50 & 48   \\
-    Orthogonal matching & 52 & 52  \\
-    PCA decomposition  & 48 & 48   \\
-    Robust Linear Regression  & 50 & 48   \\
-    | Linear & 48 & 46 \\
-    | RANSAC & 50 & 48 \\
-    Segmentation toy  & 35 & - \\
-    SVM  & 43.5 &  -  \\
-    | Non-weighted & 44 & - \\
-    | Weighted & 43 & - \\
-    Tomography  & - & -  \\
-    Weighted samples  & 44 & -   \\
-    \hline
-    \end{tabular}
-\end{subfigure}
-    \caption{Summary of tests precision for main outputs of SciPy (left) and scikit-learn (right) tests. 
-    Dash values indicate runtime errors. \tristan{explain the meaning of nans here}}
-    \label{tab:pytracer_test_precision_summary}
-\end{table}
+
+
+% \begin{table}
+% \small
+% \begin{subfigure}[t]{.5\linewidth}
+%     \centering
+%     \begin{tabular}{|l|c|c|}
+%     \hline 
+%     Example & RR & MCA \\
+%     \hline
+%     \discreteCosineRF & 52 & 47 \\ 
+%     \fftOneDRf & 41 & \swarn \\
+%     \fftTwoDRf & 52 & 52  \\
+%     \hline
+%     \interOneDRf & 51 & \swarn   \\
+%     \multiRf & 51 & \swarn \\
+%     \bsplineRf & 10 & 10  \\
+%     \splineOneDRf & 52 & 52 \\
+%     \splineTwoDRf & 10 & \swarn \\
+%     \hline
+%     \bfgsRf & 48 & 46 \\
+%     \globalRf & 17 & \swarn \\
+%     | SHGO\footnote{Simplicial Homology Global Optimization} & 25 & \swarn \\
+%     | Dual Annealing & 4 & \swarn \\
+%     | Differential Evolution & 0 & \swarn \\
+%     | Basin Hopping & 40 & \swarn \\
+%     | SHGO Sobol & 45 & \swarn \\
+%     \slsqpRf & 45 & 44 \\
+%     \lsmRf & 48 & \swarn \\
+%     \nelderRf & 44 & 42  \\
+%     \ncgRf & 48 & 47 \\
+%     \rootRf & 52 & 50 \\
+%     \rootLargRf & 29 & 26   \\
+%     \rootLargePredRf & 42 & 42 \\
+%     \trustExactRf & 48 & 46  \\
+%     \trustTruncRf & 48 & 46  \\
+%     \trustNCGRf & 52 & 47 \\
+%     \hline
+%     \end{tabular}
+% \end{subfigure}
+% \hspace{1cm}
+% \begin{subfigure}[t]{.5\linewidth}
+%     \begin{tabular}{|l|c|c|}
+%     \hline 
+%     Example & RR & MCA \\
+%     \hline
+%     \AdaboostRf & 48 & \swarn \\
+%     \brrRf & 25 & \scross  \\
+%     | $1^{st}$ dataset & nan & \scross \\
+%     | $2^{nd}$ dataset & 20 & \scross \\
+%     \onlineClassifierComparisonRf & 48 & \swarn  \\
+%     \kmeansRf & 52 & \swarn   \\
+%     \covarianceRf & 48 & \swarn   \\
+%     \decisionRf & 50 & 50  \\
+%     \digitsRf & 52 & 52 \\
+%     \faceRf & \scross & \scross \\
+%     \penaltyRf & - & -   \\
+%     \lassoRf & 48 & 47  \\
+%     \hyperplaneRf & 3 & \swarn  \\
+%     \mnistRf & 43 & \swarn \\
+%     \multitaskRf & 50 & 48   \\
+%     \ompRf & 52 & 52  \\
+%     \pcaRf & 48 & 48   \\
+%     \robustRf & 50 & 48   \\
+%     | Linear & 48 & 46 \\
+%     | RANSAC & 50 & 48 \\
+%     \toyRf & 35 & \swarn \\
+%     \svmRf & 43.5 &  \swarn  \\
+%     | Non-weighted & 44 & \swarn \\
+%     | Weighted & 43 & \swarn \\
+%     \tomographyRf & \swarn & \swarn  \\
+%     \weightedRf & 44 & \swarn   \\
+%     \hline
+%     \end{tabular}
+% \end{subfigure}
+%     \caption{Summary of examples precision for main outputs of SciPy (left) and scikit-learn (right) examples. 
+%     \textit{\swarn} values indicate runtime errors or an impossible traces aggregation,
+%     \scross values indicate numerical errors, and \textit{nan} stands for (\texttt{Not-A-Number}).
+%     The names example are linked to their source code.
+%     % \tristan{explain the meaning of nans here}
+%     \tristan{let's discuss the possibility to merge Table 4 in Tables 1 and 2}
+%     }
+%     \label{tab:pytracer_test_precision_summary}
+% \end{table}
 
 
 \subsection{SciPy}
 \label{sec:scipy_tests}
 
-We tested \pytracer on SciPy examples provided in the tutorial website section \tristan{Are these tests? If not we need to reword the begining of this section (I can do it, just let me know).}.
+We tested \pytracer on SciPy examples provided in the tutorial website section 
+\tristan{Are these tests? If not we need to reword the begining of this section (I can do it, just let me know).}.
+\Yohan{No you right, these are examples, not tests, I used the two words interchangeably.}
 SciPy is organized in several libraries targeting specific computing domains. We focused on \texttt{fftpack} (Fast Fourier Transform routines), \texttt{interpolate} (interpolation and smoothing splines), and \texttt{optimize} (Optimization and root-finding routines).
 
 \subsubsection{FFT}
 
-This package has three tests \tristan{tests or examples?}: \texttt{discrete\_cosine\_transform}, \texttt{fft\_1D}, and \texttt{fft\_2D}. All computations are done in double precision.
+This package has three examples : \texttt{discrete\_cosine\_transform}, \texttt{fft\_1D}, and \texttt{fft\_2D}. All computations are done in double precision.
 The results for \texttt{discrete\_cosine\_transform},\texttt{fft\_1D} and  \texttt{fft\_2D} show
 precise numerical results with 48 significant bits in average. 
-We observe that the FFT computation is stable to noisy inputs. Figures~\ref{fig:fft1D_mean} (inputs) and~\ref{fig:fft1D_std} (outputs)
+We observe that the FFT computation is stable to noisy inputs. Figures~\ref{fig:fft1D_inputs} (inputs) and~\ref{fig:fft1D_outputs} (outputs)
 show the mean and standard deviation of the MCA samples. 
 The three columns correspond to the FFT computations of: 
 \begin{enumerate}
 \item $z_1 = \sin(50 . 2\pi . x_i) + \dfrac{1}{2} \sin(80 . 2\pi . x_i),\; x_i = \frac{i}{600},\; i \in [0,600]$
-\item $\mathrm{blackman}(400)*z_1 \tristan{is * the convolution operator?}$
+\item $\mathrm{blackman}(400) \times z_1$
 \item $ z_2= e^{50 . i 2\pi . x_i} + \dfrac{1}{2} e^{-80 . i2\pi .x_i },\; x_i = \frac{i}{800},\; i \in [0,400] $
 \end{enumerate}
 
-Top row in Figures~\ref{fig:fft1D_mean} and~\ref{fig:fft1D_std} 
+Top row in Figures~\ref{fig:fft1D_inputs} and~\ref{fig:fft1D_outputs} 
 show the input mean value while the bottom row shows the standard deviation.
-The points with low magnitude \tristan{in Figure~\ref{fig:fft1D_mean}?} correspond to inputs near 0 when the input of $\sin$ or 
-$\exp$ is close to $k\pi$, $k \in \mathbf{Z}$.
+The points with low magnitude in Figure~\ref{fig:fft1D_inputs} correspond 
+to inputs near 0 when the input of $\sin$ or 
+$\exp$ is close to $k\pi$, $k \in \mathbb{Z}$.
 Indeed, since MCA introduces a slight noise, the result is not exactly 0.
-We can see in Figure~\ref{fig:fft1D_std} \tristan{isn't it in Figure 3?} that the maximal noise introduced by MCA on the
+We can see in Figure~\ref{fig:fft1D_inputs} 
+% \tristan{isn't it in Figure 3?} 
+% \Yohan{No figure 4, I'm talking about the MCA noise, so we look at the std}
+that the maximal noise introduced by MCA on the
 inputs is in the order of $10^{-14}$, two orders of magnitude higher than the 
 $ulp \simeq 10^-16$ for double precision. 
 This slight noise introduced can be interpreted as white noise on the input signal. 
-We can see on the bottom row of Figure~\ref{fig:fft1D_std} that the frequency noise is of 
+We can see on the bottom row of Figure~\ref{fig:fft1D_outputs} that the frequency noise is of 
 the same order of of magnitude as the input noise, which is expected. 
 The two peaks at x=38 and x=562 corresponds to the actual frequencies of the input signal.
 
@@ -828,7 +887,7 @@ The two peaks at x=38 and x=562 corresponds to the actual frequencies of the inp
     \includegraphics[width=\linewidth]{figure/FFT/fft_x.pdf}
     \caption{Absolute value of the mean and standard deviation values for 
     fft 1D inputs within RR mode (log scale). The real part is shown in blue and the imaginary part in orange.\tristan{put stdev of middle column on the same scale as the other columns}}
-    \label{fig:fft1D_mean}
+    \label{fig:fft1D_inputs}
 \end{figure}
 
 \begin{figure}
@@ -836,7 +895,7 @@ The two peaks at x=38 and x=562 corresponds to the actual frequencies of the inp
     \includegraphics[width=\linewidth]{figure/FFT/fft_y.pdf}
     \caption{Absolute value of the mean and standard deviation values 
     for fft 1D outputs within RR mode (log scale).}
-    \label{fig:fft1D_std}
+    \label{fig:fft1D_outputs}
 \end{figure}
 
 % \begin{figure}
@@ -877,12 +936,16 @@ For the fives interpolation methods tested (linear, cubic, nearest, previous, ne
 \texttt{multivariate\_data} interpolates the grid $f(x,y)=x(1-x)\cos(4\pi.x)  \sin(4\pi.y^2)^2$ with $(x,y) \in [0,1] \times [0,1]$. It samples 1,000 points for each coordinate and uses three interpolation methods: nearest, linear and cubic. Our results show a precision of 51 bits on average for the three methods. 
 
 \texttt{bspline} compares two edge filters: \texttt{bisplev} evaluates a bivariate B-spline and its derivative whereas \texttt{convolved2d} convolves two 2-dimensional arrays. Figure~\ref{fig:bspline_rr}
-shows the significant bits (figs.~\ref{fig:bspline_bisplev_sig},~\ref{fig:bspline_convol2d_sig}), 
-mean (figs.~\ref{fig:bspline_bisplev_mean},~\ref{fig:bspline_convol2d_mean}), and standard deviation (figs.~\ref{fig:bspline_bisplev_std},~\ref{fig:bspline_convol2d_std}) \tristan{replace the figure references with labels in the figure, it would be much clearer} maps for the two methods as well as the input image (fig.~\ref{fig:bspline_input}) with the middle for the \texttt{bisplev} results and bottom row for the \texttt{convol2d}. Both methods exhibit similar precision, with 11 significant bits on average. Standard deviations maps on figures~\ref{fig:bspline_bisplev_std} and~\ref{fig:bspline_convol2d_std} show that regions with low spatial frequencies correspond to regions with low standard deviation, similar to the FFT results. As it is mentioned in the SciPy tutorial, the \texttt{bisplev} function is faster than the \texttt{convol2d}. The comparable numerical precision observed in our experiments reinforce the use of \texttt{bisplev} over \texttt{convol2d} in this example.
+shows the significant bits, mean, and standard deviation 
+% \tristan{replace the figure references with labels in the figure, it would be much clearer} 
+maps for the two methods as well as the input image (fig.~\ref{fig:bspline_input}) with the middle for the \texttt{bisplev} results and bottom row for the \texttt{convol2d}. Both methods exhibit similar precision, with 11 significant bits on average. Standard deviations maps on Figures~\ref{fig:bspline_bisplev_std} and~\ref{fig:bspline_convol2d_std} show that regions with low spatial frequencies correspond to regions with low standard deviation, similar to the FFT results. As it is mentioned in the SciPy tutorial, the \texttt{bisplev} function is faster than the \texttt{convol2d}. The comparable numerical precision observed in our experiments reinforce the use of \texttt{bisplev} over \texttt{convol2d} in this example.
 
 \texttt{spline\_1D} computes the 1D spline interpolation for $f(x)=\sin(x)$ on points $x=\frac{2\pi k}{8}, k \in [0, 10]$. The spline interpolation uses \texttt{splrep} to build the spline representation and \texttt{splrev} to evaluate the spline at any point. It also computes the integral by using \texttt{splint} and the root finder \texttt{sproot}. Although the traces diverge, we can analyze the partial aggregation for the \texttt{splrep}, \texttt{splev} and \texttt{splint}. The three functions show results with an average precision of 51 bits with RR mode.
  
-\texttt{spline\_2D} computes the 2D spline interpolation for function $z=(x+y)e^{-6(x^2+y^2)}$, with $(x,y) \in [-1,1]\times[-1,1]$ and a sampling of 21 points for each coordinate. \texttt{bisplrep} builds the spline representation with the $21 \times 21$ points of $z$ over 71 grid sampling points for $(x,y)$. Figure~\ref{fig:spline2d_rr} shows the results of the spline evaluation with \texttt{bisplev}. \tristan{conclusion?} 
+\texttt{spline\_2D} computes the 2D spline interpolation for function $z=(x+y)e^{-6(x^2+y^2)}$, with $(x,y) \in [-1,1]\times[-1,1]$ and a sampling of 21 points for each coordinate. \texttt{bisplrep} builds the spline representation with the $21 \times 21$ points of $z$ over 71 grid sampling points for $(x,y)$. Figure~\ref{fig:spline2d_rr} shows the results of the spline evaluation with \texttt{bisplev}. We can see that a significant loss of precision in places, following 
+an interesting pattern that would be interesting to examine in detail. 
+
+\tristan{conclusion? perte de significativite importante par endroits, qui suit un pattern interessant. IL serait interessant d'examiner plus en details pourquoi cela arrive.} 
 
 
 % \begin{figure}
@@ -922,84 +985,111 @@ mean (figs.~\ref{fig:bspline_bisplev_mean},~\ref{fig:bspline_convol2d_mean}), an
 \begin{figure}
 \centering
 \begin{subfigure}{.3\linewidth}
-    \includegraphics[width=\linewidth]{figure/bspline/original_image.png}
-    \caption{}
-    \label{fig:bspline_input}
+    \includegraphics[width=\linewidth]{figure/bspline/original_image.pdf}
+    \caption{Original image.}
+    \label{fig:bspline_original_image}
 \end{subfigure}\\
 \begin{subfigure}{0.3\linewidth}
-    \includegraphics[width=\linewidth]{figure/bspline/bisplev_ret_sig_portland_r.png}
-    \caption{}
+    \includegraphics[width=\linewidth]{figure/bspline/bspline_sig.pdf}
+    \caption{\texttt{sepfir2d} significant bits.}
     \label{fig:bspline_input}
     \label{fig:bspline_bisplev_sig}
 \end{subfigure}
 \begin{subfigure}{0.3\linewidth}
-    \includegraphics[width=\linewidth]{figure/bspline/bisplev_ret_mean_log_portland.png}
-    \caption{}
+    \includegraphics[width=\linewidth]{figure/bspline/bspline_mean_log.pdf}
+    \caption{\texttt{sepfir2d} mean.}
     \label{fig:bspline_bisplev_mean}
 \end{subfigure}
 \begin{subfigure}{0.3\linewidth}
-    \includegraphics[width=\linewidth]{figure/bspline/bisplev_ret_std_log_portland.png}
-    \caption{}
+    \includegraphics[width=\linewidth]{figure/bspline/bspline_std_log.pdf}
+    \caption{\texttt{sepfir2d} standard deviation.}
     \label{fig:bspline_bisplev_std}
 \end{subfigure}
 \begin{subfigure}{0.3\linewidth}
-    \includegraphics[width=\linewidth]{figure/bspline/convol2d_ret_sig_portland_r.png}
-    \caption{}
+    \includegraphics[width=\linewidth]{figure/bspline/convol2d_sig.pdf}
+    \caption{\texttt{convol2d} significant bits.}
     \label{fig:bspline_convol2d_sig}
 \end{subfigure}
 \begin{subfigure}{0.3\linewidth}
-    \includegraphics[width=\linewidth]{figure/bspline/convol2d_ret_mean_log_portland.png}
-    \caption{}
+    \includegraphics[width=\linewidth]{figure/bspline/convol2d_mean_log.pdf}
+    \caption{\texttt{convol2d} mean.}
     \label{fig:bspline_convol2d_mean}
 \end{subfigure}
 \begin{subfigure}{0.3\linewidth}
-    \includegraphics[width=\linewidth]{figure/bspline/convol2d_ret_std_log_portland.png}
-    \caption{}
+    \includegraphics[width=\linewidth]{figure/bspline/convol2d_std_log.pdf}
+    \caption{\texttt{convol2d} standard deviation.}
     \label{fig:bspline_convol2d_std}
 \end{subfigure}
-    \caption{\texttt{bspline} results within RR mode. Left column shows the \texttt{bisplev} function
-    while the right column shows the \texttt{convolve2d} function. \tristan{isn't it top row vs bottom row? Replace these hard-to-read explanations with good labels in the figure}}
+    \caption{\texttt{bspline} results within RR mode.
+    The SciPy tutorial mentions that \texttt{convol2d} is faster than \texttt{sepfir2d}.
+    In addition, our results show that \texttt{sepfir2d} offers a similar precision.
+    This gives an additional argument for using \texttt{sepfir2d} over \texttt{convol2d}.
+    % \tristan{can you use the same color maps as in figure 8?}
+    % Left column shows the \texttt{bisplev} function
+    % while the right column shows the \texttt{convolve2d} function. \tristan{isn't it top row vs bottom row? Replace these hard-to-read explanations with good labels in the figure}
+    }
     \label{fig:bspline_rr}
 \end{figure}
 
 \begin{figure}
 \begin{subfigure}{.3\textwidth}
     \centering
-    \includegraphics[width=\linewidth]{figure/spline_2d/bisplev_inputs_mean.png}
-    \caption{\texttt{bisplev} IEEE result}
-    \label{fig:bisplev_ieee}
+    \includegraphics[width=\linewidth]{figure/spline_2d/bisplev_mean.pdf}
+    \caption{Mean value}
+    \label{fig:bisplev_mean}
 \end{subfigure}
 \begin{subfigure}{.3\textwidth}
     \centering
-    \includegraphics[width=\linewidth]{figure/spline_2d/bisplev_inputs_mean_log.png}
+    \includegraphics[width=\linewidth]{figure/spline_2d/bisplev_mean_log.pdf}
     \caption{Absolute mean value (log)}
     \label{fig:bisplev_mean_log}
 \end{subfigure}
 \begin{subfigure}{.3\textwidth}
     \centering
-    \includegraphics[width=\linewidth]{figure/spline_2d/bisplev_inputs_std_log.png}
+    \includegraphics[width=\linewidth]{figure/spline_2d/bisplev_std_log.pdf}
     \caption{Standard deviation (log)}
     \label{fig:bisplev_std_log}
 \end{subfigure}
-    \caption{2D Spline interpolation results. Figure~\ref{fig:bisplev_ieee} shows the IEEE result
+    \caption{2D Spline interpolation results. Figure~\ref{fig:bisplev_mean} shows the mean result
     of the 2D-spline interpolation. Figures~\ref{fig:bisplev_mean_log} and~\ref{fig:bisplev_std_log}
     show respectively in the logarithmic scale the absolute mean value and the standard deviation 
-    of the 5 samples run within RR mode. \tristan{any reason why you are showing the ieee result?}}
+    of the 5 samples run within RR mode. 
+    % \tristan{any reason why you are showing the ieee result?} \tristan{can you use the same color maps as in figure 8?}
+    }
     \label{fig:spline2d_rr}
 \end{figure}
 
 
 \subsubsection{Optimization}
 
-This package has ten tests \tristan{that involve the same optimization problem solved with different methods?}: five for unconstrained minimization of multivariate scalar functions using different algorithms: \tristan{using twice : in the same sentence isn't recommended} \texttt{Nelder-Mead}~\cite{singer2009nelder} that iteratively transforms a simplex until its vertices are getting closer to local minima of the function. Fours \tristan{do you mean four?} Quasi-Newton-Raphson methods whose primary goal is to determine $x$ that minimizes the function $f$ by using Newton's method step: $x_{k+1} = x_{k} - B^{-1}(x_k)\nabla f(x_k)$, where $\nabla$ and $B$ are the gradient and the approximation of the Hessian matrix of $f$. The \texttt{Broyden-Fletcher-Goldfarb-Shanno}~\cite{BFGS} (BFGS) and \texttt{Newton-Conjugate-Gradient}~\cite{nocedal2006numerical} (NCG) are line search methods that approximate $H$ by adding two symmetric rank-one matrices and by using the Conjugate-Gradient method. The \texttt{Trust-Region Truncated Generalized Lanczos / Conjugate Gradient}~\cite{gould1999solving}, \texttt{Trust-Region Newton-Conjugate-Gradient}, and \texttt{Trust-Region Nearly Exact}~\cite{nocedal2006numerical} are trust-region methods approximating $H$ by solving the trust-region subproblem restricted to a truncated Krylov subspace and by solving nonlinear equations for each quadratic subproblem. \tristan{this sentence lacks a verb} Two tests for constrained minimization of multivariate scalar functions: \texttt{Sequential Least SQuares Programming} (SLSQP) and \texttt{Least-squares minimization}.
-Moreover, three for root finding with one for small problems \texttt{root\_finding} and two for large problems using a Krylov approximation for the inverse Jacobian with and without the help of a preconditioner: \texttt{root\_finding\_large\_preconditionned} and \texttt{root\_finding\_large}.
+This package has eleven examples whose seven examples involve the same optimization problem 
+solved with and without constrained by using different methods.
+The last four solve solve a different problem each.
 
-The unconstrained minimization of multivariate scalar minimizes the Rosenbrock function of $N$ variables:
+\paragraph{Unconstrained minimization of multivariate scalar functions (six methods):}
+Four Quasi-Newton-Raphson methods aim to determine $x$ that minimizes the function $f$ by using Newton's method step: $x_{k+1} = x_{k} - B^{-1}(x_k)\nabla f(x_k)$, where $\nabla$ and $B$ are the gradient and the approximation of the Hessian matrix of $f$. The \texttt{Broyden-Fletcher-Goldfarb-Shanno}~\cite{BFGS} (BFGS) and \texttt{Newton-Conjugate-Gradient}~\cite{nocedal2006numerical} (NCG) are line search methods that approximate $H$ by adding two symmetric rank-one matrices and by using the Conjugate-Gradient method. The \texttt{Trust-Region Truncated Generalized Lanczos / Conjugate Gradient}~\cite{gould1999solving} (TR-Krylov), \texttt{Trust-Region Newton-Conjugate-Gradient} (TR-NCG), and \texttt{Trust-Region Nearly Exact}~\cite{nocedal2006numerical} (TR-Exact) are trust-region methods approximating $H$ by solving the trust-region subproblem restricted to a truncated Krylov subspace and by solving nonlinear equations for each quadratic subproblem. 
+In addition, the \texttt{Nelder-Mead}~\cite{singer2009nelder} simplex-based method iteratively transforms a simplex until its vertices are getting closer to a local minima of the function.
+
+\paragraph{Constrained minimization of multivariate scalar functions (two methods):}
+\texttt{Sequential Least SQuares Programming} (SLSQP~\cite{kraft1988software})
+and \texttt{Least-squares minimization} that uses the Trust Region Reflective algorithm~\cite{li1993centering}.
+
+
+\paragraph{Root finding (three methods):}
+One for small problems using the hybrid Powell and Levenberg-Marquardt methods for small problems (\texttt{root\_finding}) and two for large problems using a Krylov approximation for the inverse Jacobian with and without the help of a preconditioner (\texttt{root\_finding\_large\_preconditionned} and \texttt{root\_finding\_large}).
+
+The unconstrained minimization methods minimize the Rosenbrock function of $N$ variables:
 \[f(x) = \sum_{i=1}^{N-1} 100(x_{i+1}-x^2_i)^2 + (1-x_i)^2\]
-The minimum value of this function is 0, reached when $x_i=1$ \tristan{for all i's?}.
-Figure~\ref{fig:unconstrained_optimization} shows the number of significant bits of the solution for the different methods used. All the methods have a good precision ranging from 43 to 53 significant bits. The Nelder-Mead method is the least precise one with $\simeq$ 43 significant bits on average, while the Trust-Region-Newton-CG is the most precise one with $\simeq$ 53 significant bits, this highest precision achievable in double precision. The remaining methods have a similar precision with less than 1 bit between them. \tristan{why is there only 9 methods in Fig 7 while you mentioned 10?}
+The minimum value of this function is 0, reached when $x_i=1,\; \forall i \leq N-1$. % \tristan{for all i's?}
+Figure~\ref{fig:unconstrained_optimization} shows the number of significant bits of the solution for the different methods used. 
+The $(p)$ notation for the NCG, Trust-Krylov, and Trust-NCG methods in the legend refers 
+to the variant where the Hessian matrix is replaced by 
+a function computing the matrix-vector product of the Hessian and an arbitrary vector
+that allows saving memory and time. 
+All the methods have a good precision ranging from 43 to 53 significant bits. The Nelder-Mead method is the least precise one with $\simeq$ 43 significant bits on average, while the Trust-Region-Newton-CG is the most precise one with $\simeq$ 53 significant bits, this highest precision achievable in double precision. The remaining methods have a similar precision with less than 1 bit between them. 
+% \tristan{why is there only 9 methods in Fig 7 while you mentioned 10?} \Yohan{There are 11 examples whose 6 for the unconstrained minimization (presented in Fig 7). For 3 methods, there is a variant using the Hessian product instead of the Hessian matrix.I realized that this variant is not explained in the text. I will update it.}
 
-The constrained minimization of multivariate scalar tests minimize the Rosenbrock function for SLSQP subject to:
+The SLSQP also minimizes the Rosenbrock function with the following constraint:
 \begin{eqnarray*}
     x_0 + 2x_1 \leq 1 \\
     x_0^2 + x_1 \leq 1 \\
@@ -1009,22 +1099,22 @@ The constrained minimization of multivariate scalar tests minimize the Rosenbroc
     -0.5 \leq x_1 \leq 2 
 \end{eqnarray*}
 The problem has a unique solution $[x_0, x_1] = [0.4149, 0.1701]$.
-Results within RR show a precision of 47 and 44 significant bits for the first and the second solution \tristan{which method is tested?}.
+Results within RR show a precision of 47 and 44 significant bits for the first and the second solution. %\tristan{which method is tested?}.
 
-The \texttt{least-square minimization} test solves a fitting problem from an enzymatic reaction~\cite{kowalik1968analysis} with 11 residuals defined as:
+The \texttt{least-square minimization} example solves a fitting problem from an enzymatic reaction~\cite{kowalik1968analysis} with 11 residuals defined as:
 \begin{eqnarray*}
 f_i(x) &=& \frac{x_0(u_i^2 + u_ix_1)}{u_i^2 + u_ix_2+x_3}-y_i,\; i=0,...,10 \\
 &0& \leq x_j \leq 100,\; j=0,..,3
 \end{eqnarray*}
 where where $y_i$ are measurement values, $u_i$ are values of the independent variable, and
 $x_i$ the unknown.
-Results within RR show a precision of 51, 46, 47, and 48 significant bits for each component of the solution respectively \tristan{which solver is used?}.
+Results within RR show a precision of 51, 46, 47, and 48 significant bits for each component of the solution respectively.% \tristan{which solver is used?}.
 
-Finally, the \texttt{root\_*} tests use three algorithms to 
+Finally, the \texttt{root\_*} examples use three algorithms to 
 find the root of non-linear equations. \texttt{root\_finding}
 uses the hybrid Powell method to solve a single-variable transcendental equation and 
 the Levenberg-Marquardt method for a set of non-linear equations. 
-\texttt{root\_finding\_large} and \texttt{root\_finding\_large\_preconditioned} tests use 
+\texttt{root\_finding\_large} and \texttt{root\_finding\_large\_preconditioned} examples use 
 the Krylov method to solve an integrodifferential equation on a square
  $(x,y) \in [0,1] \times [0,1]$, $P(x,1)=1$, and $P=0$ elsewhere on the boundary.
 The function $P$ is discretized with a Cartesian grid $P_{n,n}=P(nh,nh)$, with $n=75$, and its derivatives are approximated by $\partial_x^2P(x,y) \simeq (P(x+h,y) - 2P(x,y) + P(x-h,y))/h^2$.
@@ -1038,12 +1128,13 @@ The function $P$ is discretized with a Cartesian grid $P_{n,n}=P(nh,nh)$, with $
 % \]
 
 
-All the tests diverge even within RR, which is not surprising since root-finding methods can easily take a few extra steps to find the root depending on the starting point. Nevertheless, for the \texttt{root\_finding\_large} test, 3 traces among the 5 samples can be merged for both RR and MCA modes.
-Figure~\ref{fig:root_finding_large} shows the mean and standard deviation of the result for these 3 samples. We can see that both RR and Full MCA found a similar solution, although Full MCA leads to a lower precision than RR. \tristan{I don't get this: the spread between RR and MCA is small with a maximal standard deviation of $8.10^{-9}$ for MCA against $3.10^{-9}$ for RR mode.} Finally, it is interesting to note the impact of preconditioning on the result numerical quality: as Table~\ref{tab:pytracer_test_precision_summary} shows, the precision doubles between \texttt{root\_finding\_large} and \texttt{root\_finding\_large\_preconditioned}.
+All the examples diverge even within RR, which is not surprising since root-finding methods can easily take a few extra steps to find the root depending on the starting point. Nevertheless, for the \texttt{root\_finding\_large} example, 3 traces among the 5 samples can be merged for both RR and MCA modes.
+Figure~\ref{fig:root_finding_large} shows the mean and standard deviation of the result for these 3 samples. We can see that both RR and Full MCA found a similar solution. Full MCA leads to a lower precision than RR although both standard deviation maps remain in the same order of magnitude. 
+Finally, it is interesting to note the impact of preconditioning on the result numerical quality: as Table~\ref{tab:pytracer_results_summary} shows, the precision doubles between \texttt{root\_finding\_large} and \texttt{root\_finding\_large\_preconditioned}.
 
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{figure/unconstrained_optimization_comparison.png}
+    \includegraphics[width=\linewidth]{figure/unconstrained_optimization_comparison.pdf}
     \caption{Comparison of results precision for different optimization solvers within RR mode.}
     \label{fig:unconstrained_optimization}
 \end{figure}
@@ -1052,25 +1143,27 @@ Figure~\ref{fig:root_finding_large} shows the mean and standard deviation of the
     \centering
     \begin{subfigure}{0.45\linewidth}
     \includegraphics[width=\linewidth]{figure/root_finding/solution_mean_RR.pdf}
-    \caption{}
-    \label{fig:my_label}
+    \caption{Mean solution (RR)}
+    \label{fig:mean_solution_rr}
     \end{subfigure}
     \begin{subfigure}{0.45\linewidth}
     \includegraphics[width=\linewidth]{figure/root_finding/solution_std_RR.pdf}
-    \caption{}
-    \label{fig:my_label}
+    \caption{Standard deviation solution (RR)}
+    \label{fig:stdev_rr}
     \end{subfigure}
     
     \begin{subfigure}{0.45\linewidth}
     \includegraphics[width=\linewidth]{figure/root_finding/solution_mean_MCA.pdf}
-    \caption{}
-    \label{fig:my_label}
+    \caption{Mean solution (Full MCA)}
+    \label{fig:mean_solution_mca}
     \end{subfigure}
     \begin{subfigure}{0.45\linewidth}
-    \includegraphics[width=\linewidth]{figure/root_finding/solution_std_MCA.pdf}    \caption{}
-    \label{fig:my_label}
+    \includegraphics[width=\linewidth]{figure/root_finding/solution_std_MCA.pdf}    
+    \caption{Standard deviation (Full MCA)}
+    \label{fig:stdev_mca}
     \end{subfigure}
-    \caption{Solution of \texttt{root\_finding\_large} test within RR (top row) and MCA (bottom row) \tristan{add sub-figure captions to avoid lengthy descriptions} with the mean value on the left and the standard deviation on the right. We can see that MCA has a less precision solution with a maximal standard deviation at $8.10^{-9}$ against $3.10^{-9}$ for RR mode. Moreover, we can see that a high standard deviation is localized around two extrema for both RR and Full MCA modes. Finally, the standard deviation stills lower than
+    \caption{Solution of \texttt{root\_finding\_large} example. 
+    We can see that MCA has a less precision solution with a maximal standard deviation at $8.10^{-9}$ against $3.10^{-9}$ for RR mode. Moreover, we can see that a high standard deviation is localized around two extrema for both RR and Full MCA modes. Finally, the standard deviation stills lower than
     the stopping criterion threshold fixed at $6.10^{-6}$. }
     \label{fig:root_finding_large}
 \end{figure}
@@ -1100,30 +1193,13 @@ Figure~\ref{fig:root_finding_large} shows the mean and standard deviation of the
 \subsection{Scikit learn}
 \label{sec:sklearn_tests}
 
-Scikit-learn offers a well-supplied and documented list of examples \tristan{examples ou tests? Si ce sont des tests, utilisons "test" partout a la place de "examples" ou "applications", pour sklearn comme pour scipy.} that facilitates its use with Pytracer.
-Among the several available examples, we choose the following representative set \tristan{Shall we just refer to Table 4 and remove this lengthy list? You could add the links in the table and mention in the table caption that the tests are linked to their source code}:
-\href{https://scikit-learn.org/stable/auto_examples/ensemble/plot_adaboost_regression.html#sphx-glr-auto-examples-ensemble-plot-adaboost-regression-py}{Decision Tree Regression with AdaBoost},
-\href{https://scikit-learn.org/stable/auto_examples/linear_model/plot_bayesian_ridge.html#sphx-glr-auto-examples-linear-model-plot-bayesian-ridge-py}{Bayesian Ridge Regression}, 
-\href{https://scikit-learn.org/stable/auto_examples/linear_model/plot_sgd_comparison.html#sphx-glr-auto-examples-linear-model-plot-sgd-comparison-py}{Comparing various online solvers}, 
-\href{https://scikit-learn.org/stable/auto_examples/cluster/plot_cluster_iris.html#sphx-glr-auto-examples-cluster-plot-cluster-iris-py}{K-means Clustering},
-\href{https://scikit-learn.org/stable/auto_examples/covariance/plot_mahalanobis_distances.html#sphx-glr-auto-examples-covariance-plot-mahalanobis-distances-py}{Covariance Estimation},
-\href{https://scikit-learn.org/stable/auto_examples/tree/plot_tree_regression.html#sphx-glr-auto-examples-tree-plot-tree-regression-py}{Decision Tree Regression},
-\href{https://scikit-learn.org/stable/auto_examples/linear_model/plot_sgd_comparison.html#sphx-glr-auto-examples-linear-model-plot-sgd-comparison-py}{Recognizing hand-written digits},
-\href{https://scikit-learn.org/stable/auto_examples/decomposition/plot_faces_decomposition.html#sphx-glr-auto-examples-decomposition-plot-faces-decomposition-py}{Faces dataset decomposition},
-\href{https://scikit-learn.org/stable/auto_examples/linear_model/plot_logistic_l1_l2_sparsity.html#sphx-glr-auto-examples-linear-model-plot-logistic-l1-l2-sparsity-py}{L1 Penalty and Sparsity in Logistic Regression},
-\href{https://scikit-learn.org/stable/auto_examples/linear_model/plot_lasso_and_elasticnet.html#sphx-glr-auto-examples-linear-model-plot-lasso-and-elasticnet-py}{Lasso and Elastic Net for Sparse Signals},
-\href{https://scikit-learn.org/stable/auto_examples/linear_model/plot_sgd_separating_hyperplane.html#sphx-glr-auto-examples-linear-model-plot-sgd-separating-hyperplane-py}{SGD: Maximum margin separating hyperplane},
-\href{https://scikit-learn.org/stable/auto_examples/linear_model/plot_sparse_logistic_regression_mnist.html#sphx-glr-auto-examples-linear-model-plot-sparse-logistic-regression-mnist-py}{MNIST classification using multinomial logistic + L1},
-\href{https://scikit-learn.org/stable/auto_examples/linear_model/plot_sgd_iris.html#sphx-glr-auto-examples-linear-model-plot-sgd-iris-py}{Plot multi-class SGD on the iris dataset},
-\href{https://scikit-learn.org/stable/auto_examples/linear_model/plot_multi_task_lasso_support.html#sphx-glr-auto-examples-linear-model-plot-multi-task-lasso-support-py}{Joint feature selection with multi-task Lasso},
-\href{https://scikit-learn.org/stable/auto_examples/linear_model/plot_omp.html#sphx-glr-auto-examples-linear-model-plot-omp-py}{Orthogonal Matching Pursuit},
-\href{https://scikit-learn.org/stable/auto_examples/decomposition/plot_pca_iris.html#sphx-glr-auto-examples-decomposition-plot-pca-iris-py}{PCA example with Iris Data-set},
-% \href{https://scikit-learn.org/stable/auto_examples/linear_model/plot_poisson_regression_non_normal_loss.html#sphx-glr-auto-examples-linear-model-plot-poisson-regression-non-normal-loss-py}{Poisson regression and non-normal loss},
-\href{https://scikit-learn.org/stable/auto_examples/cluster/plot_segmentation_toy.html#sphx-glr-auto-examples-cluster-plot-segmentation-toy-py}{Spectral clustering for image segmentation},
-\href{https://scikit-learn.org/stable/auto_examples/svm/plot_separating_hyperplane_unbalanced.html#sphx-glr-auto-examples-svm-plot-separating-hyperplane-unbalanced-py}{SVM: Separating hyperplane for unbalanced classes},
-\href{https://scikit-learn.org/stable/auto_examples/applications/plot_tomography_l1_reconstruction.html#sphx-glr-auto-examples-applications-plot-tomography-l1-reconstruction-py}{Compressive sensing: tomography reconstruction with L1 prior (Lasso)},
-% \href{https://scikit-learn.org/stable/auto_examples/linear_model/plot_tweedie_regression_insurance_claims.html#sphx-glr-auto-examples-linear-model-plot-tweedie-regression-insurance-claims-py}{Tweedie regression on insurance claims},
-\href{https://scikit-learn.org/stable/auto_examples/linear_model/plot_sgd_weighted_samples.html#sphx-glr-auto-examples-linear-model-plot-sgd-weighted-samples-py}{SGD: Weighted samples}.
+Scikit-learn offers a well-supplied and documented list of examples 
+% \tristan{examples ou tests? Si ce sont des tests, utilisons "test" partout a la place de "examples" ou "applications", pour sklearn comme pour scipy.} 
+that facilitates its use with Pytracer.
+Among the several available examples, we choose the following representative set
+listed in~\ref{tab:pytracer_results_summary}. The following paragraphs 
+focus on the most interesting stability results observed across all experiments.
+% \tristan{Shall we just refer to Table 4 and remove this lengthy list? You could add the links in the table and mention in the table caption that the tests are linked to their source code}:
 
 
 % \subsubsection{Classifier comparisions}
@@ -1203,38 +1279,56 @@ Among the several available examples, we choose the following representative set
 
 % \subsubsection{Adaboost}
 
-\tristan{For all the paragraphs below, add a sentence to describe the results as you did for scipy. If you have nothing more to say than what is reported in Table 4, then remove the paragraphs describing the algorithms and just refer to the sklearn doc linked from the table. If you have interesting things to discuss only for some tests, mention in the section intro that the text focuses on the most interesting stability patterns observed across all experiments.}
+% \tristan{For all the paragraphs below, add a sentence to describe the results as you did for scipy. If you have nothing more to say than what is reported in Table 4, then remove the paragraphs describing the algorithms and just refer to the sklearn doc linked from the table. If you have interesting things to discuss only for some examples, mention in the section intro that the text focuses on the most interesting stability patterns observed across all experiments.}
 
-\paragraph{Adaboost}
-This test compares a decision tree boosted with 300 estimators using the AdaBoost.R2~\cite{drucker1997improving} algorithm with
-a single decision tree regressor on a 1D sinusoidal dataset with a small amount of Gaussian noise and a depth fixed at 4. 
+% \paragraph{Adaboost}
+% This test compares a decision tree boosted with 300 estimators using the AdaBoost.R2~\cite{drucker1997improving} algorithm with
+% a single decision tree regressor on a 1D sinusoidal dataset with a small amount of Gaussian noise and a depth fixed at 4. 
 % The example shows that as the number of boosts is increased the regressor can fit more detail.
 
 % RR Good 48 \\
 % MCA: arange issue /  bootstrap\_idx = random\_state.choice(a=np.arange(\_num\_samples(X)), size=\_num\_samples(X), replace=True, p=sample\_weight) / len(a) != len(p)
 
-\paragraph{Online classifier comparison}
-
-This example compares how the following online solvers perform on the hand-written digits dataset:
-Stochastic Gradient Descent (SGD) with maximum iterations fixed to 100, 
-Averaged Stochastic Gradient Descent (ASGD),
-Perceptron, Passive-Aggressive I with the hinge loss function, tolerance 
-and regularization fixed at $10^{-4}$ and $1$,
-Passive-Aggressive II with the squared hinge loss function, tolerance 
-and regularization fixed at $10^{-4}$ and $1$, and Stochastic Average Gradient (SAG)
-with the tolerance and regularization fixed at $10^{-4}$ and $5.10^{-8}$.
+% \paragraph{Online classifier comparison}
+% This example compares how the following online solvers perform on the hand-written digits dataset:
+% Stochastic Gradient Descent (SGD) with maximum iterations fixed to 100, 
+% Averaged Stochastic Gradient Descent (ASGD),
+% Perceptron, Passive-Aggressive I with the hinge loss function, tolerance 
+% and regularization fixed at $10^{-4}$ and $1$,
+% Passive-Aggressive II with the squared hinge loss function, tolerance 
+% and regularization fixed at $10^{-4}$ and $1$, and Stochastic Average Gradient (SAG)
+% with the tolerance and regularization fixed at $10^{-4}$ and $5.10^{-8}$.
 
 % RR: stable 48 bits. \\
 % MCA: Index issue
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{figure/BRR/call_path.pdf}
+    \caption{Call paths of the Bayesian Ridge Regression (BRR) and 
+    Ordinary Least Square (OLS) function. Each fill color represents the calling library
+    with orange for scikit-learn, blue for SciPy and yellow for LAPACK.
+    Dashed color represents the original path in red and the alternative one in green.
+    Figure~\ref{fig:brr_svd_sig} shows that using the original method to compute the \texttt{svd}
+    approach that leads to numerical instabilities and that the alternative one helps 
+    making the example to converge.
+    }
+    \label{fig:call_path_brr}
+\end{figure}
 
 \paragraph{Bayesian Ridge Regression}
 
-This test compares a Bayesian Ridge Regression (BRR) to the Ordinary Least Squares (OLS) estimator on a synthetic dataset and for one-dimensional regression using polynomial feature expansion. Although the test does not raise a runtime error, the coefficients computed from the fitting for the synthetic dataset are \texttt{Not-A-Number} (NaN) values for both BRR and OLS. \pytracer traces reveal that the SVD solver used is the root cause for this error. Figure~\ref{fig:brr_svd_sig} shows
-the number of significant bits for the singular values SVD decomposition. 
-For BRR, the SVD is directly called \tristan{from Lapack?} to compute the coefficients, while for the OLS, it is called during the Least-Squares minimization. Scikit-learn uses SciPy that itself uses the LAPACK library to compute the SVD \tristan{unclear what is the call path for each solver}.
-The LAPACK library has two main methods for computing the SVD: 
-\texttt{gesdd} and \texttt{gesvd}. The former uses a Divide \& Conquer approach, while the latter uses a QR decomposition. While both methods are expected to have the same accuracy~\cite{nakatsukasa2013stable}, our results show that \texttt{gesdd} is totally imprecise, with an average number of significant digits of \tristan{0?}. 
-This observation supports the on-going discussion among LAPACK developers on the instability of \texttt{gesdd} (see  \href{https://github.com/Reference-LAPACK/lapack/issues/316}{github.com/Reference-LAPACK/lapack/issues/316}). For the Least-Square problem, the LAPACK library has three solvers, including \texttt{dgelss} that internally uses \texttt{gesdd} and \texttt{dgelsd} that uses \texttt{gesvd} \tristan{t'es sur que c'est pas l'inverse? Sur la fig 9 on voit que dgelsd n'est pas precise du tout, ca suggere qu'elle utiliserait gesdd}. Using the \texttt{gesvd} (dgelsd) method instead of the \texttt{gesdd} (dgelss) one, the SVD is converging within the RR and Full MCA modes, with a number of significant bits of 44 on average. \tristan{Ce paragraph est difficile a lire (mais neanmoins super interessant !). Tu devrais le restructurer en expliquant (1) quelle methode utilise quel solver de quelle librairie, (2) la performance observee sur la fig 9 (tu pourais d'ailleurs ajouter le nom du solver (gesdd ou gesvd) entre parenthese dans la legende pour rendre l'explication plus claire, (3) le fait que ca confirme la discussion sur github et autres commentaires.}
+This example compares a Bayesian Ridge Regression (BRR) to the Ordinary Least Squares (OLS) estimator on a synthetic dataset and for one-dimensional regression using polynomial feature expansion. Although the examples does not raise a runtime error, the coefficients computed from the fitting for the synthetic dataset are \texttt{Not-A-Number} (NaN) values for both BRR and OLS. \pytracer traces reveal that the SVD solver used is the root cause for this error. 
+Figure~\ref{fig:call_path_brr} shows the two call paths for BRR and OLS. 
+We can see that the LAPACK library has two main methods for computing the SVD: \texttt{gesdd} and \texttt{gesvd}.
+The former uses a Divide \& Conquer approach, while the latter uses a QR decomposition. 
+While both methods are expected to have the same accuracy~\cite{nakatsukasa2013stable}, Figure~\ref{fig:brr_svd_sig} show that \texttt{gesdd} is totally imprecise, with an average number of significant digits of 0 for BRR and even \texttt{NaN} values for OLS. 
+On the same figure, we can see that 
+using the \texttt{gesvd} (dgelsd) method instead of the \texttt{gesdd} (dgelss) one, 
+the SVD is converging within the RR and Full MCA modes, with a number of significant bits of 44 on average. 
+This observation supports the on-going discussion among LAPACK developers on the instability of \texttt{gesdd} (see  \href{https://github.com/Reference-LAPACK/lapack/issues/316}{github.com/Reference-LAPACK/lapack/issues/316}). 
+
+% \tristan{t'es sur que c'est pas l'inverse? Sur la fig 9 on voit que dgelsd n'est pas precise du tout, ca suggere qu'elle utiliserait gesdd}. 
+% \tristan{ce paragraph est difficile a lire (mais neanmoins super interessant !). tu devrais le restructurer en expliquant (1) quelle methode utilise quel solver de quelle librairie, (2) la performance observee sur la fig 9 (tu pourais d'ailleurs ajouter le nom du solver (gesdd ou gesvd) entre parenthese dans la legende pour rendre l'explication plus claire, (3) le fait que ca confirme la discussion sur github et autres commentaires.}
 
 \begin{figure}
     \centering
@@ -1261,17 +1355,15 @@ This observation supports the on-going discussion among LAPACK developers on the
 % RR: solution mean 15-24 / std 20-30 \\
 % MCA: SVD did not converge
 
-\paragraph{K-Means Clustering}
-
-This test uses the K-means to cluster the IRIS dataset.
+% \paragraph{K-Means Clustering}
+% This test uses the K-means to cluster the IRIS dataset.
 % The plots display firstly what a K-means algorithm would yield using three clusters. It is then shown what the effect of a bad initialization is on the classification process: By setting n\_{init} to only 1 (default is 10), the amount of times that the algorithm will be run with different centroid seeds is reduced. The next plot displays what using eight clusters would deliver and finally the ground truth.
 
 % RR Very stable (labels with highest precision) \\
 % MCA: Divergence
 
-\paragraph{Covariance estimation}
-
-This example shows covariance estimation with Mahalanobis distances on Gaussian distributed data.
+% \paragraph{Covariance estimation}
+% This example shows covariance estimation with Mahalanobis distances on Gaussian distributed data.
 
 % For Gaussian distributed data, the distance of an observation xi to the mode of the distribution can be computed using its Mahalanobis distance:
 
@@ -1294,9 +1386,8 @@ This example shows covariance estimation with Mahalanobis distances on Gaussian 
 % Main computation is in a loop that might be take extra steps to ends. \\
 % MCA: arange issue
 
-\paragraph{Decision Tree Regression}
-
-This test uses a decision tree to fit a sine curve with added noise.
+% \paragraph{Decision Tree Regression}
+% This test uses a decision tree to fit a sine curve with added noise.
 
 % A 1D regression with decision tree.
 % The decision trees is used to fit a sine curve with addition noisy observation. As a result, it learns local linear regressions approximating the sine curve.
@@ -1306,26 +1397,25 @@ This test uses a decision tree to fit a sine curve with added noise.
 % RR Fit ok (50bits) , missing predict \\
 % MCA Fit ok (50bits) , missing predict
 
-\paragraph{Digits Classification}
-
-This test uses a Support Vector Classifier to recognize images of hand-written
-digits. The digits dataset consists of 8x8 pixel images of digits.
+% \paragraph{Digits Classification}
+% This test uses a Support Vector Classifier to recognize images of hand-written
+% digits. The digits dataset consists of 8x8 pixel images of digits.
 
 % RR Very stable (highest precision) \\
 % MCA: Very stable (highest precision)
 
 \paragraph{Face Recognition}
 
-The face recognition test uses eigenfaces (eigenvector) and Support Vector Machines (SVMs) to classify faces from the Labeled Faces in the Wild dataset~\cite{LFWTech}. This test uses a Principal Component Analysis (PCA) to extract the eigenfaces and then trains an SVM classifier to predict the name associated with a visage. This test is the only one to raise an error within RR mode due to a non-convergence of the Singular Value Decomposition (SVD) performed during the PCA.
-In this test, the PCA uses the Randomized SVD~\cite{halko2011finding} variant that first computes a low-rank approximation of the input matrix using a stochastic algorithm and then uses this approximation as the input for the SVD. It is during the computation of this SVD that the test raised an error.
+The face recognition example uses eigenfaces (eigenvectors) and Support Vector Machines (SVMs) to classify faces from the Labeled Faces in the Wild dataset. This example uses a Principal Component Analysis (PCA) to extract the eigenfaces and then trains an SVM classifier to predict the name associated with a face. This example is the only one to raise an error with RR due to the non-convergence of the Singular Value Decomposition (SVD) performed in the PCA.
 
-Scikit-learn uses SciPy that itself uses the LAPACK library to compute the SVD. The LAPACK library has two main methods for computing the SVD: 
-\texttt{gesdd} and \texttt{gesvd}. The first one uses a Divide \& Conquer approach, while the second uses a QR decomposition. While both methods expect to have the same accuracy~\cite{nakatsukasa2013stable}, it appears that results diverge in practice with inaccurate results for the Divide \& Conquer method, as the sill opened an issue on the official LAPACK GitHub repository \href{https://github.com/Reference-LAPACK/lapack/issues/316}{github.com/Reference-LAPACK/lapack/issues/316} shows. The \texttt{randomized\_svd} scikit-learn function uses the Divide \& Conquer method for the SVD. 
+In this example, the PCA uses the Randomized SVD~\cite{halko2011finding} method that first computes a low-rank approximation of the input matrix using a stochastic algorithm and then uses this approximation as input for the SVD. Unfortunately, the example raises an error during the computation of the SVD.
+The \texttt{randomized\_svd} scikit-learn function uses the Divide \& Conquer SVD method (\texttt{gesdd}, see previous comments). 
+Replacing \texttt{gesdd} for \texttt{gesvd} solves the SVD convergence issue. Figure~\ref{fig:randomized_svd_S} shows the precision of the eigenvalues computed with gesvd, which varies between 15 and 20 significant bits out of the 24 available in single precision. Finally, the classifier metrics (precision, recall, F1-score, and support) are identical to the IEEE execution for all MCA samples.
 
-Using the  \texttt{gesvd} method instead of the \texttt{gesdd} one, the SVD converges within the RR mode.
-Moreover, figure~\ref{fig:randomized_svd_S} shows the precision of the eigenvalues computed, varying between 15 and 20 bits out of the 24 available in single precision. Finally, the classifier metrics (precision, recall, F1-score, and support) are identical to the IEEE execution, meaning that the test is as precise as the original execution.
+In conclusion, Pytracer and the MCA model were helpful to detect the instability of the \texttt{gesdd} method mentioned in several GitHub issues, including the LAPACK repository. Furthermore, it is worth mentioning that a Pull Request has recently been submitted to let the user select the SVD method and avoid this kind of issue. Thus, we can see that Pytracer can detect instabilities that affect fundamental scientific computing components such as the LAPACK library. The Pytracer findings can therefore be extended to many application domains.
+\tristan{conclusion needs to be discussed. Note to self: generaliser un peu la conclusion: pytracer permet de se rendre compte de problemes de stabilite dont plusieurs librairies sont dependantes.}
 
-In conclusion, the MCA model was helpful to detect the instability of the \texttt{gesdd} method that has been notified in several GitHub issues, including the LAPACK repository. It is worth mentioning that a Pull Request has recently been submitted to let the user select the SVD method and avoid this kind of issue.
+
 
 \begin{figure}
     \centering
@@ -1344,11 +1434,11 @@ In conclusion, the MCA model was helpful to detect the instability of the \textt
     \caption{Right matrix $V$ of the SVD decomposition}
     \label{fig:randomized_svd_V}
     \end{subfigure}
-    \caption{Number of significant bits of the \texttt{randomized\_svd} function in the 
-    \texttt{face\_recognition} test using the \texttt{gesvd} SVD method within RR mode.
+    \caption{Precision of the \texttt{randomized\_svd} function in the 
+    \texttt{face\_recognition} example using the \texttt{gesvd} SVD method and RR.
     Figures~\ref{fig:randomized_svd_U},~\ref{fig:randomized_svd_S}, and~\ref{fig:randomized_svd_V}
-    show respectively the values $U$, $\Sigma$ and $V.$
-    Using this method makes the \texttt{randomized\_svd} converging contrary to the \texttt{gesdd} method that raised a runtime error. 
+    show respectively the values $U$, $\Sigma$ and $V$.
+     Numerical precision is lower for smaller eigenvalues and this loss of precision translates to eigenvectors. It would be interesting to investigate the use of numerical precision for dimensionality reduction.
     }
     \label{fig:face_recognition_svd}
 \end{figure}
@@ -1361,11 +1451,10 @@ In conclusion, the MCA model was helpful to detect the instability of the \textt
 %     faces[i, ...] = face
 % ValueError: could not broadcast input array from shape (49,37) into shape (50,37)
 
-\paragraph{L1 Penalty}
-
-This test compares the percentage of zero coefficients for logistic regression
-by varying the penalty (L1, L2 and Elastic-Net) and regularization (1, 0.1, 0.01) parameters. 
-A large regularization value gives the model more freedom than a small value, which puts more constraints on the model.
+% \paragraph{L1 Penalty}
+% This test compares the percentage of zero coefficients for logistic regression
+% by varying the penalty (L1, L2 and Elastic-Net) and regularization (1, 0.1, 0.01) parameters. 
+% A large regularization value gives the model more freedom than a small value, which puts more constraints on the model.
 
 
 % of L1, L2 and Elastic-Net penalty.
@@ -1377,11 +1466,9 @@ A large regularization value gives the model more freedom than a small value, wh
 % MCA: stable for L1 and L2, not for Len but coef have less zeroes. 
 
 
-\paragraph{Lasso and Elastic-Net}
-
-
-This test compares the Lasso and Elastic-Net regression models
-on a corrupted signal.
+% \paragraph{Lasso and Elastic-Net}
+% This test compares the Lasso and Elastic-Net regression models
+% on a corrupted signal.
 
 % Estimates Lasso and Elastic-Net regression models on a manually generated sparse signal corrupted with an additive noise. Estimated coefficients are compared with the ground-truth.
 
@@ -1390,10 +1477,16 @@ on a corrupted signal.
 
 \paragraph{Separating hyperplane}
 
-This test uses a linear Support Vector Machine (SVM) classifier trained using the Stochastic Gradient Descent (SGD) method to find the maximum separating hyperplane in 2D.
-The test trains the SVM with 50 random points separated in 2 clusters with hyperparameters $\alpha=0.01$ and using the hinge loss function. Once trained, the test generates a $[-1,5]\times[-1,5]$ Cartesian grid and predicts the class label for each point with integer coordinates. Figure~\ref{fig:separating_hyperplan} shows the ratio $\frac{mean}{std}$ with RR mode for each point of the grid (square) and the training dataset (circle), the two colors representing the two classes.
-We can see that white points close to the separating hyperplane are highly unstable with a number of significant bits below 0, meaning that
-the classifier hesitates about the class to predict.
+This example uses a linear Support Vector Machine (SVM) classifier trained using the Stochastic Gradient Descent (SGD) method to find the maximum separating hyperplane between sets of 2D points.
+The example trains the SVM with 50 random points separated in 2 clusters with hyperparameter $\alpha=0.01$ and using the hinge loss function. Once the model is trained, the example generates a $[-1,5]\times[-1,5]$ Cartesian grid
+discretized with 100 points and predicts the class label for each point with integer coordinates. Figure~\ref{fig:hyperplan_sig_zoom} shows the the number of significant bits %\tristan{isn't it significant bits?} \tristan{aren't the class predctions integers?} 
+\Yohan{No its floating point values}1
+obtained with RR for each point of the grid %(squares \tristan{not sure where the squares are}) 
+and the training dataset (circles \tristan{why are some circles larger than other ones?}).
+We can see that yellow points %\tristan{I don't see any white point} 
+close to the separating hyperplane are highly unstable with a number of significant bits below 0, meaning that
+the classifier is unsure about the predicted class. 
+%\tristan{Describe and comment on the other 2 tests, why are they more stable? Is it because the training set has more points?}
 
 
 % \begin{figure}
@@ -1410,45 +1503,47 @@ the classifier hesitates about the class to predict.
 
 \begin{figure}
     \centering
+    % \begin{subfigure}{.3\linewidth}
+    % \includegraphics[width=\linewidth]{figure/separating_hyperplan/hyperplan.png}
+    % \caption{}
+    % \label{fig:hyperplan_sig}
+    % \end{subfigure}
     \begin{subfigure}{.3\linewidth}
-    \includegraphics[width=\linewidth]{figure/separating_hyperplan/hyperplan.png}
-    \caption{}
-    \label{fig:hyperplan_sig}
-    \end{subfigure}
+    \caption{Separating hyperplane}
+    \includegraphics[width=\linewidth]{figure/separating_hyperplan/hyperplane_zoom.pdf}
+    \label{fig:hyperplan_sig_zoom}
+    \end{subfigure} \\
     \begin{subfigure}{.3\linewidth}
-    \includegraphics[width=\linewidth]{figure/SVM/non_weighted.png}
-    \caption{}
+    \caption{SVM (non weighted)}
+    \includegraphics[width=\linewidth]{figure/SVM/non_weighted.pdf}
     \label{fig:SVM_nw_sig}
     \end{subfigure}
     \begin{subfigure}{.3\linewidth}
-    \includegraphics[width=\linewidth]{figure/Weighted/non_weighted.png}
-    \caption{}
+    \caption{SVM (weighted)}
+    \includegraphics[width=\linewidth]{figure/SVM/weighted.pdf}
+    \label{fig:SVM_w_sig}
+    \end{subfigure} \\
+    \begin{subfigure}{.3\linewidth}
+    \caption{SGD weighted (non-weighted)}
+    \includegraphics[width=\linewidth]{figure/Weighted/non_weighted.pdf}
     \label{fig:weighted_nw_sig}
     \end{subfigure}
     \begin{subfigure}{.3\linewidth}
-    \includegraphics[width=\linewidth]{figure/separating_hyperplan/hyperplan_zoom.png}
-    \caption{}
-    \label{fig:hyperplan_sig_zoom}
-    \end{subfigure}
-    \begin{subfigure}{.3\linewidth}
-    \includegraphics[width=\linewidth]{figure/SVM/weighted.png}
-    \caption{}
-    \label{fig:SVM_w_sig}
-    \end{subfigure}
-    \begin{subfigure}{.3\linewidth}
-    \includegraphics[width=\linewidth]{figure/Weighted/weighted.png}
-    \caption{}
+    \caption{SGD weighted (weighted)}
+    \includegraphics[width=\linewidth]{figure/Weighted/weighted.pdf}
     \label{fig:weighted_w_sig}
     \end{subfigure}
-    \caption{Three examples of separating hyperplane tests.  All figures show the number of significant bits of the results for the following tests: \textit{Separating Hyperplane} on figures.~\ref{fig:hyperplan_sig} for the original colormap and~\ref{fig:hyperplan_sig_zoom} with a rescaled colormap. We can see that this test exhibits a poor precision with less than 3 bits significant, although only the sign of the number matter to predict on which side of the hyperplane the point is classified.
-We can see in figure~\ref{fig:hyperplan_sig_zoom} by rescaling the colormap that the instabilities are concentrated around the hyperplane.
-    Figures~\ref{fig:SVM_nw_sig},~\ref{fig:SVM_w_sig},~\ref{fig:weighted_nw_sig}, and~\ref{fig:weighted_w_sig} show respectively the results of tests    \textit{SVM} and~\textit{Weighted samples}. Figures~\ref{fig:SVM_nw_sig} and~\ref{fig:weighted_nw_sig} show the unweighted classification while figures~\ref{fig:SVM_w_sig} and~\ref{fig:weighted_nw_sig} the classification taking into account the weights. We can see that taking into account the weight classes allows a better separating.}
-\label{fig:my_label}
+    \caption{
+    These figures show three examples of separating hyperplane prediction. First, all figures show the number of significant bits of the prediction within RR mode. Second, we can see that the separating hyperplane is visible on each figure without plotting since it corresponds to a lower precision area. Indeed, the classifier has difficulty predicting which side the predicted point is on. Moreover, a large discretization step amplifies
+    this instability, as Figure~\ref{fig:separating_hyperplan} shows. Finally, Figures~\ref{fig:SVM_w_sig} and~\ref{fig:weighted_w_sig} show that taking into account the unbalancing or the weight of points allows for a better separating than ~\ref{fig:SVM_nw_sig} and ~\ref{fig:weighted_nw_sig}.
+% respectively the results of examples    \textit{SVM} and~\textit{Weighted samples}. Figures~\ref{fig:SVM_nw_sig} and~\ref{fig:weighted_nw_sig} show the unweighted classification while Figures~\ref{fig:SVM_w_sig} and~\ref{fig:weighted_nw_sig} the classification taking into account the weights. We can see that taking into account the weight classes allows a better separation. 
+    % \tristan{add labels to subfigures} \tristan{don't use this yellow for class 1, take a color that isn't in the color map. Add a legend to show the class colors.}
+    }
+\label{fig:separating_hyperplan}
 \end{figure}
 
-\paragraph{MNIST classification}
-
-This test fits a logistic regression with the SAGA solver with the L1 penalty on the MNIST digits classification task subset.
+% \paragraph{MNIST classification}
+% This test fits a logistic regression with the SAGA solver with the L1 penalty on the MNIST digits classification task subset.
 
 
 % Here we fit a multinomial logistic regression with L1 penalty on a subset of the MNIST digits classification task. We use the SAGA algorithm for this purpose: this a solver that is fast when the number of samples is significantly larger than the number of features and is able to finely optimize non-smooth objective functions which is the case with the l1-penalty. Test accuracy reaches > 0.8, while weight vectors remains sparse and therefore more easily interpretable.
@@ -1457,44 +1552,39 @@ This test fits a logistic regression with the SAGA solver with the L1 penalty on
 % RR: Very stable \\
 % MCA: Parse by excluding a trace that failed due to an arange issue
 
-\paragraph{Multitask Lasso}
-
-This test compares the Lasso and MultiTaskLasso regression models
-on a corrupted signal.
+% \paragraph{Multitask Lasso}
+% This test compares the Lasso and MultiTaskLasso regression models
+% on a corrupted signal.
 
 % The multi-task lasso allows to fit multiple regression problems jointly enforcing the selected features to be the same across tasks. This example simulates sequential measurements, each task is a time instant, and the relevant features vary in amplitude over time while being the same. The multi-task lasso imposes that features that are selected at one time point are select for all time point. This makes feature selection by the Lasso more stable.
 
 % RR: Stable (44~53 bits for coef) \\
 % MCA: Stable like RR if we exclude a trace that failed due index issue
 
-\paragraph{Orthogonal matching}
-
-This test uses the Orthogonal Matching Pursuit algorithm
-for recovering a sparse signal from a noisy measurement encoded with a dictionary.
+% \paragraph{Orthogonal matching}
+% This test uses the Orthogonal Matching Pursuit algorithm
+% for recovering a sparse signal from a noisy measurement encoded with a dictionary.
 
 % RR: Very stable \\
 % MCA: Very stable
 
-\paragraph{PCA decomposition}
-
-This test makes a PCA decomposition on a synthetic dataset.
+% \paragraph{PCA decomposition}
+% This test makes a PCA decomposition on a synthetic dataset.
 % These figures aid in illustrating how a point cloud can be very flat in one direction–which is where PCA comes in to choose a direction that is not flat.
 
 % rr: stable (48 bits on components) \\
 % mca: stable (48 bits on components)
 
-\paragraph{Robust Linear Regression}
-
-This test compares the linear and  RANSAC regression methods on noisy data.
+% \paragraph{Robust Linear Regression}
+% This test compares the linear and  RANSAC regression methods on noisy data.
 % In this example we see how to robustly fit a linear model to faulty data using the RANSAC algorithm.   
 
 
 % RR: Very stable \\
 % MCA: Very stable if we exclude two traces that failed due to arange/index issues
 
-\paragraph{Segmentation Toy}
-
-This test uses spectral clustering to separate connected circles in an image.
+% \paragraph{Segmentation Toy}
+% This test uses spectral clustering to separate connected circles in an image.
 
 % In this example, an image with connected circles is generated and spectral clustering is used to separate the circles.
 
@@ -1510,9 +1600,15 @@ This test uses spectral clustering to separate connected circles in an image.
 % MCA: Stable if we exclude three traces that failed due to index issue
 
 \paragraph{SVM}
-
-This test uses a plain and weighted classes SVC to find the best hyperplane separating an unbalanced dataset.
-
+This example uses a plain Support Vector Classification~\cite{Platt99probabilisticoutputs} (SVC) 
+to find the best hyperplane separating an unbalanced dataset with two classes of 1000 and 100 points.
+This example tests two SVC configurations using a linear kernel with and without a class weight parameter.
+The SVC predicts the class label for each coordinate over a $[-5,5] \times [-5,5]$ grid discretized
+with 900 points.
+Figures~\ref{fig:SVM_nw_sig} and~\ref{fig:SVM_w_sig} show the result within RR of the classification with
+and without taking into account the unbalancing.
+We can see that the number of significant bits is lower on the separating line and
+that taking into account the unbalancing allows a better separation.
 % Find the optimal separating hyperplane using an SVC for classes that are unbalanced.
 
 % We first find the separating plane with a plain SVC and then plot (dashed) the separating hyperplane with automatically correction for unbalanced classes.
@@ -1520,11 +1616,10 @@ This test uses a plain and weighted classes SVC to find the best hyperplane sepa
 % RR: stable (48 bits) \\
 % MCA: stable (48 bits)
 
-\paragraph{Tomography}
-
-This test compares the LASSO and Ridge regression models to 
-reconstruct an image from  projections for a dataset
-acquired from computed tomography.
+% \paragraph{Tomography}
+% This test compares the LASSO and Ridge regression models to 
+% reconstruct an image from  projections for a dataset
+% acquired from computed tomography.
 
 % This test shows the reconstruction of an image from a set of parallel projections, acquired along different angles. Such a dataset is acquired in computed tomography (CT). 
 
@@ -1537,11 +1632,10 @@ acquired from computed tomography.
 % RR Divergence \\
 % MCA Index issue
 
-\paragraph{Weighted samples}
-
-This test uses an SGD to separate weighted points by 
-taking into account or not the weights.
-
+\paragraph{SGD weighted samples}
+This example uses an SGD to separate weighted points by taking into account or not the weights. It divides the training set into two classes of 10 points with a bigger weight for the second class. The SGD is trained with hyperparameters $\alpha=0.01$ and a maximum number of iterations to 100. The prediction is made on a $[-4,5]\times[-4,5]$ grid discretized with 250000 points. Figures~\ref{fig:weighted_nw_sig} and~\ref{fig:weighted_w_sig} show the number of significant bits 
+of prediction within RR along with dataset points in blue and violet.
+We can see that the separating plane is visible without plotting it since it corresponds to the yellow line of lower precision. As for the examples SVM and Separating hyperplane, the numerical instabilities are concentrated around the separation since the classifier cannot predict from which side points are placed. Finally, taking into account the points' weight allows for a better separating.
 
 % RR Stable (30~48 bits on coef) \\
 % MCA Unstable (0 bits on coef)
@@ -1552,111 +1646,111 @@ taking into account or not the weights.
 % It aims to find delineation of the major fiber tracts in individual human brains and quantify the tissue properties within the tracts. PyAFQ \pytracer tracing produces traces of 1TB with an average slowdown $\times 6$ compared to the actual execution. Moreover, \pytracer was able to visualize the aggregated traces, demonstrating its scalability fluently.
 
 
-\section{Performance evaluation}
+\subsection{Overhead evaluation}
+\pytracer's tracing overhead consists of (1) module instrumentation time (initialization overhead) and (2) data write time during the execution (runtime overhead). The initialization overhead is proportional to the number of functions and classes traced. For example, by instrumenting NumPy, SciPy, and Scikit-learn, we measured an average initialization time of 8 seconds during our experiments. Hence, the initialization overhead is amortized when traced applications are above 8 seconds. Moreover, one can reduce this overhead by excluding intensively used functions such as \texttt{numpy.array}.
+Figure~\ref{fig:performance_tracing} summaries \pytracer's tracing overhead for SciPy and scikit-learn examples. We can see that \pytracer introduces a slowdown of $17\times$ reduced to $3.5\times$ if we subtract the initialization step. Finally, the fuzzy instrumentation increases the slowdown to  $37\times$ for RR and $43\times$ for Full MCA.
 
-This section reviews the performance overhead of the Pytracer's instrumentation cost and the time spent during the postprocessing analysis.
-
-
-\subsection{Tracing}
-
-Pytracer instrumentation overhead comes from the time spent on instrument module (initialization overhead)
-before executing the targeted application plus the cost for dumping the data during the execution (running overhead).
-The initialization overhead is proportional to the number of functions and classes traced. 
-However, initialization overhead is amortized when traced applications are above 8 seconds,  proportional to 
-the number of functions and classes traced.
-Table~\ref{tab:pytracer_overhead} summaries the slowdown measure on SciPy
-and scikit-learn tests.
-We can see that Pytracer gives slowdowns of $\times 17$ and
-$\times 3.5$ if we subtract the initialization step.
-Furthermore, we obtain an average slowdown of $\times 37$ for RR mode and $\times 43$ for Full MCA by adding fuzzy.
+% \pytracer's tracing overhead consists of (1) module instrumentation time (initialization overhead), and (2) data write time during the execution (runtime overhead). The initialization overhead is proportional to the number of functions and classes traced. However, the initialization overhead is amortized \tristan{what do you mean by amortized? I don't get this sentence} when traced applications are above 8 seconds,  proportional to 
+% the number of functions and classes traced. Figure~\ref{fig:performance_tracing} summaries \pytracer's tracing overhead for SciPy and scikit-learn examples. We can see that \pytracer introduces a slowdown of reduced toif we subtract the initialization step 
+% \tristan{not sure where to get these numbers from the table, to be clarified. Are these average values? Why are there two values?}. 
+% Fuzzy instrumentation increases the slowdown to for RR and   for Full MCA.
+% \tristan{Figure 13 is not referred in the text. Choose between the figure and the table, no need to put both.}
 
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figure/performance.pdf}
     \caption{
-    \pytracer tracing overheads: \textit{Slowdown} is the actual overhead, computed as the ratio between the execution time without and with \pytracer. This slowdown can be high for the tests running less than 8 seconds because \pytracer spends most of its time in the initialization step. Since this step is a constant factor of the number of functions instrumented, we also plot the slowdown of the instrumentation itself (\textit{Slowdown (Instrumentation)} calculated by subtracting the initialization time.
+    \pytracer tracing overheads: \textit{Slowdown} is the actual overhead, computed as the ratio between the execution time without and with \pytracer. This slowdown can be high for the examples running less than 8 seconds because \pytracer spends most of its time in the initialization step. Since this step is a constant factor of the number of functions instrumented, we also plot the slowdown of the instrumentation itself (\textit{Slowdown (Instrumentation)} calculated by subtracting the initialization time.
     The \textit{Slowdown (RR)} and \textit{Slowdown (MCA)} colors show the slowdown of \pytracer 
     using the fuzzy environment with RR and Full MCA modes.
-    The first four tests measure the initialization steps depending on the modules instrumented. \tristan{you could make a horizontal chart to avoid rotating the labels (also in F  ig 13)}
+    The first four examples measure the initialization steps depending on the modules instrumented. \tristan{you could make a horizontal chart to avoid rotating the labels (also in Fig 13)}
     }
-    \label{fig:performances}
+    \label{fig:performance_tracing}
 \end{figure}
+
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=\linewidth]{figure/parsing_time.pdf}
+%     \caption{\pytracer time to aggregate traces.}
+%     \label{fig:performance_parsing_time}
+% \end{figure}
+
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=\linewidth]{figure/parsing.pdf}
+%     \caption{\pytracer trace and aggregation files size.
+%     The figure presents the size measured for the trace and the aggregation size files.}
+%     \label{fig:performance_parsing_size}
+% \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{figure/parsing_time.pdf}
-    \caption{\pytracer time to aggregate traces.}
-    \label{fig:performance_parsing_time}
+    \includegraphics[width=\linewidth]{performance_parsing.pdf}
+    \caption{\pytracer aggregation performance. The figure presents
+    the aggregation time (X-axis) versus the trace size (Y-axis).
+    We can see that the aggregation time is proportional to the trace size.}
+    \label{fig:performance_parsing}
 \end{figure}
 
-\begin{figure}
-    \centering
-    \includegraphics[width=\linewidth]{figure/parsing.pdf}
-    \caption{\pytracer trace and aggregation files size.
-    The figure presents the size measured for the trace and the aggregation size files.}
-    \label{fig:performance_parsing_size}
-\end{figure}
-
-
-\begin{table}
-\centering
-\begin{subfigure}[t]{.75\linewidth}
-    \centering
-    \begin{tabular}{|l|c|c|c|c|}
-    \hline 
-    Application & Original & Pytracer only & RR & MCA \\
-    \hline 
-    Loading & 0.456 & 8.152 & - & - \\
-    \hline
-    discrete\_cosine\_transform & 0.280 & 8.176 & 10.203 & - \\ 
-    fft\_1D & 0.650 & 9.075 & 11.345 & - \\
-    fft\_2D & 0.311 & 9.500 & 11.929  & 16.433   \\
-    \hline
-    interpolation\_1D & 0.377 & 8.803  & 11.954  & -   \\
-    multivariate\_data &0.626 & 8.648 &  12.711  & - \\
-    bspline & 0.109  & 9.050 & 13.396  & 16.830   \\
-    spline\_1D & 0.111 & 8.618 & 10.960   & - \\
-    spline\_2D & 0.655 & 8.649 & 19.424  & - \\
-    \hline
-    broyden\_fletcher\_goldfarb\_shanno &0.475 & 8.292 & 11.033 & 13.685 \\
-    global\_optimization &1.257 & 55.916  & 93.322  & - \\
-    slsqp & 0.469 & 8.192 & 10.795 & 12.439  \\
-    least\_square\_minimization & 0.505 & 10.151  & 13.888 & -  \\
-    nelder\_mead\_simplex & 0.471 & 8.418  & 11.382  & 12.792  \\
-    newton\_conjugate\_gradient & 0.487 & 8.548  & 11.956  & 14.281 \\
-    root\_findings & 0.462 & 8.198  & 10.787   & - \\
-    root\_finding\_large & 0.801 & 11.525 & 41.493   &  82.701  \\
-    root\_finding\_large\_preconditioned & 0.702 & 10.580 & 33.199   & 57.579  \\
-    trust\_region\_exact & 0.482 & 8.170 & 10.400  & 12.524 \\
-    trust\_region\_truncated\_generalized\_lanczos & 0.459 & 8.457 & 11.216 & 13.245  \\
-    trust\_region\_newton\_conjugate\_gradient & 0.479 & 8.538 & 11.179 & 13.488 \\
-    \hline
-    Adaboost &1.388 &14.553 &  20.999 & - \\
-    Bayesian Ridge Regression & 1.086 & 10.344 & 90.299 & -  \\
-    Online classifier comparison & 15.964 & 72.691 & 2104.114 & -  \\
-    K-Means Clustering & 1.621 & 17.614  & 34.005 & 52.902   \\
-    Covariance estimation & 1.357 & 11.755 & 23.964  & -   \\
-    Decision Tree Regression & 1.185 & 11.194 & 15.760 & 15.918  \\
-    Digits Classification & 1.672 & 12.725 & 40.634 & - \\
-    Face Recognition & 32.159  & 74.356 & - & - \\
-    L1 Penalty & 1.568 & 12.591 & 65.547 & 128.220 \\
-    Lasso and elastic net & 1.057 & 9.903 & 17.078 & -  \\
-    Separating hyperplan & 1.376 & 11.532  & 22.333 & 25.036 \\
-    MNIST classification & 19.650 & 37.838 & 402.389  & - \\
-    Multitask Lasso & 1.090 &10.196 & 15.025  & - \\
-    Orthogonal matching & 1.161 & 12.129 & 21.779   & 31.135 \\
-    PCA decomposition & 1.239 & 10.642 & 15.520 & 17.952    \\
-    Robust Linear Regression & 1.370 & 11.144  & 14.280  & - \\
-    Segmentation toy &1.679 & 22.385 & 87.811  & - \\
-    SVM & 1.403 & 11.737 & 23.203 & 24.126   \\
-    Tomography & 11.108 & 40.177  & 1376.134 & -  \\
-    Weighted samples & 1.358 & 11.768 & 21.255 & 20.541   \\
-    \hline
-    \end{tabular}
-\end{subfigure}
-    \caption{\pytracer tracing performances.}
-    \label{tab:pytracer_overhead}
-\end{table}
+% \begin{table}
+% \centering
+% \begin{subfigure}[t]{.75\linewidth}
+%     \centering
+%     \begin{tabular}{|l|c|c|c|c|}
+%     \hline 
+%     Application & Original & Pytracer only & RR & MCA \\
+%     \hline 
+%     Loading & 0.456 & 8.152 & - & - \\
+%     \hline
+%     discrete\_cosine\_transform & 0.280 & 8.176 & 10.203 & - \\ 
+%     fft\_1D & 0.650 & 9.075 & 11.345 & - \\
+%     fft\_2D & 0.311 & 9.500 & 11.929  & 16.433   \\
+%     \hline
+%     interpolation\_1D & 0.377 & 8.803  & 11.954  & -   \\
+%     multivariate\_data &0.626 & 8.648 &  12.711  & - \\
+%     bspline & 0.109  & 9.050 & 13.396  & 16.830   \\
+%     spline\_1D & 0.111 & 8.618 & 10.960   & - \\
+%     spline\_2D & 0.655 & 8.649 & 19.424  & - \\
+%     \hline
+%     broyden\_fletcher\_goldfarb\_shanno &0.475 & 8.292 & 11.033 & 13.685 \\
+%     global\_optimization &1.257 & 55.916  & 93.322  & - \\
+%     slsqp & 0.469 & 8.192 & 10.795 & 12.439  \\
+%     least\_square\_minimization & 0.505 & 10.151  & 13.888 & -  \\
+%     nelder\_mead\_simplex & 0.471 & 8.418  & 11.382  & 12.792  \\
+%     newton\_conjugate\_gradient & 0.487 & 8.548  & 11.956  & 14.281 \\
+%     root\_findings & 0.462 & 8.198  & 10.787   & - \\
+%     root\_finding\_large & 0.801 & 11.525 & 41.493   &  82.701  \\
+%     root\_finding\_large\_preconditioned & 0.702 & 10.580 & 33.199   & 57.579  \\
+%     trust\_region\_exact & 0.482 & 8.170 & 10.400  & 12.524 \\
+%     trust\_region\_truncated\_generalized\_lanczos & 0.459 & 8.457 & 11.216 & 13.245  \\
+%     trust\_region\_newton\_conjugate\_gradient & 0.479 & 8.538 & 11.179 & 13.488 \\
+%     \hline
+%     Adaboost &1.388 &14.553 &  20.999 & - \\
+%     Bayesian Ridge Regression & 1.086 & 10.344 & 90.299 & -  \\
+%     Online classifier comparison & 15.964 & 72.691 & 2104.114 & -  \\
+%     K-Means Clustering & 1.621 & 17.614  & 34.005 & 52.902   \\
+%     Covariance estimation & 1.357 & 11.755 & 23.964  & -   \\
+%     Decision Tree Regression & 1.185 & 11.194 & 15.760 & 15.918  \\
+%     Digits Classification & 1.672 & 12.725 & 40.634 & - \\
+%     Face Recognition & 32.159  & 74.356 & - & - \\
+%     L1 Penalty & 1.568 & 12.591 & 65.547 & 128.220 \\
+%     Lasso and elastic net & 1.057 & 9.903 & 17.078 & -  \\
+%     Separating hyperplan & 1.376 & 11.532  & 22.333 & 25.036 \\
+%     MNIST classification & 19.650 & 37.838 & 402.389  & - \\
+%     Multitask Lasso & 1.090 &10.196 & 15.025  & - \\
+%     Orthogonal matching & 1.161 & 12.129 & 21.779   & 31.135 \\
+%     PCA decomposition & 1.239 & 10.642 & 15.520 & 17.952    \\
+%     Robust Linear Regression & 1.370 & 11.144  & 14.280  & - \\
+%     Segmentation toy &1.679 & 22.385 & 87.811  & - \\
+%     SVM & 1.403 & 11.737 & 23.203 & 24.126   \\
+%     Tomography & 11.108 & 40.177  & 1376.134 & -  \\
+%     Weighted samples & 1.358 & 11.768 & 21.255 & 20.541   \\
+%     \hline
+%     \end{tabular}
+% \end{subfigure}
+%     \caption{\pytracer tracing overhead in seconds. \tristan{what is the unit in this table?}}
+%     \label{tab:pytracer_overhead}
+% \end{table}
 
     
 % \begin{table}[]
@@ -1691,70 +1785,109 @@ Furthermore, we obtain an average slowdown of $\times 37$ for RR mode and $\time
 %     \label{tab:pytracer_overhead}
 % \end{table}
 
-\subsection{Postprocessing}
+Moreover, \pytracer's trace aggregation introduces to a post-processing overhead.
+Figure~\ref{fig:performance_parsing} shows
+the postprocessing time and trace sizes produced by \pytracer.
+In conclusion, the small overhead introduced by Pytracer allows one to analyze real-life applications.
 
-The figures~\ref{fig:performance_parsing_time} and~\ref{fig:performance_parsing_size} show
-the postprocessing time and trace's sizes produced by \pytracer.
-We only report time for parsing and aggregation that have been successful.
-We measure a throughput of 7MB/s by taking the ratio size over time. 
-
+\tristan{A scatter plot with x=size and y=time might be easier to read.}
+\tristan{Add a conclusion comment about the overhead}
 
 \section{Discussion}
 
-\pytracer is a tool for visualizing the numerical quality of function inputs/outputs over time.
-It generates numerical traces that are aggregated in postprocessing to measure numerical discrepancies between executions.
-\pytracer does not assume the noise model used to estimate uncertainties but has been tested with the MCA 
+% Numpy   2509 (2403 not tests) (1848) functions, 1196 (1154) (817) classes (pure Python)
+% Scipy   4031 (2187) (506) functions, 1532 (472) (109) classes (pure Python)
+% Sklearn 4807 (1010) (81) functions, 546 (417) (41) classes (pure Python)
+
+\tristan{The next paragraphs read like nobody should use \pytracer ever because it's full of issues. Rewrite this section to explain why \pytracer is important, what it could be used for, what it brings to current context. We can discuss these points if you want. If you want to talk about limitations, formulate them as future work, not "pitfalls" or "problems".}
+
+Pytracer is a tool for visualizing the numerical quality of function inputs/outputs over time. It generates numerical traces that are aggregated in postprocessing to measure numerical discrepancies between executions. Pytracer does not assume the noise model used to estimate uncertainties, but we tested it with the MCA model
 through the fuzzy ecosystem on two broadly used scientific libraries for Python with partial success.
 
-As we showed in section~\ref{sec:impact_mca_modes}, using the Full MCA mode leads to runtime errors that have a considerable impact on the proper functioning of the execution, which is unfortunate since these
-errors do not reflect actual numerical errors but errors related to perturbations that should not occur.
-Fixing this misbehavior would greatly help use Full MCA mode since this mode allows simulating catastrophic cancellations, which are familiar sources of numerical errors. By preserving exact operations, RR mode is far more conservative and so easy to use even though it does not simulate all perturbations that might be encountered.
+We demonstrated the \pytracer's capabilities to analyze intensively used Python libraries such as NumPy or Scikit-learn, such as 1) Scalability. The low instrumentation overhead of 3.5x enables analysis of real applications and permits having a global representation of the numerical quality of an application. 2) Automaticity. \pytracer instrumentation is fully automatic and does not require manual intervention from the user, allowing the instrumentation of the NumPy, SciPy, and Scikit-learn libraries.
+3) Agnosticism. \pytracer works on any python libraries, with any data format supported by Pickle and any numerical noise model flavor.
 
-Also, using a post-process analysis to aggregate traces, \pytracer falls in the same pitfalls as veritracer and is limited to aggregate traces where the execution flow path extremely diverges. Therefore, a posteriori reconstruction
-is challenging as one must precisely identify the flow path taken and find synchronization points to pursue the analysis. We retrieve, for example, this divergence behavior in two general classes of numerical schemes: iterative methods and optimization processes. One solution to overcome this issue is to integrate methods used in code coverage analysis to keep track of flow paths taken and the backtraces.
-However, this would increase the complexity of the postprocess analysis as well as an extra slowdown factor.
-However, by coupling the Gantt chart with static analysis, \pytracer would catch some divergence patterns occurring within a function. Indeed, by instrumenting at the function level, \pytracer views the function's callees (i.e., the functions called within a function) and thus should partially detect flow divergences.
+\pytracer is the first tool to bring the numerical analysis of Python codes available to everyone. Indeed, existing tools developed in the last years focused on traditional languages of the HPC community such as C, C++, and FORTRAN. However, the Python high-level abstraction allows for quickly developing applications while maintaining high performance with the help of specialized libraries like NumPy. Therefore, it is quite natural to see more fields systematically using Python, as in neuroimaging. Thus, \pytracer meets the numerical analysis needs of an ever-increasing number of applications writing in Python.
+Furthermore, \pytracer allows users to pinpoint numerical instabilities root causes precisely by working at the function level. Furthermore, the automaticity facilitates the usage and its integration in unit testing, for example. Hence, instead of tweaking hyperparameters to make solvers converge, the user has a practical way with \pytracer to quantify the numerical quality of its computations. Furthermore, the visualization permits a global view of the code and easily navigate through it.
+Moreover, it removes the need for ad-hoc scripts to visualize data. \pytracer currently supports n-dimensional NumPy arrays as well as native Python data. We want to extend \pytracer to support other formats such as 4D brain images in future works.
 
-By design principle, \pytracer is flexible on the noise model used, although we only test it with the MCA model in our experiments.
-Nevertheless, we would like to compare different models against MCA in future works to see the resulting differences. 
-In particular, although \pytracer only works on a sequential application for the moment, it can be used to analyze parallel sections internal to a function.
-The only restriction is that the section does not call other functions traced by \pytracer; we would fall into the previous issue of divergence if it would not be the case.
-Since \pytracer only cares about inputs and outputs of a function, the order of internal operations is transparent for it and thus should be able to handle those cases.
+As we showed in section~\ref{sec:impact_mca_modes}, using the Full MCA mode leads to runtime errors that have a considerable impact on the proper functioning of the execution, which is unfortunate since these errors do not reflect actual numerical errors but errors related to perturbations that should not occur.
+Fixing this misbehavior would greatly help use Full MCA mode since this mode allows simulating catastrophic cancellations, which are familiar sources of numerical errors. On the other hand, RR mode is far more conservative since it preserves exact operations and is easier to use even though it does not simulate all perturbations.
+In addition to the runtime errors it raises, mismatching shapes is also a problem when aggregating traces as \pytracer will not compute statistics for a set of arrays with different shapes. Two solutions exist to overcome this issue: the first is not to instrument the \texttt{PyArray\_Arange} function with MCA. The advantage is that it is easy to set up since it requires one extra line in the exclusion file. However, the same kind of problem may appear somewhere else because, as we have seen, the evolved operations are elementary. Therefore, the chances that developers reproduce the same pattern are very probable. Therefore, the second solution is to ensure that the Full MCA mode preserves the exact operations. This solution has the advantage of not worrying about which functions should be instrumented or not with MCA, but it is hard to achieve it in practice. Indeed, we rely on the MCA implementation provided by Verificarlo that uses an internal precision to add the random perturbation that is higher than the working precision for applying the random noise. Verificarlo then rounds the result to the working precision before returning it, so any residual noise lower than the working precision is lost. Keeping track of that noise would require recording each intermediate computation in a shadow memory or keeping a tag about their exactness. This option would require more extra works than the first one but would ensure more consistent results.
 
-Finally, \pytracer does not instrument elementary arithmetic operations, and it can be a barrier to more profound analysis.
-However, we believe that instrumentation at the function level presents two advantages: it first limits the size of the traces since only inputs and outputs of a function are dumped instead of a full report which, on the one hand, decrease the overhead of the instrumentation and, on the other hand, help the user to identify instabilities quickly. One of the pitfalls can be overwhelming the user with too much information, making analysis more difficult. Nevertheless, the analysis at fine granularity can be interesting at the final step of the understanding. Such an analysis would require a different instrumentation approach by, for example, working at the Abstract Syntax Tree (AST) level since it is trivial to get it in Python.
-An ideal way to do that would be to extract and replay a function, in the same vein as the CERE~\cite{castro2015cere} tool does but for Python, and use an AST instrumentation to analyze the numerical quality of elementary operations step by step within the fuzzy environment.
-Lastly, AST analysis can serve as a basis for finding relationships between variables, valuable information for the user.
+Also, we would like to extend the post-process analysis to aggregate traces where the execution flow path diverges. Therefore, a posteriori reconstruction is challenging as one must precisely identify the flow path taken and find synchronization points to pursue the analysis. We retrieve, for example, this divergence behavior in two general classes of numerical schemes: iterative methods and optimization processes. One solution is to integrate methods used in code coverage analysis to keep track of flow paths taken and the backtraces. However, this would increase the complexity of the postprocess analysis as well as an extra slowdown factor. However, by coupling the Gantt chart with static analysis, \pytracer would catch some divergence patterns occurring within a function. Indeed, by instrumenting at the function level, \pytracer views the function's callees (i.e., the functions called within a function) and thus should partially detect flow divergences.
 
-In addition to the runtime errors it raises, mismatching shapes is also a problem when aggregating traces as PyTracer will not compute statistics for a set of arrays with different shapes.
-Two solutions exist to overcome this issue: the first is not to instrument the \texttt{PyArray\_Arange} function with MCA. The advantage is that it is easy to set up since it requires one extra line in the exclusion file.
-However, the same kind of problem may appear somewhere else
-because, as we have seen, the operations being evolved are elementary. Therefore, the chances that developers reproduce the same pattern are very probable. The second solution is to ensure that the Full MCA mode preserves the exact operations.
-This solution has the advantage of not worrying about which functions should be instrumented or not with MCA, but it is hard to achieve it in practice. Indeed, we rely on the MCA implementation provided by Verificarlo that uses an internal precision to add the random perturbation that is higher than the working precision for applying the random noise. Verificarlo then rounds the result to the working precision before returning it, so any residual noise lower than the working precision is lost. 
-Keeping track of that noise would require recording each intermediate computation in a shadow memory or keeping a tag about their exactness.
-\Yohan{This idea emerged by discussing with Verificarlo's team. 
-I must find a way to express that and not give the impression that we discovered or suggest it.}
-This option would require more extra works than the first one but would ensure more consistent results.
+By design principle, \pytracer is flexible on the noise model used, although we only tested it with the MCA model in our experiments. Nevertheless, we would like to compare different models against MCA in future works to see the resulting differences. Furthermore, we would like to test \pytracer on parallel codes.
+
+Finally, we would extend \pytracer to instrument elementary arithmetic operations which can be helpful to more profound analyses. We nevertheless believe that instrumentation at the function level presents two advantages: it first limits the size of the traces since only inputs and outputs of a function are dumped instead of a full report which, on the one hand, decreases the overhead of the instrumentation and, on the other hand, help the user to identify instabilities quickly. Indeed, full reporting can overwhelm the user with too much information, making analysis more difficult at first. Second, the analysis at fine granularity is interesting at the final step of the understanding. Such an analysis would require a different instrumentation approach by, for example, working at the Abstract Syntax Tree (AST) level since it is trivial to get it in Python.
+Moreover, working at the AST level allows doing dependency analysis. Another extension would be to extract and replay a function, in the same vein as the CERE tool does but for Python, and to use an AST instrumentation to analyze the numerical quality of elementary operations step by step within the fuzzy environment.
+
+
+
+% \pytracer is a tool for visualizing the numerical quality of function inputs/outputs over time.
+% It generates numerical traces that are aggregated in postprocessing to measure numerical discrepancies between executions.
+% \pytracer does not assume the noise model used to estimate uncertainties but has been tested with the MCA 
+% through the fuzzy ecosystem on two broadly used scientific libraries for Python with partial success.
+
+% We demonstrated the Pytracer's capabilities to analyze intensively used Python libraries such as NumPy or Scikit-learn, such as 
+% 1) Scalability. The low instrumentation overhead of 3.5x enables analysis of real applications and permits having a global representation of the numerical quality of an application. 
+% 2) Automaticity. Pytracer instrumentation is fully automatic and does not require manual intervention from the user, allowing the instrumentation of 
+% the NumPy, SciPy and Scikit-learn libraries.
+% // that cumulate 5600 and 2043 pure Python functions and classes. 
+% 3) Agnosticity. Pytracer works on any python libraries, with any data format supported by pickle, and any numerical noise model flavor.
+
+% Pytracer is the first tool to bring numerical analysis of Python codes available to everyone. Indeed, existing tools developed in the last years focused on traditional HPC languages community such as C,C++, and FORTRAN. However, the Python high-level abstraction allows you to quickly develop applications while maintaining high performance with the help of specialized libraries like NumPy. Therefore, it is quite natural to see more fields systematically using Python, as is the case in neuroimaging. Thus, Pytracer meets the numerical analysis needs of an ever increasing number of applications writing in Python.
+
+% By working at function level, Pytracer allows users to precisely pinpoint numerical instabilities root causes. Furthermore, the automaticity facilitates the usage and its integration in unit testing. Hence, instead of tweaking hyperparameters to make solvers converging, the user has a practical way with Pytracer to quantify the numerical quality of its computations. 
+
+% As we showed in section~\ref{sec:impact_mca_modes}, using the Full MCA mode leads to runtime errors that have a considerable impact on the proper functioning of the execution, which is unfortunate since these
+% errors do not reflect actual numerical errors but errors related to perturbations that should not occur.
+% Fixing this misbehavior would greatly help use Full MCA mode since this mode allows simulating catastrophic cancellations, which are familiar sources of numerical errors. By preserving exact operations, RR mode is far more conservative and so easy to use even though it does not simulate all perturbations that might be encountered. 
+
+% Also, using a post-process analysis to aggregate traces, \pytracer falls in the same pitfalls as veritracer and is limited to aggregate traces where the execution flow path extremely diverges. Therefore, a posteriori reconstruction
+% is challenging as one must precisely identify the flow path taken and find synchronization points to pursue the analysis. We retrieve, for example, this divergence behavior in two general classes of numerical schemes: iterative methods and optimization processes. One solution to overcome this issue is to integrate methods used in code coverage analysis to keep track of flow paths taken and the backtraces.
+% However, this would increase the complexity of the postprocess analysis as well as an extra slowdown factor.
+% However, by coupling the Gantt chart with static analysis, \pytracer would catch some divergence patterns occurring within a function. Indeed, by instrumenting at the function level, \pytracer views the function's callees (i.e., the functions called within a function) and thus should partially detect flow divergences.
+
+% By design principle, \pytracer is flexible on the noise model used, although we only tested it with the MCA model in our experiments.
+% Nevertheless, we would like to compare different models against MCA in future works to see the resulting differences. 
+% In particular, although \pytracer only works on a sequential application for the moment, it can be used to analyze parallel sections internal to a function.
+% The only restriction is that the section does not call other functions traced by \pytracer; we would fall into the previous issue of divergence if it would not be the case.
+% Since \pytracer only cares about inputs and outputs of a function, the order of internal operations is transparent for it and thus should be able to handle those cases.
+
+% Finally, \pytracer does not instrument elementary arithmetic operations, and it can be a barrier to more profound analysis.
+% However, we believe that instrumentation at the function level presents two advantages: it first limits the size of the traces since only inputs and outputs of a function are dumped instead of a full report which, on the one hand, decrease the overhead of the instrumentation and, on the other hand, help the user to identify instabilities quickly. One of the pitfalls can be overwhelming the user with too much information, making analysis more difficult. Nevertheless, the analysis at fine granularity can be interesting at the final step of the understanding. Such an analysis would require a different instrumentation approach by, for example, working at the Abstract Syntax Tree (AST) level since it is trivial to get it in Python.
+% An ideal way to do that would be to extract and replay a function, in the same vein as the CERE~\cite{castro2015cere} tool does but for Python, and use an AST instrumentation to analyze the numerical quality of elementary operations step by step within the fuzzy environment.
+% Lastly, AST analysis can serve as a basis for finding relationships between variables, valuable information for the user.
+
+% In addition to the runtime errors it raises, mismatching shapes is also a problem when aggregating traces as PyTracer will not compute statistics for a set of arrays with different shapes.
+% Two solutions exist to overcome this issue: the first is not to instrument the \texttt{PyArray\_Arange} function with MCA. The advantage is that it is easy to set up since it requires one extra line in the exclusion file.
+% However, the same kind of problem may appear somewhere else
+% because, as we have seen, the operations being evolved are elementary. Therefore, the chances that developers reproduce the same pattern are very probable. The second solution is to ensure that the Full MCA mode preserves the exact operations.
+% This solution has the advantage of not worrying about which functions should be instrumented or not with MCA, but it is hard to achieve it in practice. Indeed, we rely on the MCA implementation provided by Verificarlo that uses an internal precision to add the random perturbation that is higher than the working precision for applying the random noise. Verificarlo then rounds the result to the working precision before returning it, so any residual noise lower than the working precision is lost. 
+% Keeping track of that noise would require recording each intermediate computation in a shadow memory or keeping a tag about their exactness.
+% \Yohan{This idea emerged by discussing with Verificarlo's team. 
+% I must find a way to express that and not give the impression that we discovered or suggest it.}
+% This option would require more extra works than the first one but would ensure more consistent results.
 
 \section{Conclusion}
 
 
 % \tristan{I moved this from the opening of Section 4, as this reads more like a summary of \pytracer's features than an experiment description. It should be refactored in 1-2 paragraphs summarizing the main properties of \pytracer.}
 
-\pytracer is the first tool to propose a complete framework
+\pytracer is the first tool to offer a complete framework
 for analyzing and visualizing the numerical stability of Python codes.
 It works by automatically instrumenting Python libraries to produce numerical
-traces interactively visualized through a Dash server.
-\pytracer does not require manual intervention from the user either rely on
-specific libraries and has been tested successfully on 
-intensively used on scientific libraries such as NumPy, SciPy, and Scikit-learn. We demonstrated on a set of representative tests that \pytracer is scalable with an average instrumentation slowdown of $times 3.5$, and that it can handle traces up to 1TB while offering a fluent visualization to the user. Moreover,
+traces visualized through an interactive Plotly Dash server.
+\pytracer does not require manual code modification, and has been tested  with 
+major scientific libraries such as NumPy, SciPy, and Scikit-learn. Our results show that \pytracer is scalable, with an average instrumentation slowdown of $3.5\times$. \pytracer's visualization interface remains responsive even with traces of up to 1TB. Moreover,
 \pytracer is by construction agnostic to the noise model used 
-to evaluate the numerical stability. Finally, we have demonstrated 
+to evaluate the numerical stability. We have demonstrated 
 that \pytracer can be used with the Monte Carlo Arithmetic 
 through the fuzzy environment. 
 The experiments conducted in this paper are the first largest application of the fuzzy ecosystem by the wide range of applications covered. 
 We also have to provide feedback about pitfalls and benefits encountered to shed light on first-time users' good and bad practices and democratize MCA's usage. 
-\pytracer is available at \href{https://github.com/yohanchatelain/pytracer}{github://yohanchatelain/pytracer} under an open source license.
+\pytracer is available at \href{https://github.com/big-data-lab-team/pytracer}{github://big-data-lab-team/pytracer} under MIT License.
 
 % \begin{itemize}
 
