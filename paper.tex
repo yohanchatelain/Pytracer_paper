@@ -10,7 +10,7 @@
 \usepackage{pifont}
 \usepackage{xcolor,colortbl}
 \usepackage{hyperref}
-\hypersetup{colorlinks=true,linkcolor=black,citecolor=blue,filecolor=black,urlcolor=blue}
+\hypersetup{colorlinks=true,linkcolor=blue!50!black,citecolor=blue!75!black,filecolor=black,urlcolor=blue!75!black}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{xspace}
@@ -19,6 +19,10 @@
 \usepackage{minted} % Provides listing environment
 \usepackage[htt]{hyphenat}
 \usepackage{subcaption}
+\usepackage{graphicx,import}
+\usepackage{booktabs}
+
+
 % \usepackage{subfigure}
 
 \newcommand{\tristan}[1]{\color{orange}\textbf{From Tristan:} #1\color{black}\xspace}
@@ -28,10 +32,14 @@
 \newcommand{\cross}[0]{\cellcolor{red!65}\ding{53}}
 \newcommand{\valid}[0]{\cellcolor{green!75!black}\ding{51}}
 \newcommand{\warn}[0]{\cellcolor{orange!75}?}
+\newcommand{\na}[0]{\cellcolor{gray!25}}
+\newcommand{\s}[1]{\cellcolor{cyan!25}#1}
 \newcommand{\scross}[0]{\ding{53}~}
 \newcommand{\svalid}[0]{\ding{51}~}
 \newcommand{\swarn}[0]{?~}
 \newcommand{\pytracer}[0]{PyTracer\xspace}
+
+\setlength{\arrayrulewidth}{0.1pt}
 
 \include{href}
 
@@ -103,18 +111,18 @@ $^2$Center for the Developing Brain, Child Mind Institute, New York, NY, USA}
 \maketitle
 
 \begin{abstract}
-Numerical stability is a crucial requirement of reliable scientific computing. However, despite the pervasiveness of Python in data science, analyzing large Python programs remains challenging due to the lack of scalable numerical analysis tools available for this language. We developed \pytracer, a profiler to quantify numerical instability in Python applications to address this issue. \pytracer automatically instruments Python code at a low cost ($\simeq3.5\times$) to produce numerical traces and visualize them interactively in a Plotly dashboard. We designed \pytracer to work with any numerical noise model, including Monte-Carlo Arithmetic, random rounding or, random data perturbations. We illustrate \pytracer's capabilities by testing the numerical stability of key functions in the SciPy and Scikit-learn Python libraries. \pytracer permitted pinpointing numerical instabilities caused by a LAPACK library function and fixing them.
+Numerical stability is a crucial requirement of reliable scientific computing. However, despite the pervasiveness of Python in data science, analyzing large Python programs remains challenging due to the lack of scalable numerical analysis tools available for this language. We developed \pytracer, a profiler to quantify numerical instability in Python applications. \pytracer automatically instruments Python code to produce numerical traces and visualize them interactively in a Plotly dashboard. We designed \pytracer to work with any numerical noise model including Monte-Carlo Arithmetic, random rounding or random data perturbations. We illustrate \pytracer's capabilities by testing the numerical stability of key functions in the SciPy and Scikit-learn Python libraries. Through these evaluations, we demonstrate \pytracer as a scalable, automatic, and generic framework for numerical evaluations in Python.
 % Numerical stability is a crucial requirement of reliable scientific computing. However, despite the pervasiveness of Python in data science, analyzing large Python programs remains challenging due to the lack of scalable numerical analysis tools available for this language. To address this issue, we developed \pytracer, a profiler to quantify numerical instability in Python applications. \pytracer automatically instruments Python code to produce numerical traces and visualize them interactively in a Plotly dashboard.
 % \pytracer is designed to work with any type of numerical noise model, including Monte-Carlo Arithmetic, random rounding or random data perturbations. We illustrate \pytracer's capabilities by testing the numerical stability of key functions in the SciPy and Scikit-learn Python libraries. Finally, \pytracer slows down executions by only $3.5 \times$ on average.
-\tristan{Add one sentence to summarize the findings} 
+% \tristan{Add one sentence to summarize the findings} 
 \end{abstract}
 
 \section{Introduction}
 
-The scientific Python ecosystem is a central component of scientific
-analyses due to its rich offering of data manipulation, array programming,
+The scientific Python ecosystem is a central component of data
+analyses owing to its rich offering of data manipulation, array programming,
 numerical analysis, and visualization tools. In particular, libraries such
-as NumPy~\cite{harris2020array}, SciPy~\cite{virtanen2020scipy}, scikit-learn~\cite{pedregosa2011scikit} or PyTorch~\cite{paszke2019pytorch} are used in hundreds of publications every year, providing a reference set of high-quality open-source core scientific libraries. Researchers have built numerous domain-specific data analysis pipelines from this ecosystem, leveraging Python's simplicity and expressivity. 
+as NumPy~\cite{harris2020array}, SciPy~\cite{virtanen2020scipy}, scikit-learn~\cite{pedregosa2011scikit} or PyTorch~\cite{paszke2019pytorch} are used in hundreds of publications every year, providing a reference set of high-quality open-source core scientific libraries. Researchers have built numerous domain-specific software tools from this ecosystem, leveraging Python's simplicity and expressivity. 
 
 Numerical stability is a crucial requirement of reliable scientific data
 processing. In unstable analyses, small numerical perturbations introduced by data noise, software and hardware updates, or parallelization lead to substantial deviations in final results and potentially different scientific conclusions, threatening the reliability of computational analyses. To address this issue, numerical stability analyses need to be conducted systematically, however, no practical tool currently exists to conduct such analyses for Python programs.
@@ -125,13 +133,13 @@ PyTracer adopts a dynamic approach that evaluates numerical stability using prog
 PyTracer estimates the variability of floating-point variables by combining program traces obtained with different numerical perturbations, which requires (1) generating numerically-perturbed executions, (2) tracing floating-point computations along program executions, and (3) visualizing stability evaluations. PyTracer addresses these requirements with (1) a ``fuzzy" Python interpreter instrumented with Monte-Carlo arithmetic, (2) a dynamic instrumentation of Python functions, modules, and classes through meta-programming, (3) an interactive Plotly dashboard to visualize stability measures throughout program executions.
 
 Through stability evaluations of the
-SciPy and scikit-learn libraries, we demonstrate \pytracer as a practical solution to review the numerical stability of extensive code bases. The remainder of this manuscript describes related approaches, presents the design of \pytracer, and demonstrates its potential in various use cases.
+SciPy and scikit-learn libraries, we demonstrate \pytracer as a practical solution to review the numerical stability of extensive code bases. This manuscript describes related approaches, presents the design of \pytracer, and demonstrates its potential in various use cases.
 
 
 \section{Background and related work}
 
 Several tools have been developed to assess numerical quality, divided into static and dynamic approaches. Static approaches typically analyze source code while dynamic approaches trace floating-point computations throughout executions. A detailed review of these approaches is presented in~\cite{cherubin2020tools}. 
-\pytracer adopts the dynamic approach due to its scalability to large existing code bases. Dynamic approaches typically trace floating-point computations, detect instabilities in traces, and visualize summary statistics about instabilities. The remainder of this section reviews existing approaches for each of these steps. 
+\pytracer adopts the dynamic approach due to its scalability to large existing code bases. Dynamic approaches typically trace floating-point computations, detect instabilities in traces, and visualize summary statistics about instabilities. This section reviews existing approaches for each of these steps. 
 
 % In this section, we review tools and theoretical frameworks related to \pytracer components.
 % We start by reviewing state-of-the-art dynamic tools for detecting numerical instabilities.
@@ -141,7 +149,7 @@ Several tools have been developed to assess numerical quality, divided into stat
 
 \label{sec:soa}
 \subsection{Numerical tracing techniques}
-Tools to trace floating-point computations for C, C++, or FORTRAN programs are numerous due to the prevalence of these languages in High-Performance Computing (HPC). 
+Numerous tools exists to trace floating-point computations for C, C++, or FORTRAN programs due to the prevalence of these languages in High-Performance Computing (HPC). 
 The main tracing techniques are source-to-source, compiler-based transformations, and dynamic binary instrumentation.
 
 The source-to-source technique requires a rewriting of the application to modify floating-point types. 
@@ -162,9 +170,9 @@ Verrou~\cite{fevotte2016verrou} is a Valgrind~\cite{nethercote2007valgrind} base
 floating-point operations with their stochastic arithmetic counterparts. FPDebug~\cite{benz2012dynamic} uses DBI to detect numerical inaccuracies by using shadow computations with higher precision.
 Herbgring~\cite{sanchez2017finding} is a Valgrind-based tool to detect
 numerical instabilities. It uses a shadow memory to detect precision losses by comparison with results obtained at higher precision. It is combined with symbolic computation to backtrack the root of the error.
-We can note that all methods based on a high-precision oracle suppose that computing with a large number of bits is sufficient to obtain an accurate result, which is not always true (see for example, the famous Muller's sequence~\cite{bajard1996introduction}. %\tristan{it looks like your veritracer paper is the first time where the ``famous Muller's sequence" was described, is that so?}).
+We can note that all methods based on a high-precision oracle suppose that computing with a large number of bits is sufficient to obtain an accurate result, which is not always true (see for example, the famous Muller's sequence~\cite{bajard1996introduction}). %\tristan{it looks like your veritracer paper is the first time where the ``famous Muller's sequence" was described, is that so?}).
 
-Being agnostic to the programming language is a serious advantage of the DBI method compared to source-to-source and compiler-bases methods. However, working at a binary level makes it difficult to access high-level information needed to debug and understand the source code logic. Conversely, the source-to-source approach provides a fine-grained control on the analyzed code, but it lacks scalability, as rewriting large codes can be a tedious task. Finally, the compiler-based approach takes advantage of the best of both by being automatic and having access to high-level information. However, like source-to-source, the compiler-based method is not suitable for analyzing closed-source libraries.
+Being agnostic to the programming language is a serious advantage of the DBI method compared to source-to-source and compiler-bases methods. However, working at the binary level makes it difficult to access high-level information needed to debug and understand the source-code logic. Conversely, the source-to-source approach provides a fine-grained control on the analyzed code, but it lacks scalability, as rewriting large codes can be a tedious task. Finally, the compiler-based approach takes advantage of the best of both by being automatic and having access to high-level information. However, like source-to-source, the compiler-based method is not suitable for analyzing closed-source libraries.
 
 To the best of our knowledge, there is currently no tool dedicated to the numerical analysis of Python code. Existing tools for tracing Python code focus on  performance profiling for time (cProfile) 
 or memory consumption (memprofile). 
@@ -194,34 +202,32 @@ While this method is appropriate when targeting specific functions, it is not fe
 
 Three main approaches exist to detect numerical instabilities: stochastic arithmetic, uncertainty or sensitivity analysis~\cite{helton2006survey}, and random seed analysis~\cite{click2011quality}.
 %\tristan{add key references for uq/sa if any}
-\pytracer focuses on stochastic arithmetic since it does not require assumptions about 
-the noise model contrary to the sensitivity analysis.
-Moreover, stochastic arithmetic allows evaluating the numerical quality of an implementation.
+\pytracer focuses on stochastic arithmetic since it does not make any assumption about 
+the noise model, in contrast to sensitivity analysis.
 %\tristan{due to...}
 Stochastic arithmetic leverages randomness to estimate numerical instabilities coming from the use of floating-point representations. The main idea is to treat round-off errors 
 % \tristan{only round-off errors or all numerical errors?} 
 as random variables and characterize them statistically.
 
-The first published complete stochastic arithmetic framework was CESTAC~\cite{vignes1993stochastic}, where each floating-point computation is performed multiple times with different rounding modes: round-up or round-down. From these stochastic samples, one can then derive the number of significant digits in the computed result. Discrete Stochastic Arithmetic~\cite{vignes2004discrete} extends CESTAC with comparison operators implemented in the CADNA library.
+The first published complete stochastic arithmetic framework was CESTAC~\cite{vignes1993stochastic}. In CESTAC, each floating-point computation is performed multiple times with different rounding modes: round-up or round-down. From these stochastic samples, one can then derive the number of significant digits in the computed result. Discrete Stochastic Arithmetic~\cite{vignes2004discrete} extends CESTAC with comparison operators implemented in the CADNA library.
 
 Monte Carlo Arithmetic (MCA)~\cite{parker1997monte} uses the same principle but introduces two differences:
 (i) a virtual precision parameter, allowing to simulate reduced working precision,  and (ii) different perturbation modes to introduce perturbations
 on function inputs or output.
-MCA replaces each floating-point number with its stochastic counterpart:
+MCA replaces each floating-point number $x$ with a stochastic counterpart computed as:
 \[
 inexact(x) =  x + \beta^{e_x - t}\xi
 \]
-where $\beta$ is the number base, $t$ the virtual precision and $\xi \in (-\frac{1}{2},\frac{1}{2})$ is a random uniform variable.
+where $\beta$ is the number base, $e_x$ is the magnitude of $x$, $t$ the virtual precision and $\xi \in (-\frac{1}{2},\frac{1}{2})$ is a random uniform variable.
 Virtual precision allows for the simulation of reduced working precision.
-MCA can be applied in three modes: Random Rounding (RR), Precision Bounding (PB), and full MCA, which perturb either the output, the inputs, or both with the $inexact$ function. While the RR mode is equivalent to stochastic rounding, the PB mode allows identifying catastrophic cancellations.
+MCA can be applied in three modes: Random Rounding (RR), Precision Bounding (PB), and full MCA, which apply function $inexact$ to the output, the inputs, or both, respectively. While the RR mode is equivalent to stochastic rounding, the PB mode can also identify catastrophic cancellations.
 
-Stochastic arithmetic uses the number of significant digits $s$ estimated among the sampled values to quantify the numerical errors.
-A common formula to determine this number from MCA samples is the one reported in~\cite{parker1997monte}:
+Stochastic arithmetic quantifies numerical error using the number of significant digits $s$ estimated among the sampled values. A common formula to determine this number from MCA samples is the one reported in~\cite{parker1997monte}:
 \begin{equation}
 s = -\log_{\beta}{ \left| \dfrac{\sigma}{\mu} \right|} \label{eq:sig-digits}
 \end{equation}
 where $\mu$ and $\sigma$ are the sample mean and standard deviation of a variable sampled with MCA.  
-Sohier et al.~\cite{sohier2018confidence} recently provided a rigorous generalization of this formula to include confidence intervals.
+Sohier et al.~\cite{sohier2018confidence} recently provided a generalization of this formula to include confidence intervals.
 
 % \subsubsection{Uncertainty, sensitivity, and random seed analysis}
 % \tristan{I'm wondering if we could remove this sub-section, as it doesn't seem to be critical to the understanding of the paper, wdyt?}
@@ -237,13 +243,12 @@ Sohier et al.~\cite{sohier2018confidence} recently provided a rigorous generaliz
 
 Visualization covers a wide range of numerical simulation domains, from general-purpose numerical visualization with tools
 such as VTK~\cite{schroeder2000visualizing} to topological data analysis~\cite{tierny2018topological}, including matrix~\cite{wu2008matrix} or tensor~\cite{kindlmann2006diffusion} visualization.
-We review here tools dedicated to the analysis of numerical variability induced by the floating-point model. Despite the large number of existing tools  to locate unstable source code sections, few of them allow the user to have a global view of the numerical accuracy of their computations or compare several executions of the same program under various perturbations.
+Despite the large number of existing tools to identify numerically unstable sections of source code, few allow the user to have a global view of the numerical precision of their computations or to compare several executions of the same program under various perturbations.
 
-Veritracer~\cite{chatelain2018veritracer} was the first tool to propose an embedded visualizer of numerical stability over time for C, C++, and Fortran codes. It is an extension of Verificarlo~\cite{verificarlo} that offers contextual information about variables traced to allow the user to identify instabilities quickly.
-However, it neither offers a dynamic interface nor includes information about high-level structures such as \texttt{struct} or \texttt{array}.
+Veritracer~\cite{chatelain2018veritracer} was the first tool to propose an embedded visualizer of numerical stability over the execution of C, C++, and Fortran codes. Veritracer extends Verificarlo~\cite{verificarlo} with contextual information about traced variables, which allows the user to identify instabilities quickly.
+However, Veritracer neither offers a dynamic interface nor includes information about high-level structures such as \texttt{struct} or \texttt{array}.
 FPAvizual~\cite{gu2014fpavisual} visualizes the effects of floating-point arithmetic but only for educational purposes.
-Anteater~\cite{faust2019anteater} proposes a visualizer for Python codes, but as mentioned previously, it only deals with native Python types, and the user needs to select variables to trace manually. However, Anteater provides an insightful reflection 
-% \tristan{It's a bit vague. Do you simply mean: ``Anteater's GUI inspired the design of \pytracer's interface"?} 
+Anteater~\cite{faust2019anteater} proposes a visualizer for Python codes, but as mentioned previously, it only deals with native Python types, and the user needs to select variables to trace manually. Anteater provides an insightful reflection 
 around visual debugging beyond floating-point analysis, which has inspired the design of \pytracer's visualization interface.
 
 
@@ -251,7 +256,7 @@ around visual debugging beyond floating-point analysis, which has inspired the d
 \section{\pytracer design}
 
 % \subsection{Pytracer workflow}
-\pytracer adopts the three-step workflow shown in Figure~\ref{fig:workflow}. First, it uses monkey patching to replace the functions called by the application with a wrapper that saves their arguments and returned values in a trace file.  Second, it injects noise in the application, executes it multiple times, and aggregates the resulting trace files to compute summary statistics about each traced variable. Finally, a Plotly dashboard provides interactive visualizations highlighting unstable code sections.
+\pytracer adopts the three-step workflow shown in Figure~\ref{fig:workflow}. First, \pytracer uses monkey patching to replace the functions called by the application with a wrapper that saves their arguments and returned values in a trace file.  Second, it injects noise in the application, executes it multiple times, and aggregates the resulting trace files to compute summary statistics about each traced variable. Finally, a Plotly dashboard provides interactive visualizations highlighting unstable code sections.
 
 % \tristan{mention monkey patching}
 
@@ -281,7 +286,7 @@ an inclusion/exclusion mechanism. The main advantage of this instrumentation app
 
 \subsubsection{Intercepting module import}
 
-Python loads modules through an import mechanism triggered by the \texttt{import} that involves two objects: \texttt{finders} and \texttt{loaders}. \texttt{Finders} search for packages (or 
+Python loads modules through an import mechanism triggered by the \texttt{import} keyword that involves two objects: \texttt{finders} and \texttt{loaders}. \texttt{Finders} search for packages (or 
 namespaces\footnote{Python distinguishes between \texttt{regular} and \texttt{namespace} packages.
 A regular package is a directory that contains a \_\_init\_\_.py file and potentially subdirectories (sub-packages) 
 that contain themselves a \texttt{\_\_init\_\_.py} file and so on recursively. 
@@ -315,7 +320,7 @@ As a result, the application will transparently call the instrumented module.
 \subsubsection{Instrumenting module functions}
 
 Listings~\ref{fig:wrapper_creation} and~\ref{fig:generic_wrapper} show \pytracer's function instrumentation mechanism.
-For each function to instrument, \pytracer's \texttt{loader} class creates a wrapper function, dynamically compiles it with the compile builtin function, and substitutes it for the original module function.  However, this simple technique does not apply to callable class instances, i.e., class instances that have a \texttt{\_\_call\_\_} attribute and are not of type \texttt{FunctionType}. Indeed, applying the wrapper technique would 1) modify the type of the class instance to \texttt{FunctionType}, which could cause syntax and semantic errors, and 2) mask class attributes, leading to \texttt{AttributeError} exceptions.
+For each function to instrument, \pytracer's \texttt{loader} class creates a wrapper function, dynamically compiles it with the \texttt{compile} builtin function, and substitutes it for the original module function.  Although simple, this technique does not apply to callable class instances, i.e., class instances that have a \texttt{\_\_call\_\_} attribute and are not of type \texttt{FunctionType}. Indeed, applying the wrapper technique would 1) modify the type of the class instance to \texttt{FunctionType}, which could cause syntax and semantic errors, and 2) mask class attributes, leading to \texttt{AttributeError} exceptions.
 \pytracer overrides the \texttt{\_\_call\_\_} attribute with the wrapper function when possible to overcome this issue.
 When the \texttt{\_\_call\_\_} attribute is not writable,  Pytracer does not instrument the class and returns a warning. 
 
@@ -376,7 +381,7 @@ def get_wrapper_function(module, qualname, name, function):
     \centering
 \begin{lstlisting}[language=Python,style=customPython,]
 def generic_wrapper(self, info, *args, **kwargs):
-    """Generic wrapper dumping inputs and outputs of the wrapped function.
+    """Generic wrapper saving inputs and outputs of the wrapped function.
     The id_dict dict keeps a mapping between the original function identifier
     and itself. Arguments are binded to avoid mispositioning.
     Returns the actual output of the wrapped function.
@@ -409,7 +414,7 @@ def generic_wrapper(self, info, *args, **kwargs):
                  backtrace=stack)
     return outputs
 \end{lstlisting}
-    \caption{\pytracer's generic wrapper function that dumps
+    \caption{\pytracer's generic wrapper function that saves
     the inputs and outputs of the wrapped function.}
     \label{fig:generic_wrapper}
 \end{listing}
@@ -432,8 +437,8 @@ To overcome this issue, \pytracer wraps the class instance into a transparent wr
 
 \subsubsection{Instrumenting iterators}
 
-In functional programming, iterators traverse containers lazily, meaning that the next element in the sequence is only computed when the application uses it. This technique allows for the manipulation of virtually infinite sequences with finite memory. However, it implies that no complete mapping of the container returned by an iterator exists in memory since the application computes each element on the fly. Therefore, builtin iterators are not serializable which implies that \pytracer cannot save them to output traces. 
-A workaround would be to convert iterators into explicit containers, however, this would increase the memory footprint significantly. \pytracer, therefore, does not instrument iterators.
+In functional programming, iterators traverse containers lazily, meaning that the next element in the sequence is only computed when the application uses it. This technique allows for the manipulation of virtually infinite sequences with finite memory. However, it implies that no complete mapping of the container returned by an iterator exists in memory since the application computes each element on the fly. Therefore, iterators are not serializable which implies that \pytracer cannot save them to output traces. 
+A workaround would be to convert iterators into explicit containers, however, this would increase the memory footprint significantly. \pytracer, therefore, does not instrument non-builtin iterators.
 
 % \begin{listing}
 % \begin{minipage}[t]{0.4\linewidth}
@@ -491,7 +496,9 @@ Traces store numerical values at the granularity of function calls. When the app
 
 \subsubsection{Trace aggregation}
 
-Once traces are available, \pytracer sequentially parses them and computes the mean, standard deviation, and number of significant digits (as in Equation~\ref{eq:sig-digits}) of all saved values. \pytracer saves these summary statistics in an HDF5 file, a hierarchical format that facilitates visual browsing. This operation critically relies on the ordering of call input and output objects in the traces. Therefore, it assumes that the application is single-threaded and that the control flow does not depend on a random state. 
+Once traces are available, \pytracer sequentially parses them and computes the mean, standard deviation, and the number of significant digits (as in Equation~\ref{eq:sig-digits}) of all saved values. \pytracer saves these summary statistics in an HDF5 file, a hierarchical format that facilitates visual browsing since only
+required information are loaded when requested by the user.
+This operation critically relies on the ordering of call input and output objects in the traces. Therefore, it assumes that the application is single-threaded and that the control flow does not depend on a random state. 
 % Techniques to overcome this limitation are discussed in the discussion section.
 
 \begin{figure}
@@ -535,13 +542,14 @@ We evaluated \pytracer on two widely-used Python libraries: SciPy~\cite{virtanen
 
 Table~\ref{tab:pytracer_results_summary} summarizes
 \pytracer's outcome on SciPy and scikit-learn examples.
-The columns \textit{trace} and \textit{parse} report on the tracing and trace aggregation steps with three possible outcomes: green for success, red for numerical error in the application, and orange for errors due to the fuzzy noise injection
-that are not considered as numerical errors, like for instance index errors due to an index shift.
+Columns \textit{trace} and \textit{parse} report on the tracing and trace aggregation steps with three possible outcomes: green for success, red for numerical error in the application, and orange for errors due to the fuzzy noise injection
+that are not considered numerical errors.
+% , like for instance index errors due to an index shift.
 % \tristan{Explain what this is, in a setence here or with a subsubsection if it requires more}. 
 Overall, the tracing and parsing of SciPy and scikit-learn examples in Random Rounding mode was entirely successful for 32/40 examples. The remaining examples failed due to numerical errors in the libraries, which we discuss hereafter. The instrumentation with Full MCA is more invasive and reduced the number of successful executions to 12/40.
 
-The column \textit{result} summarizes the precision for main outputs of SciPy and scikit-learn examples. 
-We measured the precision in significant bits on the main example output by taking the element-wise mean for non-scalar values and, if the example produces many outputs, the average value among all of them. The numerical quality across all examples varies from 0 to 52, with an average of 44 significant bits. For both modes, we note that only one example failed due to a numerical error 
+Column \textit{sigbits} in Table~\ref{tab:pytracer_results_summary} summarizes the precision for the main outputs of SciPy and scikit-learn examples. 
+We measured the precision in significant bits on the main example output by taking the element-wise mean for non-scalar values and, if the example produces many outputs, the average value among all of them. The numerical quality across all examples varies from 0 to 52, with an average of 44 significant bits. For both modes, we note that only two examples failed due to a numerical error 
 % \tristan{can we see that in the table? if not, don't comment on it, it is puzzling. Could you show that in the table by using the same error symbols as in Table 2?} 
 (\texttt{face\_recognition} for RR and \textit{Bayesian Ridge Regression} for Full MCA) even though we underestimate this number since Full MCA mode is more intrusive than RR mode and most of the examples produce error caused by the fuzzy noise injection. 
 
@@ -550,46 +558,48 @@ We measured the precision in significant bits on the main example output by taki
     \small
     \begin{subfigure}[t]{\linewidth}
     \centering
-    \begin{tabular}{|ll|c|c|c|c|c|c|}
+    \begin{tabular}{|lll|c|c|c|c|c|c|}
     \hline
-    \multicolumn{2}{|c}{ \multirow{2}{*}{Application} } & \multicolumn{3}{|c|}{Random Rounding (RR)} & \multicolumn{3}{c|}{Full MCA} \\
-    \cline{3-8}
-    & & trace & parse & result & trace & parse & result \\
+    \multicolumn{3}{|c}{ \multirow{2}{*}{Application} } & \multicolumn{3}{|c|}{Random Rounding (RR)} & \multicolumn{3}{c|}{Full MCA} \\
+    \cline{4-9}
+    & & & trace & parse & result & trace & parse & sigbits \\
     \hline
     %        &               RR                 &                 MCA               \\
     %        &  numpy         &   no numpy      &      numpy      &     no numpy    \\
     %        & run   & parse  &  run   &  parse &  run   & parse  & run    & parse  \\
     
-    \multicolumn{1}{|c|}{ \multirow{3}{2em}{ \rotatebox{90}{FFT} } }
-    & \discreteCosineRF &  \valid & \valid & 52 & \warn & \cross & 47 \\ 
-    \multicolumn{1}{|c|}{} & \fftOneDRf & \valid & \valid & 41 & \warn  & \cross & - \\
-    \multicolumn{1}{|c|}{} & \fftTwoDRf & \valid & \valid & 52 & \valid & \valid & 52 \\
-    \hline 
-    \multicolumn{1}{|c|}{  \multirow{5}{2em}{ \rotatebox{90}{Interpolation} } }
+    \multicolumn{1}{|c|}{ \multirow{20}{2em}{ \rotatebox{90}{SciPy} } } &   
+    \multicolumn{1}{c|}{ \multirow{3}{2em}{ \rotatebox{90}{FFT} }}  & \discreteCosineRF &  \valid & \valid & \s{52} & \warn & \cross & \s{47} \\ 
+    \multicolumn{1}{|c|}{} & \multicolumn{1}{c|}{} & \fftOneDRf & \valid & \valid & 41 & \warn  & \cross & - \\
+    \multicolumn{1}{|c|}{} & \multicolumn{1}{c|}{} & \fftTwoDRf & \valid & \valid & \s{52} & \valid & \valid & \s{52} \\
+    \cline{2-9}
+    \multicolumn{1}{|c|}{} &  \multicolumn{1}{c|}{  \multirow{5}{*}{ \rotatebox{90}{Interpolation} } }
     & \interOneDRf & \valid & \valid & 51 & \warn & \cross &  - \\
-     \multicolumn{1}{|c|}{} & \multiRf      & \valid & \valid & 51 & \warn  & \cross & - \\
-     \multicolumn{1}{|c|}{} & \bsplineRf    & \valid & \valid &10 &  \valid & \valid & 10\\
-     \multicolumn{1}{|c|}{} & \splineOneDRf & \valid & \cross & 52 & \warn  & \cross & 52 \\
-     \multicolumn{1}{|c|}{} & \splineTwoDRf & \valid & \valid & 10 &  \warn  & \cross & - \\
-    \hline
-     \multicolumn{1}{|c|}{ \multirow{12}{2em}{ \rotatebox{90}{Optimization} } }
-    & \bfgsRf & \valid & \valid & 48  & \valid & \valid & 46 \\
-     \multicolumn{1}{|c|}{} & \globalRf & \valid & \cross & 17 & \warn  & \cross & - \\
-     \multicolumn{1}{|c|}{} & | SHGO\footnote{Simplicial Homology Global Optimization} & \valid & \cross & 25 & \warn  & \cross & - \\
-     \multicolumn{1}{|c|}{} & | Dual Annealing & \valid & \cross & 4 & \warn  & \cross & - \\
-     \multicolumn{1}{|c|}{} & | Differential Evolution & \valid & \cross & 0 & \warn  & \cross & - \\
-     \multicolumn{1}{|c|}{} & | Basin Hopping & \valid & \cross & 40 & \warn  & \cross & - \\
-     \multicolumn{1}{|c|}{} & | SHGO Sobol    & \valid & \cross & 45 & \warn  & \cross & - \\
-     \multicolumn{1}{|c|}{} & \slsqpRf  & \valid & \valid & 45 & \valid & \valid & 44 \\
-     \multicolumn{1}{|c|}{} & \lsmRf    & \valid & \valid & 48 & \warn  & \cross & - \\
-     \multicolumn{1}{|c|}{} & \nelderRf & \valid & \valid & 44 & \valid & \valid & 42 \\
-     \multicolumn{1}{|c|}{} & \ncgRf    & \valid & \valid & 48 & \valid & \cross & 47 \\
-     \multicolumn{1}{|c|}{} & \rootRf   & \valid & \cross & 52 & \warn  & \cross & 50 \\
-    \multicolumn{1}{|c|}{}  & \rootLargRf      & \valid & \cross & 29 & \valid & \cross & 26 \\
-     \multicolumn{1}{|c|}{} & \rootLargePredRf & \valid & \cross & 42 & \valid & \cross & 42 \\
-    \multicolumn{1}{|c|}{}  & \trustExactRf & \valid & \valid & 48  & \valid & \valid & 46 \\
-     \multicolumn{1}{|c|}{} & \trustTruncRf & \valid & \valid & 48  & \valid & \valid & 46 \\
-    \multicolumn{1}{|c|}{}  & \trustNCGRf   & \valid & \valid & 52  & \valid & \valid & 47 \\
+    \multicolumn{1}{|c|}{} & \multicolumn{1}{c|}{} & \multiRf      & \valid & \valid & \s{51} & \warn  & \cross & \s{-} \\
+    \multicolumn{1}{|c|}{} & \multicolumn{1}{c|}{}  & \bsplineRf    & \valid & \valid &10 &  \valid & \valid & 10\\
+\multicolumn{1}{|c|}{} & \multicolumn{1}{c|}{} &     \splineOneDRf & \valid & \cross & \s{52} & \warn  & \cross & \s{52} \\
+\multicolumn{1}{|c|}{} & \multicolumn{1}{c|}{} &     \splineTwoDRf & \valid & \valid & 10 &  \warn  & \cross & - \\
+    \cline{2-9}
+    \multicolumn{1}{|c|}{} & \multicolumn{1}{c|}{ \multirow{12}{2em}{ \rotatebox{90}{Optimization} } }
+    & \bfgsRf & \valid & \valid & \s{48}  & \valid & \valid & \s{46} \\
+\cline{3-9}
+\multicolumn{1}{|c|}{} & \multicolumn{1}{c|}{} & \globalRf & \valid & \cross & 17 & \warn  & \cross & - \\
+\multicolumn{1}{|c|}{} & \multicolumn{1}{c|}{} & | SHGO\footnote{Simplicial Homology Global Optimization} & \na & \na  & \s{25} & \na  & \na & \s{-} \\
+\multicolumn{1}{|c|}{} & \multicolumn{1}{c|}{} & | Dual Annealing & \na & \na  & 4 & \na & \na  & - \\
+\multicolumn{1}{|c|}{} & \multicolumn{1}{c|}{} & | Differential Evolution & \na & \na & \s{0} & \na & \na & \s{-} \\
+\multicolumn{1}{|c|}{} & \multicolumn{1}{c|}{} & | Basin Hopping & \na  & \na & 40 & \na  & \na & - \\
+\multicolumn{1}{|c|}{} & \multicolumn{1}{c|}{} & | SHGO Sobol    & \na  & \na  & \s{45} & \na  & \na & \s{-} \\
+\cline{3-9}
+\multicolumn{1}{|c|}{} & \multicolumn{1}{c|}{} & \slsqpRf  & \valid & \valid & 45 & \valid & \valid & 44 \\
+\multicolumn{1}{|c|}{} & \multicolumn{1}{c|}{} & \lsmRf    & \valid & \valid &\s{48} & \warn  & \cross & \s{-} \\
+\multicolumn{1}{|c|}{} & \multicolumn{1}{c|}{} & \nelderRf & \valid & \valid & 44 & \valid & \valid & 42 \\
+\multicolumn{1}{|c|}{} & \multicolumn{1}{c|}{} & \ncgRf    & \valid & \valid & \s{48} & \valid & \cross & \s{47} \\
+\multicolumn{1}{|c|}{} & \multicolumn{1}{c|}{} & \rootRf   & \valid & \cross & 52 & \warn  & \cross & 50 \\
+\multicolumn{1}{|c|}{} & \multicolumn{1}{c|}{} & \rootLargRf      & \valid & \cross & \s{29} & \valid & \cross & \s{26} \\
+\multicolumn{1}{|c|}{} & \multicolumn{1}{c|}{} & \rootLargePredRf & \valid & \cross & 42 & \valid & \cross & 42 \\
+\multicolumn{1}{|c|}{} & \multicolumn{1}{c|}{} & \trustExactRf & \valid & \valid & \s{48}  & \valid & \valid & \s{46} \\
+\multicolumn{1}{|c|}{} & \multicolumn{1}{c|}{} & \trustTruncRf & \valid & \valid & 48  & \valid & \valid & 46 \\
+\multicolumn{1}{|c|}{} & \multicolumn{1}{c|}{} & \trustNCGRf   & \valid & \valid & \s{52}  & \valid & \valid & \s{47} \\
     \hline
 %     \end{tabular}
 % \end{subfigure}
@@ -607,37 +617,45 @@ We measured the precision in significant bits on the main example output by taki
     %        &  numpy         &   no numpy      &      numpy      &     no numpy    \\
     %        & run   & parse  &  run   &  parse &  run   & parse  & run    & parse  \\
 
-    \multicolumn{1}{|c|}{ \multirow{20}{2em}{ \rotatebox{90}{Scikit-learn} } }
+    \multicolumn{2}{|c|}{ \multirow{20}{2em}{ \rotatebox{90}{Scikit-learn} } }
     & \AdaboostRf   & \valid & \valid & 48 & \warn  & \cross & - \\
-    \multicolumn{1}{|c|}{} & \brrRf        & \valid & \valid & 25 & \cross & \cross & - \\
-    \multicolumn{1}{|c|}{} & | $1^{st}$ dataset & \valid & \valid & 25 & \cross & \cross & - \\
-    \multicolumn{1}{|c|}{} & | $2^{nd}$ dataset & \valid & \valid & nan & \cross & \cross & - \\
-    \multicolumn{1}{|c|}{} & \onlineClassifierComparisonRf & \valid & \valid & 20 & \warn & \cross & -  \\
-    \multicolumn{1}{|c|}{} & \kmeansRf     & \valid & \valid & 52 & \valid & \cross & - \\
-    \multicolumn{1}{|c|}{} & \covarianceRf & \valid & \cross & 48 & \warn  & \cross & - \\
-    \multicolumn{1}{|c|}{} & \decisionRf   & \valid & \valid & 50 & \valid & \valid & 50 \\
-    \multicolumn{1}{|c|}{} & \digitsRf     & \valid & \valid & 52 & \warn  & \cross & 52 \\
-    \multicolumn{1}{|c|}{} & \faceRf       & \cross & \valid & -  & \warn  & \cross & - \\
-    \multicolumn{1}{|c|}{} & \penaltyRf    & \valid & \valid & -  & \valid & \valid & - \\
-    \multicolumn{1}{|c|}{} & \lassoRf      & \valid & \valid & 48 & \warn  & \cross & 47 \\
-    \multicolumn{1}{|c|}{} & \hyperplaneRf & \valid & \valid & 3  & \valid & \cross & - \\
-    \multicolumn{1}{|c|}{} & \mnistRf      & \valid & \valid & 43 & \warn  & \valid & - \\
-    \multicolumn{1}{|c|}{} & \multitaskRf  & \valid & \valid & 50 & \warn  & \valid & 48 \\
-    \multicolumn{1}{|c|}{} & \ompRf        & \valid & \valid & 52 & \valid & \valid & 52 \\
-    \multicolumn{1}{|c|}{} & \pcaRf        & \valid & \valid & 48 & \valid & \valid & 48 \\
-    \multicolumn{1}{|c|}{} & \robustRf     & \valid & \valid & 50 & \warn  & \cross & 48 \\
-    \multicolumn{1}{|c|}{} & | Linear        & \valid & \valid & 48 & \warn  & \cross & 46 \\
-    \multicolumn{1}{|c|}{} & | RANSAC        & \valid & \valid & 50 & \warn  & \cross & 48 \\
-    \multicolumn{1}{|c|}{} & \toyRf        & \valid & \valid & 35 & \warn  & \cross & - \\
-    \multicolumn{1}{|c|}{} & \svmRf        & \valid & \valid & 43.5 & \valid & \cross & - \\
-    \multicolumn{1}{|c|}{} & | Non-weighted  & \valid & \valid & 43 & \valid & \cross & - \\
-    \multicolumn{1}{|c|}{} & | Weighted      & \valid & \valid & 44 & \valid & \cross & - \\
-    \multicolumn{1}{|c|}{} & \tomographyRf & \valid & \cross & - & \warn  & \cross & - \\
-    \multicolumn{1}{|c|}{} & \weightedRf   & \valid & \valid & 44 & \valid & \cross & - \\
+    \cline{3-9}
+    \multicolumn{2}{|c|}{} & \brrRf        & \valid & \valid & \s{25} & \cross & \cross & \s{-} \\
+    \multicolumn{2}{|c|}{} & | $1^{st}$ dataset & \na  & \na & 25 & \na  & \na  & - \\
+    \multicolumn{2}{|c|}{} & | $2^{nd}$ dataset & \na & \na  & \s{nan} & \na  & \na & \s{-} \\
+    \cline{3-9}
+    \multicolumn{2}{|c|}{} & \onlineClassifierComparisonRf & \valid & \valid & 20 & \warn & \cross & -  \\
+    \multicolumn{2}{|c|}{} & \kmeansRf     & \valid & \valid & \s{52} & \valid & \cross & \s{-} \\
+    \multicolumn{2}{|c|}{} & \covarianceRf & \valid & \cross & 48 & \warn  & \cross & - \\
+    \multicolumn{2}{|c|}{} & \decisionRf   & \valid & \valid & \s{50} & \valid & \valid & \s{50} \\
+    \multicolumn{2}{|c|}{} & \digitsRf     & \valid & \valid & 52 & \warn  & \cross & 52 \\
+    \multicolumn{2}{|c|}{} & \faceRf       & \cross & \valid & \s{-}  & \warn  & \cross & \s{-} \\
+    \multicolumn{2}{|c|}{} & \penaltyRf    & \valid & \valid & -  & \valid & \valid & - \\
+    \multicolumn{2}{|c|}{} & \lassoRf      & \valid & \valid & \s{48} & \warn  & \cross & \s{47} \\
+    \multicolumn{2}{|c|}{} & \hyperplaneRf & \valid & \valid & 3  & \valid & \cross & - \\
+    \multicolumn{2}{|c|}{} & \mnistRf      & \valid & \valid & \s{43} & \warn  & \valid & \s{-} \\
+    \multicolumn{2}{|c|}{} & \multitaskRf  & \valid & \valid & 50 & \warn  & \valid & 48 \\
+    \multicolumn{2}{|c|}{} & \ompRf        & \valid & \valid & \s{52} & \valid & \valid & \s{52} \\
+    \multicolumn{2}{|c|}{} & \pcaRf        & \valid & \valid & 48 & \valid & \valid & 48 \\
+\cline{3-9}
+    \multicolumn{2}{|c|}{} & \robustRf     & \valid & \valid & \s{50} & \warn  & \cross & \s{48} \\
+    \multicolumn{2}{|c|}{} & | Linear        & \na & \na & 48 & \na  & \na & 46 \\
+    \multicolumn{2}{|c|}{} & | RANSAC        & \na  & \na & \s{50} & \na  & \na  & \s{48} \\
+\cline{3-9}
+    \multicolumn{2}{|c|}{} & \toyRf        & \valid & \valid & 35 & \warn  & \cross & - \\
+\cline{3-9}
+    \multicolumn{2}{|c|}{} & \svmRf        & \valid & \valid & \s{43.5} & \valid & \cross & \s{-} \\
+    \multicolumn{2}{|c|}{} & | Non-weighted  & \na & \na & 43 & \na & \na  & - \\
+    \multicolumn{2}{|c|}{} & | Weighted      & \na  & \na & \s{44} & \na  & \na  & \s{-} \\
+\cline{3-9}
+    \multicolumn{2}{|c|}{} & \tomographyRf & \valid & \cross & - & \warn  & \cross & - \\
+    \multicolumn{2}{|c|}{} & \weightedRf   & \valid & \valid & \s{44} & \valid & \cross & \s{-} \\
     \hline
     \end{tabular}
     \end{subfigure}
-    \caption{\pytracer execution summary on SciPy and Scikit-learn examples. \\ \emph{trace}: outcome of \pytracer tracing, \emph{parse}: outcome of \pytracer trace parsing and aggregation, \emph{result}: precision for main outputs in significant bits. \valid: successful run, \warn: error from invalid noise injection, \cross: numerical error or divergent traces. \textit{nan} stands for (\texttt{Not-A-Number}). The names example are linked to their source code.}
+    \caption{\pytracer execution summary on SciPy and Scikit-learn examples. 
+    % \tristan{Replace FFT with SciPy FFT, Interpolation with SciPy Interpolation and Optimization with SciPy Optimization, or add a SciPy header to these rows.} \tristan{Nitpick: you could add a color scheme to sigbits (for instance shades of blue), to make the column more easily readable.} \\
+    \emph{trace}: outcome of \pytracer tracing, \emph{parse}: outcome of \pytracer trace parsing and aggregation, \emph{result}: precision for main outputs in significant bits. \valid: successful run, \warn: error from invalid noise injection, \cross: numerical error or divergent traces. \textit{nan} stands for (\texttt{Not-A-Number}). Example names are linked to their source code.}
     \label{tab:pytracer_results_summary}
 \end{table}
 
@@ -646,7 +664,7 @@ We measured the precision in significant bits on the main example output by taki
     % \pytracer execution summary on SciPy examples.\\RR: Random Rounding. trace: outcome of \pytracer tracing, parse: outcome of \pytracer trace parsing and aggregation.  \valid: successful run, \warn: error in fuzzy noise injection, \cross: numerical error or divergent traces.
     % }
 
-\subsubsection{Effect of MCA modes}
+\subsection{Effect of MCA modes}
 \label{sec:impact_mca_modes}
 Random Rounding perturbs only the result of a floating-point operation while Full MCA perturbs both the inputs and the result. 
 Therefore, Full MCA may trigger catastrophic cancellations while Random Rounding only introduces round-off errors which generally have a lesser impact.
@@ -659,17 +677,17 @@ Lines 3174-3178 show that the function stores the array size in a floating-point
 It is worth noting that 78\% of execution issues encountered in Full MCA mode instrumentation
 are due to this type of ``typing" errors.  
 In conclusion, those regions of code should not be perturbed by MCA since the injected noise does not make sense.
-\tristan{conclusion: ces regions du code ne devraient pas etre bruitees car le bruit n'a pas de sens ici (exemple du spin dans -1/2,1/2. Ca correspond aux ?}
+% \tristan{conclusion: ces regions du code ne devraient pas etre bruitees car le bruit n'a pas de sens ici (exemple du spin dans -1/2,1/2. Ca correspond aux ?}
 % While they do not lead to any numerical issue, typing errors should still be fixed
 % by improving the Full MCA mode instrumentation in order to preserve code correctness.
-\tristan{do we really mean that given your answer to my comment below?}. 
-\Yohan{By reading again this sentence, I agree that it is confusing. 
-It suggests that we should fixed the code while my idea was to fix the MCA instrumentation.}
-We provide solutions to help MCA better work with those cases in the discussion section.
+% \tristan{do we really mean that given your answer to my comment below?}. 
+% \Yohan{By reading again this sentence, I agree that it is confusing. 
+% It suggests that we should fixed the code while my idea was to fix the MCA instrumentation.}
+% We provide solutions to help MCA better work with those cases in the discussion section.
 
-\tristan{Check this last sentence, we need to provide some sort of recommendations}. \tristan{how about opening a PR in numpy to fix this error?}
-\Yohan{For this case, they use the math.ceil to correctly round the number, I think the fix is more on the MCA side to
-correctly handle exact number than on the NumPy side.}
+% \tristan{Check this last sentence, we need to provide some sort of recommendations}. \tristan{how about opening a PR in numpy to fix this error?}
+% \Yohan{For this case, they use the math.ceil to correctly round the number, I think the fix is more on the MCA side to
+% correctly handle exact number than on the NumPy side.}
 
 
 % \begin{figure}
@@ -846,9 +864,9 @@ PyArray_Arange(double start, double stop, double step /* default 1 */, int type_
 \subsection{SciPy}
 \label{sec:scipy_tests}
 
-We tested \pytracer on SciPy examples provided in the tutorial website section 
-\tristan{Are these tests? If not we need to reword the begining of this section (I can do it, just let me know).}.
-\Yohan{No you right, these are examples, not tests, I used the two words interchangeably.}
+We tested \pytracer on SciPy examples provided in the tutorial website section. 
+% \tristan{Are these tests? If not we need to reword the begining of this section (I can do it, just let me know).}.
+% \Yohan{No you right, these are examples, not tests, I used the two words interchangeably.}
 SciPy is organized in several libraries targeting specific computing domains. We focused on \texttt{fftpack} (Fast Fourier Transform routines), \texttt{interpolate} (interpolation and smoothing splines), and \texttt{optimize} (Optimization and root-finding routines).
 
 \subsubsection{FFT}
@@ -882,11 +900,12 @@ We can see on the bottom row of Figure~\ref{fig:fft1D_outputs} that the frequenc
 the same order of of magnitude as the input noise, which is expected. 
 The two peaks at x=38 and x=562 corresponds to the actual frequencies of the input signal.
 
+
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figure/FFT/fft_x.pdf}
     \caption{Absolute value of the mean and standard deviation values for 
-    fft 1D inputs within RR mode (log scale). The real part is shown in blue and the imaginary part in orange.\tristan{put stdev of middle column on the same scale as the other columns}}
+    fft 1D inputs within RR mode (log scale). The real part is shown in blue and the imaginary part in orange.}
     \label{fig:fft1D_inputs}
 \end{figure}
 
@@ -928,25 +947,22 @@ The two peaks at x=38 and x=562 corresponds to the actual frequencies of the inp
 
 \subsection{Interpolation}
 
-This package has three tests: \texttt{interpolation\_1D}, \texttt{multivariate\_data}, \texttt{bspline}, \texttt{spline\_1D} and \texttt{spline\_2D}.
+This package has five examples: \texttt{interpolation\_1D}, \texttt{multivariate\_data}, \texttt{bspline}, \texttt{spline\_1D} and \texttt{spline\_2D}.
 
 \texttt{interpolation\_1D} interpolates function $f(x)=\cos(\frac{-x^2}{9})$ with 11 points $x\in[0,10]$.
-For the fives interpolation methods tested (linear, cubic, nearest, previous, next), the solution found is precise, up to 51 bits out of the 53 available.
+For the five interpolation methods tested (linear, cubic, nearest, previous, next), the solution found is precise, up to 51 bits out of the 53 available.
 
 \texttt{multivariate\_data} interpolates the grid $f(x,y)=x(1-x)\cos(4\pi.x)  \sin(4\pi.y^2)^2$ with $(x,y) \in [0,1] \times [0,1]$. It samples 1,000 points for each coordinate and uses three interpolation methods: nearest, linear and cubic. Our results show a precision of 51 bits on average for the three methods. 
 
 \texttt{bspline} compares two edge filters: \texttt{bisplev} evaluates a bivariate B-spline and its derivative whereas \texttt{convolved2d} convolves two 2-dimensional arrays. Figure~\ref{fig:bspline_rr}
 shows the significant bits, mean, and standard deviation 
 % \tristan{replace the figure references with labels in the figure, it would be much clearer} 
-maps for the two methods as well as the input image (fig.~\ref{fig:bspline_input}) with the middle for the \texttt{bisplev} results and bottom row for the \texttt{convol2d}. Both methods exhibit similar precision, with 11 significant bits on average. Standard deviations maps on Figures~\ref{fig:bspline_bisplev_std} and~\ref{fig:bspline_convol2d_std} show that regions with low spatial frequencies correspond to regions with low standard deviation, similar to the FFT results. As it is mentioned in the SciPy tutorial, the \texttt{bisplev} function is faster than the \texttt{convol2d}. The comparable numerical precision observed in our experiments reinforce the use of \texttt{bisplev} over \texttt{convol2d} in this example.
+maps for the two methods as well as the input image (Fig.~\ref{fig:bspline_original_image}). The middle row shows \texttt{sepfir2d} results and the bottom row shows \texttt{convol2d} results. Both methods exhibit similar precision, with 11 significant bits on average. Standard deviations maps on Figures~\ref{fig:bspline_bisplev_std} and~\ref{fig:bspline_convol2d_std} show that regions with low spatial frequencies correspond to regions with low standard deviation, similar to the FFT results. The SciPy tutorial mentions that \texttt{bisplev} is faster than \texttt{convol2d}. The comparable numerical precision observed in our experiments reinforce the use of \texttt{bisplev} over \texttt{convol2d} in this example.
 
 \texttt{spline\_1D} computes the 1D spline interpolation for $f(x)=\sin(x)$ on points $x=\frac{2\pi k}{8}, k \in [0, 10]$. The spline interpolation uses \texttt{splrep} to build the spline representation and \texttt{splrev} to evaluate the spline at any point. It also computes the integral by using \texttt{splint} and the root finder \texttt{sproot}. Although the traces diverge, we can analyze the partial aggregation for the \texttt{splrep}, \texttt{splev} and \texttt{splint}. The three functions show results with an average precision of 51 bits with RR mode.
  
-\texttt{spline\_2D} computes the 2D spline interpolation for function $z=(x+y)e^{-6(x^2+y^2)}$, with $(x,y) \in [-1,1]\times[-1,1]$ and a sampling of 21 points for each coordinate. \texttt{bisplrep} builds the spline representation with the $21 \times 21$ points of $z$ over 71 grid sampling points for $(x,y)$. Figure~\ref{fig:spline2d_rr} shows the results of the spline evaluation with \texttt{bisplev}. We can see that a significant loss of precision in places, following 
-an interesting pattern that would be interesting to examine in detail. 
-
-\tristan{conclusion? perte de significativite importante par endroits, qui suit un pattern interessant. IL serait interessant d'examiner plus en details pourquoi cela arrive.} 
-
+\texttt{spline\_2D} computes the 2D spline interpolation for function $z=(x+y)e^{-6(x^2+y^2)}$, with $(x,y) \in [-1,1]\times[-1,1]$ and a sampling of 21 points for each coordinate. \texttt{bisplrep} builds the spline representation with the $21 \times 21$ points of $z$ over 71 grid sampling points for $(x,y)$. Figure~\ref{fig:spline2d_rr} shows the results of the spline evaluation with \texttt{bisplev}.  We observe a significant loss of precision in places, which follows 
+an interesting pattern that could be further investigated. 
 
 % \begin{figure}
 % \begin{minipage}{.3\textwidth}
@@ -991,39 +1007,36 @@ an interesting pattern that would be interesting to examine in detail.
 \end{subfigure}\\
 \begin{subfigure}{0.3\linewidth}
     \includegraphics[width=\linewidth]{figure/bspline/bspline_sig.pdf}
-    \caption{\texttt{sepfir2d} significant bits.}
-    \label{fig:bspline_input}
+    \caption{\centering\texttt{sepfir2d} significant bits. \\ \textcolor{white}{.}}
     \label{fig:bspline_bisplev_sig}
 \end{subfigure}
 \begin{subfigure}{0.3\linewidth}
     \includegraphics[width=\linewidth]{figure/bspline/bspline_mean_log.pdf}
-    \caption{\texttt{sepfir2d} mean.}
+    \caption{\centering\texttt{sepfir2d} mean. \\(log)}
     \label{fig:bspline_bisplev_mean}
 \end{subfigure}
 \begin{subfigure}{0.3\linewidth}
     \includegraphics[width=\linewidth]{figure/bspline/bspline_std_log.pdf}
-    \caption{\texttt{sepfir2d} standard deviation.}
+    \caption{\centering\texttt{sepfir2d} standard deviation. (log)}
     \label{fig:bspline_bisplev_std}
 \end{subfigure}
 \begin{subfigure}{0.3\linewidth}
     \includegraphics[width=\linewidth]{figure/bspline/convol2d_sig.pdf}
-    \caption{\texttt{convol2d} significant bits.}
+    \caption{\centering\texttt{convol2d} significant bits. \\ \textcolor{white}{.}}
     \label{fig:bspline_convol2d_sig}
 \end{subfigure}
 \begin{subfigure}{0.3\linewidth}
     \includegraphics[width=\linewidth]{figure/bspline/convol2d_mean_log.pdf}
-    \caption{\texttt{convol2d} mean.}
+    \caption{\centering\texttt{convol2d} mean. \\ (log)}
     \label{fig:bspline_convol2d_mean}
 \end{subfigure}
 \begin{subfigure}{0.3\linewidth}
     \includegraphics[width=\linewidth]{figure/bspline/convol2d_std_log.pdf}
-    \caption{\texttt{convol2d} standard deviation.}
+    \caption{\centering\texttt{convol2d} standard deviation. (log)}
     \label{fig:bspline_convol2d_std}
 \end{subfigure}
-    \caption{\texttt{bspline} results within RR mode.
-    The SciPy tutorial mentions that \texttt{convol2d} is faster than \texttt{sepfir2d}.
-    In addition, our results show that \texttt{sepfir2d} offers a similar precision.
-    This gives an additional argument for using \texttt{sepfir2d} over \texttt{convol2d}.
+    \caption{\texttt{bspline} results within RR mode. \texttt{sepfir2d} and
+ \texttt{convol2d} have a similar precision.
     % \tristan{can you use the same color maps as in figure 8?}
     % Left column shows the \texttt{bisplev} function
     % while the right column shows the \texttt{convolve2d} function. \tristan{isn't it top row vs bottom row? Replace these hard-to-read explanations with good labels in the figure}
@@ -1062,31 +1075,33 @@ an interesting pattern that would be interesting to examine in detail.
 
 \subsubsection{Optimization}
 
-This package has eleven examples whose seven examples involve the same optimization problem 
-solved with and without constrained by using different methods.
-The last four solve solve a different problem each.
+This package has eleven examples. Seven examples involve the same optimization problem 
+solved with and without constraints using different methods.
+One example optimizes a chemical problem under constraints.
+The last three examples solve a different problem each.
 
-\paragraph{Unconstrained minimization of multivariate scalar functions (six methods):}
-Four Quasi-Newton-Raphson methods aim to determine $x$ that minimizes the function $f$ by using Newton's method step: $x_{k+1} = x_{k} - B^{-1}(x_k)\nabla f(x_k)$, where $\nabla$ and $B$ are the gradient and the approximation of the Hessian matrix of $f$. The \texttt{Broyden-Fletcher-Goldfarb-Shanno}~\cite{BFGS} (BFGS) and \texttt{Newton-Conjugate-Gradient}~\cite{nocedal2006numerical} (NCG) are line search methods that approximate $H$ by adding two symmetric rank-one matrices and by using the Conjugate-Gradient method. The \texttt{Trust-Region Truncated Generalized Lanczos / Conjugate Gradient}~\cite{gould1999solving} (TR-Krylov), \texttt{Trust-Region Newton-Conjugate-Gradient} (TR-NCG), and \texttt{Trust-Region Nearly Exact}~\cite{nocedal2006numerical} (TR-Exact) are trust-region methods approximating $H$ by solving the trust-region subproblem restricted to a truncated Krylov subspace and by solving nonlinear equations for each quadratic subproblem. 
-In addition, the \texttt{Nelder-Mead}~\cite{singer2009nelder} simplex-based method iteratively transforms a simplex until its vertices are getting closer to a local minima of the function.
+\paragraph{Unconstrained minimization of multivariate scalar functions:}
+Four Quasi-Newton-Raphson methods minimize function $f$ by using Newton's step: $x_{k+1} = x_{k} - B^{-1}(x_k)\nabla f(x_k)$, where $\nabla$ and $B$ are the gradient and the approximation of the Hessian matrix of $f$. The \texttt{Broyden-Fletcher-Goldfarb-Shanno}~\cite{BFGS} (BFGS) and \texttt{Newton-Conjugate-Gradient}~\cite{nocedal2006numerical} (NCG) are line search methods that approximate $H$ by adding two symmetric rank-one matrices and by using the Conjugate-Gradient method. The \texttt{Trust-Region Truncated Generalized Lanczos / Conjugate Gradient}~\cite{gould1999solving} (TR-Krylov), \texttt{Trust-Region Newton-Conjugate-Gradient} (TR-NCG), and \texttt{Trust-Region Nearly Exact}~\cite{nocedal2006numerical} (TR-Exact) are trust-region methods approximating $H$ by solving the trust-region subproblem restricted to a truncated Krylov subspace and by solving nonlinear equations for each quadratic subproblem. 
+In addition, the \texttt{Nelder-Mead}~\cite{singer2009nelder} simplex-based method iteratively transforms a simplex until its vertices are getting closer to a local minima of the function. All methods are applied to the Rosenbrock function.
 
-\paragraph{Constrained minimization of multivariate scalar functions (two methods):}
-\texttt{Sequential Least SQuares Programming} (SLSQP~\cite{kraft1988software})
-and \texttt{Least-squares minimization} that uses the Trust Region Reflective algorithm~\cite{li1993centering}.
+\paragraph{Constrained minimization of multivariate scalar functions:}
+Two optimizers solve an optimization problem by taking into account constraints.
+The \texttt{Sequential Least SQuares Programming} uses the SLSQP~\cite{kraft1988software} method to optimize the Rosenbrock function.
+The \texttt{Least-squares minimization} uses the Trust Region Reflective algorithm~\cite{li1993centering}
+to solve a fitting problem from an enzymatic reaction.
 
-
-\paragraph{Root finding (three methods):}
-One for small problems using the hybrid Powell and Levenberg-Marquardt methods for small problems (\texttt{root\_finding}) and two for large problems using a Krylov approximation for the inverse Jacobian with and without the help of a preconditioner (\texttt{root\_finding\_large\_preconditionned} and \texttt{root\_finding\_large}).
-
-The unconstrained minimization methods minimize the Rosenbrock function of $N$ variables:
+\paragraph{}
+The SLSQP and unconstrained minimization methods minimize the \textbf{Rosenbrock} function of $N$ variables
+that reaches its minimum (0) when $x_i=1,\; \forall i \leq N-1$:
 \[f(x) = \sum_{i=1}^{N-1} 100(x_{i+1}-x^2_i)^2 + (1-x_i)^2\]
-The minimum value of this function is 0, reached when $x_i=1,\; \forall i \leq N-1$. % \tristan{for all i's?}
+% The minimum value of this function is 0, reached when $x_i=1,\; \forall i \leq N-1$. % \tristan{for all i's?}
+
+
 Figure~\ref{fig:unconstrained_optimization} shows the number of significant bits of the solution for the different methods used. 
 The $(p)$ notation for the NCG, Trust-Krylov, and Trust-NCG methods in the legend refers 
 to the variant where the Hessian matrix is replaced by 
-a function computing the matrix-vector product of the Hessian and an arbitrary vector
-that allows saving memory and time. 
-All the methods have a good precision ranging from 43 to 53 significant bits. The Nelder-Mead method is the least precise one with $\simeq$ 43 significant bits on average, while the Trust-Region-Newton-CG is the most precise one with $\simeq$ 53 significant bits, this highest precision achievable in double precision. The remaining methods have a similar precision with less than 1 bit between them. 
+a function computing the matrix-vector product of the Hessian and an arbitrary vector, to save memory and time.
+All the methods have a good precision ranging from 43 to 53 significant bits. The Nelder-Mead method is the least precise one with $\simeq$ 43 significant bits on average, while the Trust-Region-Newton-CG is the most precise one with $\simeq$ 53 significant bits, the highest precision achievable in double precision. The remaining methods have a similar precision. 
 % \tristan{why is there only 9 methods in Fig 7 while you mentioned 10?} \Yohan{There are 11 examples whose 6 for the unconstrained minimization (presented in Fig 7). For 3 methods, there is a variant using the Hessian product instead of the Hessian matrix.I realized that this variant is not explained in the text. I will update it.}
 
 The SLSQP also minimizes the Rosenbrock function with the following constraint:
@@ -1099,7 +1114,7 @@ The SLSQP also minimizes the Rosenbrock function with the following constraint:
     -0.5 \leq x_1 \leq 2 
 \end{eqnarray*}
 The problem has a unique solution $[x_0, x_1] = [0.4149, 0.1701]$.
-Results within RR show a precision of 47 and 44 significant bits for the first and the second solution. %\tristan{which method is tested?}.
+Results obtained with RR show a precision of 47 and 44 significant bits for the first and the second solution. %\tristan{which method is tested?}.
 
 The \texttt{least-square minimization} example solves a fitting problem from an enzymatic reaction~\cite{kowalik1968analysis} with 11 residuals defined as:
 \begin{eqnarray*}
@@ -1110,12 +1125,16 @@ where where $y_i$ are measurement values, $u_i$ are values of the independent va
 $x_i$ the unknown.
 Results within RR show a precision of 51, 46, 47, and 48 significant bits for each component of the solution respectively.% \tristan{which solver is used?}.
 
-Finally, the \texttt{root\_*} examples use three algorithms to 
+\paragraph{Root finding:}
+% We tested three root finder algorithms with one for small problems using the hybrid Powell and Levenberg-Marquardt methods  (\texttt{root\_finding}) and two for large problems using a Krylov approximation for the inverse Jacobian with and without the help of a preconditioner (\texttt{root\_finding\_large\_preconditionned} and \texttt{root\_finding\_large}).
+
+The \texttt{root\_*} examples use three algorithms to 
 find the root of non-linear equations. \texttt{root\_finding}
 uses the hybrid Powell method to solve a single-variable transcendental equation and 
 the Levenberg-Marquardt method for a set of non-linear equations. 
 \texttt{root\_finding\_large} and \texttt{root\_finding\_large\_preconditioned} examples use 
-the Krylov method to solve an integrodifferential equation on a square
+the Krylov method to approximate the inverse Jacbian with and without the help of a preconditioner. 
+They solve an integrodifferential equation on a square
  $(x,y) \in [0,1] \times [0,1]$, $P(x,1)=1$, and $P=0$ elsewhere on the boundary.
 The function $P$ is discretized with a Cartesian grid $P_{n,n}=P(nh,nh)$, with $n=75$, and its derivatives are approximated by $\partial_x^2P(x,y) \simeq (P(x+h,y) - 2P(x,y) + P(x-h,y))/h^2$.
 
@@ -1127,9 +1146,8 @@ The function $P$ is discretized with a Cartesian grid $P_{n,n}=P(nh,nh)$, with $
 %     (\partial_x^2 + \partial_y^2)P + 5 \left(\int_0^1 \int_0^1 cosh(P)\, dx dy \right)^2 = 0
 % \]
 
-
 All the examples diverge even within RR, which is not surprising since root-finding methods can easily take a few extra steps to find the root depending on the starting point. Nevertheless, for the \texttt{root\_finding\_large} example, 3 traces among the 5 samples can be merged for both RR and MCA modes.
-Figure~\ref{fig:root_finding_large} shows the mean and standard deviation of the result for these 3 samples. We can see that both RR and Full MCA found a similar solution. Full MCA leads to a lower precision than RR although both standard deviation maps remain in the same order of magnitude. 
+Figure~\ref{fig:root_finding_large} shows the mean and standard deviation of the result for these 3 samples. We can see that a similar solution was found for RR and Full MCA. Full MCA leads to a lower precision than RR although both standard deviation maps remain in the same order of magnitude. 
 Finally, it is interesting to note the impact of preconditioning on the result numerical quality: as Table~\ref{tab:pytracer_results_summary} shows, the precision doubles between \texttt{root\_finding\_large} and \texttt{root\_finding\_large\_preconditioned}.
 
 \begin{figure}
@@ -1163,7 +1181,7 @@ Finally, it is interesting to note the impact of preconditioning on the result n
     \label{fig:stdev_mca}
     \end{subfigure}
     \caption{Solution of \texttt{root\_finding\_large} example. 
-    We can see that MCA has a less precision solution with a maximal standard deviation at $8.10^{-9}$ against $3.10^{-9}$ for RR mode. Moreover, we can see that a high standard deviation is localized around two extrema for both RR and Full MCA modes. Finally, the standard deviation stills lower than
+    The standard deviation has two maximum for both RR and Full MCA modes. The standard deviation remains lower than
     the stopping criterion threshold fixed at $6.10^{-6}$. }
     \label{fig:root_finding_large}
 \end{figure}
@@ -1197,7 +1215,7 @@ Scikit-learn offers a well-supplied and documented list of examples
 % \tristan{examples ou tests? Si ce sont des tests, utilisons "test" partout a la place de "examples" ou "applications", pour sklearn comme pour scipy.} 
 that facilitates its use with Pytracer.
 Among the several available examples, we choose the following representative set
-listed in~\ref{tab:pytracer_results_summary}. The following paragraphs 
+listed in Table~\ref{tab:pytracer_results_summary}. The following paragraphs 
 focus on the most interesting stability results observed across all experiments.
 % \tristan{Shall we just refer to Table 4 and remove this lengthy list? You could add the links in the table and mention in the table caption that the tests are linked to their source code}:
 
@@ -1305,26 +1323,25 @@ focus on the most interesting stability results observed across all experiments.
     \centering
     \includegraphics[width=0.5\linewidth]{figure/BRR/call_path.pdf}
     \caption{Call paths of the Bayesian Ridge Regression (BRR) and 
-    Ordinary Least Square (OLS) function. Each fill color represents the calling library
-    with orange for scikit-learn, blue for SciPy and yellow for LAPACK.
+    Ordinary Least Square (OLS) function. Color represents the calling library:
+    orange for scikit-learn, blue for SciPy and yellow for LAPACK.
     Dashed color represents the original path in red and the alternative one in green.
-    Figure~\ref{fig:brr_svd_sig} shows that using the original method to compute the \texttt{svd}
-    approach that leads to numerical instabilities and that the alternative one helps 
-    making the example to converge.
+    Figure~\ref{fig:brr_svd_sig} shows the original method  leads to numerical instabilities while the alternative one converges.
     }
     \label{fig:call_path_brr}
 \end{figure}
 
 \paragraph{Bayesian Ridge Regression}
 
-This example compares a Bayesian Ridge Regression (BRR) to the Ordinary Least Squares (OLS) estimator on a synthetic dataset and for one-dimensional regression using polynomial feature expansion. Although the examples does not raise a runtime error, the coefficients computed from the fitting for the synthetic dataset are \texttt{Not-A-Number} (NaN) values for both BRR and OLS. \pytracer traces reveal that the SVD solver used is the root cause for this error. 
+This example compares a Bayesian Ridge Regression (BRR) to the Ordinary Least Squares (OLS) estimator on a synthetic dataset and for one-dimensional regression using polynomial feature expansion. Although the example does not raise a runtime error, the regression coefficients computed from the fitting are 
+non-significant. \pytracer traces reveal that the SVD solver used is the root cause for this error. 
 Figure~\ref{fig:call_path_brr} shows the two call paths for BRR and OLS. 
-We can see that the LAPACK library has two main methods for computing the SVD: \texttt{gesdd} and \texttt{gesvd}.
+The LAPACK library has two main methods for computing the SVD: \texttt{gesdd} and \texttt{gesvd}.
 The former uses a Divide \& Conquer approach, while the latter uses a QR decomposition. 
-While both methods are expected to have the same accuracy~\cite{nakatsukasa2013stable}, Figure~\ref{fig:brr_svd_sig} show that \texttt{gesdd} is totally imprecise, with an average number of significant digits of 0 for BRR and even \texttt{NaN} values for OLS. 
+While both methods are expected to have the same accuracy~\cite{nakatsukasa2013stable}, Figure~\ref{fig:brr_svd_sig} shows that \texttt{gesdd} is totally imprecise, with an average number of significant digits of 0 for BRR and even \texttt{Not-a-Number} (\texttt{NaN}) values for OLS. 
 On the same figure, we can see that 
 using the \texttt{gesvd} (dgelsd) method instead of the \texttt{gesdd} (dgelss) one, 
-the SVD is converging within the RR and Full MCA modes, with a number of significant bits of 44 on average. 
+the SVD converges for RR and Full MCA, with a number of significant bits of 44 on average. 
 This observation supports the on-going discussion among LAPACK developers on the instability of \texttt{gesdd} (see  \href{https://github.com/Reference-LAPACK/lapack/issues/316}{github.com/Reference-LAPACK/lapack/issues/316}). 
 
 % \tristan{t'es sur que c'est pas l'inverse? Sur la fig 9 on voit que dgelsd n'est pas precise du tout, ca suggere qu'elle utiliserait gesdd}. 
@@ -1333,15 +1350,15 @@ This observation supports the on-going discussion among LAPACK developers on the
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figure/BRR/BRR_coefs_sig.pdf}
-    \caption{Bayesian Ridge Regression coefficients within RR mode.
-    The \texttt{BRR\_*} points show the \texttt{BayesianRidge} results
+    \caption{Precision of Bayesian Ridge Regression coefficients in RR mode.
+     \texttt{BRR\_*} show the \texttt{BayesianRidge} results
     using the \texttt{gesdd} and \texttt{gesvd} methods. 
-    The \texttt{OLS\_*} points show the \texttt{LinearRegression} results
+    \texttt{OLS\_*} show the \texttt{LinearRegression} results
     with the \texttt{dgelsd} and \texttt{dgelss} methods.
-    We can see that using the Divide \& Conquer method for the SVD
+   The Divide \& Conquer method 
     (\texttt{gesdd} and  \texttt{dgelsd})
-    gives low precision
-    results for \textit{BRR} and even \texttt{NaN} values (star points) for \textit{OLS}. By switching to the \texttt{gesvd} method, 
+    has low precision
+    for \textit{BRR} and results in \texttt{NaN} values (star points) for \textit{OLS}. By switching to the \texttt{gesvd} method, 
     results have a precision of 42 bits on average.
     }
     \label{fig:brr_svd_sig}
@@ -1408,12 +1425,13 @@ This observation supports the on-going discussion among LAPACK developers on the
 
 The face recognition example uses eigenfaces (eigenvectors) and Support Vector Machines (SVMs) to classify faces from the Labeled Faces in the Wild dataset. This example uses a Principal Component Analysis (PCA) to extract the eigenfaces and then trains an SVM classifier to predict the name associated with a face. This example is the only one to raise an error with RR due to the non-convergence of the Singular Value Decomposition (SVD) performed in the PCA.
 
-In this example, the PCA uses the Randomized SVD~\cite{halko2011finding} method that first computes a low-rank approximation of the input matrix using a stochastic algorithm and then uses this approximation as input for the SVD. Unfortunately, the example raises an error during the computation of the SVD.
-The \texttt{randomized\_svd} scikit-learn function uses the Divide \& Conquer SVD method (\texttt{gesdd}, see previous comments). 
-Replacing \texttt{gesdd} for \texttt{gesvd} solves the SVD convergence issue. Figure~\ref{fig:randomized_svd_S} shows the precision of the eigenvalues computed with gesvd, which varies between 15 and 20 significant bits out of the 24 available in single precision. Finally, the classifier metrics (precision, recall, F1-score, and support) are identical to the IEEE execution for all MCA samples.
+In this example, the PCA uses the Randomized SVD~\cite{halko2011finding} method that first computes a low-rank approximation of the input matrix using a stochastic algorithm and then uses this approximation as input for the SVD. The example raises an error during the computation of the SVD.
+The \texttt{randomized\_svd} scikit-learn function uses the Divide \& Conquer SVD method \texttt{gesdd} mentioned previously.
+Replacing \texttt{gesdd} for \texttt{gesvd} solves the SVD convergence issue. Figure~\ref{fig:randomized_svd_S} shows the precision of the eigenvalues computed with gesvd, which varies between 15 and 20 significant bits out of the 24 available in single precision. The classifier metrics (precision, recall, F1-score, and support) are identical to the IEEE execution for all MCA samples.
 
-In conclusion, Pytracer and the MCA model were helpful to detect the instability of the \texttt{gesdd} method mentioned in several GitHub issues, including the LAPACK repository. Furthermore, it is worth mentioning that a Pull Request has recently been submitted to let the user select the SVD method and avoid this kind of issue. Thus, we can see that Pytracer can detect instabilities that affect fundamental scientific computing components such as the LAPACK library. The Pytracer findings can therefore be extended to many application domains.
-\tristan{conclusion needs to be discussed. Note to self: generaliser un peu la conclusion: pytracer permet de se rendre compte de problemes de stabilite dont plusieurs librairies sont dependantes.}
+In conclusion, Pytracer and the MCA model were helpful to detect the instability of the \texttt{gesdd} method mentioned in several GitHub issues, including the LAPACK repository. Furthermore, it is worth mentioning that a Pull Request has recently been submitted to let the user select the SVD method and avoid this kind of issue. Thus, we can see that Pytracer can detect instabilities that affect fundamental scientific computing components such as the LAPACK library.
+% The Pytracer findings can therefore be extended to many application domains.
+% % \tristan{conclusion needs to be discussed. Note to self: generaliser un peu la conclusion: pytracer permet de se rendre compte de problemes de stabilite dont plusieurs librairies sont dependantes.}
 
 
 
@@ -1438,7 +1456,7 @@ In conclusion, Pytracer and the MCA model were helpful to detect the instability
     \texttt{face\_recognition} example using the \texttt{gesvd} SVD method and RR.
     Figures~\ref{fig:randomized_svd_U},~\ref{fig:randomized_svd_S}, and~\ref{fig:randomized_svd_V}
     show respectively the values $U$, $\Sigma$ and $V$.
-     Numerical precision is lower for smaller eigenvalues and this loss of precision translates to eigenvectors. It would be interesting to investigate the use of numerical precision for dimensionality reduction.
+     Numerical precision is lower for smaller singular values and this loss of precision translates to singular vectors. It would be interesting to investigate the use of numerical precision for dimensionality reduction.
     }
     \label{fig:face_recognition_svd}
 \end{figure}
@@ -1479,11 +1497,10 @@ In conclusion, Pytracer and the MCA model were helpful to detect the instability
 
 This example uses a linear Support Vector Machine (SVM) classifier trained using the Stochastic Gradient Descent (SGD) method to find the maximum separating hyperplane between sets of 2D points.
 The example trains the SVM with 50 random points separated in 2 clusters with hyperparameter $\alpha=0.01$ and using the hinge loss function. Once the model is trained, the example generates a $[-1,5]\times[-1,5]$ Cartesian grid
-discretized with 100 points and predicts the class label for each point with integer coordinates. Figure~\ref{fig:hyperplan_sig_zoom} shows the the number of significant bits %\tristan{isn't it significant bits?} \tristan{aren't the class predctions integers?} 
-\Yohan{No its floating point values}1
-obtained with RR for each point of the grid %(squares \tristan{not sure where the squares are}) 
-and the training dataset (circles \tristan{why are some circles larger than other ones?}).
-We can see that yellow points %\tristan{I don't see any white point} 
+discretized with 100 points and predicts the class label for each point with integer coordinates. Figure~\ref{fig:hyperplan_sig_zoom} shows the number of significant bits %\tristan{isn't it significant bits?} \tristan{aren't the class predctions integers?} 
+% \Yohan{No its floating point values}1
+obtained with RR for each point of the grid. %(squares \tristan{not sure where the squares are}) 
+We can see that yellow regions %\tristan{I don't see any white point} 
 close to the separating hyperplane are highly unstable with a number of significant bits below 0, meaning that
 the classifier is unsure about the predicted class. 
 %\tristan{Describe and comment on the other 2 tests, why are they more stable? Is it because the training set has more points?}
@@ -1534,8 +1551,8 @@ the classifier is unsure about the predicted class.
     \label{fig:weighted_w_sig}
     \end{subfigure}
     \caption{
-    These figures show three examples of separating hyperplane prediction. First, all figures show the number of significant bits of the prediction within RR mode. Second, we can see that the separating hyperplane is visible on each figure without plotting since it corresponds to a lower precision area. Indeed, the classifier has difficulty predicting which side the predicted point is on. Moreover, a large discretization step amplifies
-    this instability, as Figure~\ref{fig:separating_hyperplan} shows. Finally, Figures~\ref{fig:SVM_w_sig} and~\ref{fig:weighted_w_sig} show that taking into account the unbalancing or the weight of points allows for a better separating than ~\ref{fig:SVM_nw_sig} and ~\ref{fig:weighted_nw_sig}.
+    Three examples of separating hyperplane prediction. All the figures show the number of significant bits of the prediction in RR mode. The separating hyperplane corresponds to a lower-precsion region in each figure. Using a large discretization step amplifies
+    this instability.
 % respectively the results of examples    \textit{SVM} and~\textit{Weighted samples}. Figures~\ref{fig:SVM_nw_sig} and~\ref{fig:weighted_nw_sig} show the unweighted classification while Figures~\ref{fig:SVM_w_sig} and~\ref{fig:weighted_nw_sig} the classification taking into account the weights. We can see that taking into account the weight classes allows a better separation. 
     % \tristan{add labels to subfigures} \tristan{don't use this yellow for class 1, take a color that isn't in the color map. Add a legend to show the class colors.}
     }
@@ -1608,7 +1625,7 @@ with 900 points.
 Figures~\ref{fig:SVM_nw_sig} and~\ref{fig:SVM_w_sig} show the result within RR of the classification with
 and without taking into account the unbalancing.
 We can see that the number of significant bits is lower on the separating line and
-that taking into account the unbalancing allows a better separation.
+that taking into account class imbalance allows for a better separation.
 % Find the optimal separating hyperplane using an SVC for classes that are unbalanced.
 
 % We first find the separating plane with a plain SVC and then plot (dashed) the separating hyperplane with automatically correction for unbalanced classes.
@@ -1633,9 +1650,10 @@ that taking into account the unbalancing allows a better separation.
 % MCA Index issue
 
 \paragraph{SGD weighted samples}
-This example uses an SGD to separate weighted points by taking into account or not the weights. It divides the training set into two classes of 10 points with a bigger weight for the second class. The SGD is trained with hyperparameters $\alpha=0.01$ and a maximum number of iterations to 100. The prediction is made on a $[-4,5]\times[-4,5]$ grid discretized with 250000 points. Figures~\ref{fig:weighted_nw_sig} and~\ref{fig:weighted_w_sig} show the number of significant bits 
+This example uses an SGD to separate weighted points. It divides the training set into two classes of 10 points with a bigger weight for the second class. The SGD is trained with hyperparameters $\alpha=0.01$ and a maximum number of iterations to 100. The prediction is made on a $[-4,5]\times[-4,5]$ grid discretized with 250 000 points. Figures~\ref{fig:weighted_nw_sig} and~\ref{fig:weighted_w_sig} show the number of significant bits 
 of prediction within RR along with dataset points in blue and violet.
-We can see that the separating plane is visible without plotting it since it corresponds to the yellow line of lower precision. As for the examples SVM and Separating hyperplane, the numerical instabilities are concentrated around the separation since the classifier cannot predict from which side points are placed. Finally, taking into account the points' weight allows for a better separating.
+We can see that the separating plane corresponds to a region of lower precision, similar to the previous examples. 
+% Finally, taking into account the points' weight allows for a better separation \tristan{is this related to numerical stability? If not, you can ommit the comment.}.
 
 % RR Stable (30~48 bits on coef) \\
 % MCA Unstable (0 bits on coef)
@@ -1647,8 +1665,12 @@ We can see that the separating plane is visible without plotting it since it cor
 
 
 \subsection{Overhead evaluation}
-\pytracer's tracing overhead consists of (1) module instrumentation time (initialization overhead) and (2) data write time during the execution (runtime overhead). The initialization overhead is proportional to the number of functions and classes traced. For example, by instrumenting NumPy, SciPy, and Scikit-learn, we measured an average initialization time of 8 seconds during our experiments. Hence, the initialization overhead is amortized when traced applications are above 8 seconds. Moreover, one can reduce this overhead by excluding intensively used functions such as \texttt{numpy.array}.
-Figure~\ref{fig:performance_tracing} summaries \pytracer's tracing overhead for SciPy and scikit-learn examples. We can see that \pytracer introduces a slowdown of $17\times$ reduced to $3.5\times$ if we subtract the initialization step. Finally, the fuzzy instrumentation increases the slowdown to  $37\times$ for RR and $43\times$ for Full MCA.
+\pytracer's tracing overhead consists of (1) module instrumentation time (initialization overhead) and (2) data write time during the execution (runtime overhead). The initialization overhead is proportional to the number of functions and classes traced. For example, we measured an average initialization time of 8 seconds during our experiments with  NumPy, SciPy, and Scikit-learn. This overhead can be reduced by excluding intensively used functions such as \texttt{numpy.array} from the instrumentation.
+Figure~\ref{fig:performance_tracing} summarizes \pytracer's tracing overhead for SciPy and scikit-learn examples. 
+\textit{Slowdown} represents the slowdown of \pytracer without fuzzy measured as the ratio between the actual execution time (without \pytracer) and the execution time using \pytracer.
+The \textit{Slowdown RR} and \textit{Slowdown MCA} show the slowdown within the fuzzy environment. 
+Without fuzzy, \pytracer introduces an average slowdown of $17\times$ high for the examples running less than 8 seconds because \pytracer spends most of its time in the initialization step. Since this step is a constant factor of the number of functions instrumented, we also measured the instrumentation cost itself (\textit{Slowdown (Instrumentation)}) calculated by subtracting the initialization time to \textit{Slowdown}. We then obtain an average slowdown of $3.5\times$.
+Finally, the fuzzy instrumentation increases the average slowdown to $37\times$ for RR and $43\times$ for Full MCA.
 
 % \pytracer's tracing overhead consists of (1) module instrumentation time (initialization overhead), and (2) data write time during the execution (runtime overhead). The initialization overhead is proportional to the number of functions and classes traced. However, the initialization overhead is amortized \tristan{what do you mean by amortized? I don't get this sentence} when traced applications are above 8 seconds,  proportional to 
 % the number of functions and classes traced. Figure~\ref{fig:performance_tracing} summaries \pytracer's tracing overhead for SciPy and scikit-learn examples. We can see that \pytracer introduces a slowdown of reduced toif we subtract the initialization step 
@@ -1660,10 +1682,12 @@ Figure~\ref{fig:performance_tracing} summaries \pytracer's tracing overhead for 
     \centering
     \includegraphics[width=\linewidth]{figure/performance.pdf}
     \caption{
-    \pytracer tracing overheads: \textit{Slowdown} is the actual overhead, computed as the ratio between the execution time without and with \pytracer. This slowdown can be high for the examples running less than 8 seconds because \pytracer spends most of its time in the initialization step. Since this step is a constant factor of the number of functions instrumented, we also plot the slowdown of the instrumentation itself (\textit{Slowdown (Instrumentation)} calculated by subtracting the initialization time.
-    The \textit{Slowdown (RR)} and \textit{Slowdown (MCA)} colors show the slowdown of \pytracer 
+    \pytracer tracing overheads. \textit{Slowdown} represents the slowdown of \pytracer without fuzzy measured as the ratio between the actual execution time (without \pytracer) and the execution time using \pytracer. 
+    \textit{Slowdown (Instrumentation)} show the actual instrumentation cost computed by subtracting the initialization step.
+    The \textit{Slowdown (RR)} and \textit{Slowdown (MCA)} are the slowdown of \pytracer 
     using the fuzzy environment with RR and Full MCA modes.
-    The first four examples measure the initialization steps depending on the modules instrumented. \tristan{you could make a horizontal chart to avoid rotating the labels (also in Fig 13)}
+    The first four examples measure the initialization steps depending on the modules instrumented. 
+    % \tristan{there's too much text in this caption, move some of it to the text, the caption should just explain the difference between the 4 slowdowns. From the text I'm not sure what is the difference between slowdown and slowdown(RR)/slowdown(MCA).}
     }
     \label{fig:performance_tracing}
 \end{figure}
@@ -1685,9 +1709,9 @@ Figure~\ref{fig:performance_tracing} summaries \pytracer's tracing overhead for 
 
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{performance_parsing.pdf}
+    \includegraphics[width=\linewidth]{figure/parsing_time.pdf}
     \caption{\pytracer aggregation performance. The figure presents
-    the aggregation time (X-axis) versus the trace size (Y-axis).
+    the trace size (X-axis) versus the aggregation time (Y-axis).
     We can see that the aggregation time is proportional to the trace size.}
     \label{fig:performance_parsing}
 \end{figure}
@@ -1785,13 +1809,13 @@ Figure~\ref{fig:performance_tracing} summaries \pytracer's tracing overhead for 
 %     \label{tab:pytracer_overhead}
 % \end{table}
 
-Moreover, \pytracer's trace aggregation introduces to a post-processing overhead.
 Figure~\ref{fig:performance_parsing} shows
-the postprocessing time and trace sizes produced by \pytracer.
-In conclusion, the small overhead introduced by Pytracer allows one to analyze real-life applications.
+the postprocessing time and trace sizes produced by \pytracer. 
+The linear correlation between the log of the size and the log of the time shows a significant correlation 
+(p-value $\leq 10^{-8}$ for RR and p-value $\leq 10^{-3}$ for MCA).
+% \tristan{Mention linear correlation with p-value here.}
 
-\tristan{A scatter plot with x=size and y=time might be easier to read.}
-\tristan{Add a conclusion comment about the overhead}
+In conclusion, while \pytracer's overhead is substantial, it remains tractable for real-life examples.
 
 \section{Discussion}
 
@@ -1799,28 +1823,76 @@ In conclusion, the small overhead introduced by Pytracer allows one to analyze r
 % Scipy   4031 (2187) (506) functions, 1532 (472) (109) classes (pure Python)
 % Sklearn 4807 (1010) (81) functions, 546 (417) (41) classes (pure Python)
 
-\tristan{The next paragraphs read like nobody should use \pytracer ever because it's full of issues. Rewrite this section to explain why \pytracer is important, what it could be used for, what it brings to current context. We can discuss these points if you want. If you want to talk about limitations, formulate them as future work, not "pitfalls" or "problems".}
+% \pytracer is a tool for visualizing the numerical quality of function inputs and outputs along the execution of a Python program. It generates numerical traces and post-processes them to measure numerical discrepancies between executions. \pytracer does not require any particular noise model to estimate uncertainties. We tested it with MCA through the fuzzy ecosystem on two broadly used Python libraries.
 
-Pytracer is a tool for visualizing the numerical quality of function inputs/outputs over time. It generates numerical traces that are aggregated in postprocessing to measure numerical discrepancies between executions. Pytracer does not assume the noise model used to estimate uncertainties, but we tested it with the MCA model
-through the fuzzy ecosystem on two broadly used scientific libraries for Python with partial success.
+Through our analysis of SciPy and Scikit-learn, we demonstrated \pytracer's scalability, automaticity, and applicability to any Python program. The relatively low instrumentation overhead of 3.5 on average enables the analysis of real applications. \pytracer's instrumentation is fully automatic and does not require manual intervention from the user. Furthermore, \pytracer works on any Python libraries, with any data format supported by Pickle and any numerical noise model.
 
-We demonstrated the \pytracer's capabilities to analyze intensively used Python libraries such as NumPy or Scikit-learn, such as 1) Scalability. The low instrumentation overhead of 3.5x enables analysis of real applications and permits having a global representation of the numerical quality of an application. 2) Automaticity. \pytracer instrumentation is fully automatic and does not require manual intervention from the user, allowing the instrumentation of the NumPy, SciPy, and Scikit-learn libraries.
-3) Agnosticism. \pytracer works on any python libraries, with any data format supported by Pickle and any numerical noise model flavor.
+\pytracer is the first tool to enable a systematic numerical analysis of Python codes. Existing tools focus on traditional languages of the HPC community, such as C, C++, and FORTRAN. However, Python's high-level abstraction allows for quickly developing applications while maintaining high-performance thanks to specialized libraries such as NumPy. Therefore, \pytracer meets the numerical analysis needs of an ever-increasing number of applications.
 
-\pytracer is the first tool to bring the numerical analysis of Python codes available to everyone. Indeed, existing tools developed in the last years focused on traditional languages of the HPC community such as C, C++, and FORTRAN. However, the Python high-level abstraction allows for quickly developing applications while maintaining high performance with the help of specialized libraries like NumPy. Therefore, it is quite natural to see more fields systematically using Python, as in neuroimaging. Thus, \pytracer meets the numerical analysis needs of an ever-increasing number of applications writing in Python.
-Furthermore, \pytracer allows users to pinpoint numerical instabilities root causes precisely by working at the function level. Furthermore, the automaticity facilitates the usage and its integration in unit testing, for example. Hence, instead of tweaking hyperparameters to make solvers converge, the user has a practical way with \pytracer to quantify the numerical quality of its computations. Furthermore, the visualization permits a global view of the code and easily navigate through it.
-Moreover, it removes the need for ad-hoc scripts to visualize data. \pytracer currently supports n-dimensional NumPy arrays as well as native Python data. We want to extend \pytracer to support other formats such as 4D brain images in future works.
+Furthermore, \pytracer allows users to pinpoint numerical instabilities root causes precisely by working at the function level. Indeed, evaluating the numerical stability is complex since calculations are strongly correlated between them. The instrumentation at the function level limits the size of the traces since only inputs and outputs of a function are dumped. It moreover decreases the overhead of the instrumentation and helps the user to identify instabilities quickly. Working at the function level is thus a suitable compromise between (1) analyzing at the floating-point operation level and (2) user debug prints. (1) Indeed, the fine-grained analysis is costly and hard to analyze due to many computations evolved in HPC codes. It overwhelms the user with too much information, making analysis more complicated but exciting at the final step of the understanding. (2) Looking at intermediate results through print statements 
+is useful as a sanity check since it focuses on valuable information like residuals or norms.
+However, it is not sustainable in a systemic approach since the developer may unsuspected numerically unstable functions. Finally, the SciPy environment wraps many computation kernels written in C, like BLAS or LAPACK. By working at the function level, \pytracer allows the user to evaluate the numerical precision of such kernels and their impact on the code without getting deep into technical implementation aspects. 
 
-As we showed in section~\ref{sec:impact_mca_modes}, using the Full MCA mode leads to runtime errors that have a considerable impact on the proper functioning of the execution, which is unfortunate since these errors do not reflect actual numerical errors but errors related to perturbations that should not occur.
-Fixing this misbehavior would greatly help use Full MCA mode since this mode allows simulating catastrophic cancellations, which are familiar sources of numerical errors. On the other hand, RR mode is far more conservative since it preserves exact operations and is easier to use even though it does not simulate all perturbations.
-In addition to the runtime errors it raises, mismatching shapes is also a problem when aggregating traces as \pytracer will not compute statistics for a set of arrays with different shapes. Two solutions exist to overcome this issue: the first is not to instrument the \texttt{PyArray\_Arange} function with MCA. The advantage is that it is easy to set up since it requires one extra line in the exclusion file. However, the same kind of problem may appear somewhere else because, as we have seen, the evolved operations are elementary. Therefore, the chances that developers reproduce the same pattern are very probable. Therefore, the second solution is to ensure that the Full MCA mode preserves the exact operations. This solution has the advantage of not worrying about which functions should be instrumented or not with MCA, but it is hard to achieve it in practice. Indeed, we rely on the MCA implementation provided by Verificarlo that uses an internal precision to add the random perturbation that is higher than the working precision for applying the random noise. Verificarlo then rounds the result to the working precision before returning it, so any residual noise lower than the working precision is lost. Keeping track of that noise would require recording each intermediate computation in a shadow memory or keeping a tag about their exactness. This option would require more extra works than the first one but would ensure more consistent results.
+Python is a popular language to prototype proof-of-concept. Integrating \pytracer at the early stages of the development cycle allows identifying numerical instabilities to write better quality code.
+\pytracer's automaticity facilitates the usage and enables its integration in unit testing.
+For example, it can be used in a non-regression test to ensure that updates do not degrade the numerical quality of a calculation. Moreover, the Plotly dashboard offers a quick visualization to analyze more finely the potential issues.
 
-Also, we would like to extend the post-process analysis to aggregate traces where the execution flow path diverges. Therefore, a posteriori reconstruction is challenging as one must precisely identify the flow path taken and find synchronization points to pursue the analysis. We retrieve, for example, this divergence behavior in two general classes of numerical schemes: iterative methods and optimization processes. One solution is to integrate methods used in code coverage analysis to keep track of flow paths taken and the backtraces. However, this would increase the complexity of the postprocess analysis as well as an extra slowdown factor. However, by coupling the Gantt chart with static analysis, \pytracer would catch some divergence patterns occurring within a function. Indeed, by instrumenting at the function level, \pytracer views the function's callees (i.e., the functions called within a function) and thus should partially detect flow divergences.
+\pytracer can also be useful for selecting the hyperparameters of a code, as is the case in machine learning.
+Indeed, we find many cases in the literature where users explore a range of hyperparameters to select the ones giving the best scores. With \pytracer, the user has a practical way to quantify the numerical quality and understand why hyperparameters lead to inconsistent results instead of tweaking hyperparameters to make solvers converge.
 
-By design principle, \pytracer is flexible on the noise model used, although we only tested it with the MCA model in our experiments. Nevertheless, we would like to compare different models against MCA in future works to see the resulting differences. Furthermore, we would like to test \pytracer on parallel codes.
+The visualization permits a global view of the code and to understand interactions between computations. In addition, the Plotly dashboard helps to navigate through the code easily. It moreover removes the need for ad-hoc scripts to visualize data. Finally, the dashboard can be extended to support other data formats to visualize. At this stage, \pytracer currently supports n-dimensional NumPy arrays as well as native Python data. 
 
-Finally, we would extend \pytracer to instrument elementary arithmetic operations which can be helpful to more profound analyses. We nevertheless believe that instrumentation at the function level presents two advantages: it first limits the size of the traces since only inputs and outputs of a function are dumped instead of a full report which, on the one hand, decreases the overhead of the instrumentation and, on the other hand, help the user to identify instabilities quickly. Indeed, full reporting can overwhelm the user with too much information, making analysis more difficult at first. Second, the analysis at fine granularity is interesting at the final step of the understanding. Such an analysis would require a different instrumentation approach by, for example, working at the Abstract Syntax Tree (AST) level since it is trivial to get it in Python.
-Moreover, working at the AST level allows doing dependency analysis. Another extension would be to extract and replay a function, in the same vein as the CERE tool does but for Python, and to use an AST instrumentation to analyze the numerical quality of elementary operations step by step within the fuzzy environment.
+As we showed in Section~\ref{sec:impact_mca_modes}, using Full MCA mode leads to runtime errors that have a considerable impact on the proper functioning of the execution, that is unfortunate since these errors do not reflect actual numerical errors but are related to perturbations that should not occur. Conversely, RR mode is far more conservative since it preserves exact operations and is easier to use even though it does not simulate all perturbations. Therefore, from our experiments, we do not recommend the Full MCA mode for now, and more researches are needed to help fix the issues we encountered.
+
+% Through our analysis of SciPy and Scikit-learn, we demonstrated \pytracer's scalability, automaticity, and applicability to any Python program. The relatively low instrumentation overhead of $3.5\times$ on average enables the analysis of real applications. \pytracer's instrumentation is fully automatic and does not require manual intervention from the user. \pytracer works on any Python libraries, with any data format supported by Pickle and any numerical noise model.
+
+% \pytracer is the first tool to enable a systematic numerical analysis of Python codes. Existing tools focus on traditional languages of the HPC community such as C, C++, and FORTRAN. However, Python's high-level abstraction allows for quickly developing applications while maintaining high performance thanks to specialized libraries such as NumPy. Therefore, \pytracer meets the numerical analysis needs of an ever-increasing number of applications.
+
+% Furthermore, \pytracer allows users to pinpoint numerical instabilities root causes precisely by working at the function level. Indeed, evaluating the numerical stability is complex since calculations 
+% are strongly correlated between them. 
+% The instrumentation at the function level limits the size of the traces since only inputs and outputs of a function are dumped. It moreover decreases the overhead of the instrumentation and helps the user to identify instabilities quickly. 
+% Working at function level is thus a suitable compromise between (1) analyzing at the floating-point operation level and (2) user debug prints.
+% (1) Indeed, the fine-grained analysis is costly and hard to analyze due to the large amount of computations evolved in HPC codes. It overwhelms the user with too much information, making analysis more difficult but can be interesting at the final step of the understanding. 
+% (2) Looking at intermediate results through print statements focuses on valuable information
+% (like residuals or norms) but may miss numerically unstable functions unsuspected by the developer.
+% Finally, the SciPy environment wraps a lot of computation kernels written in C, like BLAS or LAPACK.
+% By working at function level, \pytracer allows the user to evaluate the numerical precision of such kernels
+% and their impact on the code without getting deep into technical implementation aspects. 
+
+% Python is a popular language to prototype proof-of-concept. Integrating \pytracer at early stages of the development cycle allows identifying numerical instabilities to write code of better quality.
+% \pytracer's automaticity facilitates the usage and enables its integration in unit testing.
+% It can be for example used in a non-regression test to ensure that the numerical quality of a calculation
+% is not degraded by updates. Moreover, the Plotly dashboard offers a quick visualization to 
+% analyze more finely the potential issues.
+
+% \pytracer can also be useful to select the hyperparameters of a code, as it is the case in machine learning.
+% Indeed, we find many cases in the literature where users explore a range of hyperparameters
+% to select the ones giving the best scores. With \pytracer, 
+% the user has a practical way to quantify the numerical quality and to understand why hyperparameters
+% lead to unstable outputs, instead of tweaking hyperparameters to make solvers converge, 
+
+% The visualization permits a global view of the code and to understand interactions between 
+% computations. The Plotly dashboard help to easily navigate through the code.
+% It moreover removes the need for ad-hoc scripts to visualize data. 
+% Finally, the dashboard can be extended to support other data format to visualize.
+% \pytracer currently supports n-dimensional NumPy arrays as well as native Python data. 
+
+% As we showed in Section~\ref{sec:impact_mca_modes}, using Full MCA mode leads to runtime errors that have a considerable impact on the proper functioning of the execution. This is unfortunate since these errors do not reflect actual numerical errors but errors related to perturbations that should not occur.
+% Conversely, RR mode is far more conservative since it preserves exact operations and is easier to use even though it does not simulate all perturbations.
+% From our experiments, we do not recommend the Full MCA mode for now and more researches are needed 
+% to help fixing issues we encountered.
+
+% Fixing this issue would enable the study of catastrophic cancellations, which are common sources of numerical errors. 
+% In addition to the runtime errors it raises, mismatching shapes is also a problem when aggregating traces as \pytracer will not compute statistics for a set of arrays with different shapes \tristan{So do you conclude that Full MCA is not usable while RR is? If so, you should recommend to use Pytracer with RR only.} \tristan{are you still talking about Full MCA here? if not, make another paragraph. If so, make it clearer.}. Two solutions exist to overcome this issue: the first is not to instrument the \texttt{PyArray\_Arange} function with MCA. The advantage is that it is easy to set up since it requires one extra line in the exclusion file. However, the same kind of problem may appear somewhere else because, as we have seen, the evolved operations are elementary. Therefore, the chances that developers reproduce the same pattern are very probable. Therefore, the second solution is to ensure that the Full MCA mode preserves the exact operations. This solution has the advantage of not worrying about which functions should be instrumented or not with MCA, but it is hard to achieve it in practice. Indeed, we rely on the MCA implementation provided by Verificarlo that uses an internal precision to add the random perturbation that is higher than the working precision for applying the random noise. Verificarlo then rounds the result to the working precision before returning it, so any residual noise lower than the working precision is lost. Keeping track of that noise would require recording each intermediate computation in a shadow memory or keeping a tag about their exactness. This option would require more extra works than the first one but would ensure more consistent results. \tristan{I find this paragraph too verbose, you should contract it to a few key sentences.}
+
+% \tristan{The following paragraphs are future work, not discussion. I'd remove them and flesh out the discussion from the ideas mentioned in the current 3rd paragraph}
+
+% Also, we would like to extend the post-process analysis to aggregate traces where the execution flow path diverges. Therefore, a posteriori reconstruction is challenging as one must precisely identify the flow path taken and find synchronization points to pursue the analysis. We retrieve, for example, this divergence behavior in two general classes of numerical schemes: iterative methods and optimization processes. One solution is to integrate methods used in code coverage analysis to keep track of flow paths taken and the backtraces. However, this would increase the complexity of the postprocess analysis as well as an extra slowdown factor. However, by coupling the Gantt chart with static analysis, \pytracer would catch some divergence patterns occurring within a function. Indeed, by instrumenting at the function level, \pytracer views the function's callees (i.e., the functions called within a function) and thus should partially detect flow divergences.
+
+% By design principle, \pytracer is flexible on the noise model used, although we only tested it with the MCA model in our experiments. Nevertheless, we would like to compare different models against MCA in future works to see the resulting differences. Furthermore, we would like to test \pytracer on parallel codes.
+
+% Finally, we would extend \pytracer to instrument elementary arithmetic operations which can be helpful to more profound analyses. We nevertheless believe that instrumentation at the function level presents two advantages: it first limits the size of the traces since only inputs and outputs of a function are saved instead of a full report which, on the one hand, decreases the overhead of the instrumentation and, on the other hand, help the user to identify instabilities quickly. Indeed, full reporting can overwhelm the user with too much information, making analysis more difficult at first. Second, the analysis at fine granularity is interesting at the final step of the understanding. Such an analysis would require a different instrumentation approach by, for example, working at the Abstract Syntax Tree (AST) level since it is trivial to get it in Python.
+% Moreover, working at the AST level allows doing dependency analysis. Another extension would be to extract and replay a function, in the same vein as the CERE tool does but for Python, and to use an AST instrumentation to analyze the numerical quality of elementary operations step by step within the fuzzy environment.
 
 
 
@@ -1856,7 +1928,7 @@ Moreover, working at the AST level allows doing dependency analysis. Another ext
 % Since \pytracer only cares about inputs and outputs of a function, the order of internal operations is transparent for it and thus should be able to handle those cases.
 
 % Finally, \pytracer does not instrument elementary arithmetic operations, and it can be a barrier to more profound analysis.
-% However, we believe that instrumentation at the function level presents two advantages: it first limits the size of the traces since only inputs and outputs of a function are dumped instead of a full report which, on the one hand, decrease the overhead of the instrumentation and, on the other hand, help the user to identify instabilities quickly. One of the pitfalls can be overwhelming the user with too much information, making analysis more difficult. Nevertheless, the analysis at fine granularity can be interesting at the final step of the understanding. Such an analysis would require a different instrumentation approach by, for example, working at the Abstract Syntax Tree (AST) level since it is trivial to get it in Python.
+%Such an analysis would require a different instrumentation approach by, for example, working at the Abstract Syntax Tree (AST) level since it is trivial to get it in Python.
 % An ideal way to do that would be to extract and replay a function, in the same vein as the CERE~\cite{castro2015cere} tool does but for Python, and use an AST instrumentation to analyze the numerical quality of elementary operations step by step within the fuzzy environment.
 % Lastly, AST analysis can serve as a basis for finding relationships between variables, valuable information for the user.
 
@@ -1873,21 +1945,41 @@ Moreover, working at the AST level allows doing dependency analysis. Another ext
 \section{Conclusion}
 
 
-% \tristan{I moved this from the opening of Section 4, as this reads more like a summary of \pytracer's features than an experiment description. It should be refactored in 1-2 paragraphs summarizing the main properties of \pytracer.}
+% \tristan{I moved this from the opening of Section 4, as this reads more like a summary of \pytracer's features than an experiment description. It should be refactored in 1-2 paragraphs summarizing the main properties of \\pytracer.}
 
-\pytracer is the first tool to offer a complete framework
-for analyzing and visualizing the numerical stability of Python codes.
-It works by automatically instrumenting Python libraries to produce numerical
-traces visualized through an interactive Plotly Dash server.
-\pytracer does not require manual code modification, and has been tested  with 
-major scientific libraries such as NumPy, SciPy, and Scikit-learn. Our results show that \pytracer is scalable, with an average instrumentation slowdown of $3.5\times$. \pytracer's visualization interface remains responsive even with traces of up to 1TB. Moreover,
-\pytracer is by construction agnostic to the noise model used 
-to evaluate the numerical stability. We have demonstrated 
-that \pytracer can be used with the Monte Carlo Arithmetic 
-through the fuzzy environment. 
+Evaluating the numerical stability of scientific Python codes is a tedious task and requires expertise to be conducted. Automatic tools to help the users understand what is going on in their codes is therefore crucial.
+In this perspective, \pytracer is the first tool to offer a complete framework for analyzing and visualizing the numerical stability of Python codes. It works by automatically instrumenting Python libraries to produce numerical traces visualized through an interactive Plotly Dash server. \pytracer does not require manual code modification, and we tested it with major scientific libraries such as NumPy, SciPy, and Scikit-learn. Our results show that \pytracer is scalable, with an average instrumentation slowdown of $3.5\times$. \pytracer's visualization interface remains responsive even with traces of up to 1TB. Moreover,
+\pytracer is by construction agnostic to the noise model used to evaluate the numerical stability. Furthermore, we have demonstrated that \pytracer is usable with the Monte Carlo Arithmetic through the fuzzy environment. 
 The experiments conducted in this paper are the first largest application of the fuzzy ecosystem by the wide range of applications covered. 
-We also have to provide feedback about pitfalls and benefits encountered to shed light on first-time users' good and bad practices and democratize MCA's usage. 
+
+In future work, we would like to extend the post-process analysis to aggregate traces when the execution flow path diverges by leveraging techniques used in code coverage analysis. Moreover, we would like to extend \pytracer to instrument elementary arithmetic operations which can be helpful to more profound analyses. Finally, although \pytracer is flexible on the noise model used, we only tested it with the Monte Carlo Arithmetic. Therefore, we would like to compare different models against MCA. 
 \pytracer is available at \href{https://github.com/big-data-lab-team/pytracer}{github://big-data-lab-team/pytracer} under MIT License.
+
+% Evaluating the numerical stability of scientific Python codes is a tedious task
+% and requires an expertise to be conducted. Automatic tools to help the users 
+% understanding what's going on in their codes is therefore crucial.
+% In this perspective, \pytracer is the first tool to offer a complete framework
+% for analyzing and visualizing the numerical stability of Python codes.
+% It works by automatically instrumenting Python libraries to produce numerical
+% traces visualized through an interactive Plotly Dash server.
+% \pytracer does not require manual code modification, and has been tested with 
+% major scientific libraries such as NumPy, SciPy, and Scikit-learn. Our results show that \pytracer is scalable, with an average instrumentation slowdown of $3.5\times$. \pytracer's visualization interface remains responsive even with traces of up to 1TB. Moreover,
+% \pytracer is by construction agnostic to the noise model used 
+% to evaluate the numerical stability. We have demonstrated 
+% that \pytracer can be used with the Monte Carlo Arithmetic 
+% through the fuzzy environment. 
+% The experiments conducted in this paper are the first largest application of the fuzzy ecosystem by the wide range of applications covered. 
+
+% In future work, we would like to extend the post-process analysis to aggregate traces 
+% when the execution flow path diverges by leveraging techniques used in code coverage analysis.
+% Moreover, we would like to extend \pytracer to instrument elementary arithmetic operations 
+% which can be helpful to more profound analyses. Finally, although \pytracer is flexible on the noise
+% model used, we only tested it with the Monte Carlo Arithmetic. We would like to compare different 
+% models against MCA. 
+
+
+% We also have to provide feedback about pitfalls and benefits encountered to shed light on first-time users' good and bad practices and democratize MCA's usage. 
+
 
 % \begin{itemize}
 
