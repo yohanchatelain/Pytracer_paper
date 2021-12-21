@@ -16,8 +16,8 @@
 \usepackage{xspace}
 \usepackage{makecell}
 \usepackage{ulem} % provides sout
-\usepackage{minted} % Provides listing environment
-\usepackage[htt]{hyphenat}
+\usepackage[frozencache=true,cachedir=minted-cache]{minted} 
+\usepackage[htt]{hyphenat}      
 \usepackage{subcaption}
 \usepackage{graphicx,import}
 \usepackage{booktabs}
@@ -940,12 +940,12 @@ an interesting pattern that could be further investigated.
 \end{subfigure}\\
 \begin{subfigure}{0.3\linewidth}
     \includegraphics[width=\linewidth]{figure/bspline/bspline_sig.pdf}
-    \caption{\centering\texttt{sepfir2d} significant bits. \\ \textcolor{white}{.}}
+    \caption{\centering\texttt{sepfir2d} significant bits. \newline \textcolor{white}{.}}
     \label{fig:bspline_bisplev_sig}
 \end{subfigure}
 \begin{subfigure}{0.3\linewidth}
     \includegraphics[width=\linewidth]{figure/bspline/bspline_mean_log.pdf}
-    \caption{\centering\texttt{sepfir2d} mean. \\(log)}
+    \caption{\centering\texttt{sepfir2d} mean. \newline (log)}
     \label{fig:bspline_bisplev_mean}
 \end{subfigure}
 \begin{subfigure}{0.3\linewidth}
@@ -955,12 +955,12 @@ an interesting pattern that could be further investigated.
 \end{subfigure}
 \begin{subfigure}{0.3\linewidth}
     \includegraphics[width=\linewidth]{figure/bspline/convol2d_sig.pdf}
-    \caption{\centering\texttt{convol2d} significant bits. \\ \textcolor{white}{.}}
+    \caption{\centering\texttt{convol2d} significant bits. \newline \textcolor{white}{.}}
     \label{fig:bspline_convol2d_sig}
 \end{subfigure}
 \begin{subfigure}{0.3\linewidth}
     \includegraphics[width=\linewidth]{figure/bspline/convol2d_mean_log.pdf}
-    \caption{\centering\texttt{convol2d} mean. \\ (log)}
+    \caption{\centering\texttt{convol2d} mean. \newline (log)}
     \label{fig:bspline_convol2d_mean}
 \end{subfigure}
 \begin{subfigure}{0.3\linewidth}
@@ -2041,7 +2041,7 @@ In future work, we plan to extend the post-processing analysis to aggregate trac
 % \end{itemize}
 
 \bibliographystyle{abbrv}
-\bibliography{biblio}
+\bibliography{paper}
 
 %%
 %% If your work has an appendix, this is the place to put it.
