@@ -112,7 +112,7 @@ $^2$Center for the Developing Brain, Child Mind Institute, New York, NY, USA}
 \maketitle
 
 \begin{abstract}
-Numerical stability is a crucial requirement of reliable scientific computing. However, despite the pervasiveness of Python in data science, analyzing large Python programs remains challenging due to the lack of scalable numerical analysis tools available\gkmod{ for this language}{}. \gkmod{}{To fill this gap,}we developed \pytracer, a profiler to quantify numerical instability in Python applications. \pytracer \gkmod{automatically}{transparently?} instruments Python code to produce numerical traces and visualize them interactively in a Plotly dashboard. We designed \pytracer to \gkmod{work with any}{be agnostic to} numerical noise model \gkmod{including}{, allowing for tool evaluation through} Monte-Carlo Arithmetic, random rounding \gkmod{or}{,} random data perturbations\gkmod{}{, or structured noise for a particular application}. We illustrate \pytracer's capabilities by testing the numerical stability of key functions in \gkmod{the}{both} SciPy and Scikit-learn \gkmod{}{, two dominant} Python libraries \gkmod{}{for mathematical modeling}. Through these evaluations, we demonstrate \pytracer as a scalable, automatic, and generic framework for numerical \gkmod{evaluations}{profiling} in Python.
+Numerical stability is a crucial requirement of reliable scientific computing. However, despite the pervasiveness of Python in data science, analyzing large Python programs remains challenging due to the lack of scalable numerical analysis tools available for this language. To fill this gap, we developed \pytracer, a profiler to quantify numerical instability in Python applications. \pytracer transparently instruments Python code to produce numerical traces and visualize them interactively in a Plotly dashboard. We designed \pytracer to be agnostic to numerical noise model , allowing for tool evaluation through Monte-Carlo Arithmetic, random rounding, random data perturbation, or structured noise for a particular application. We illustrate \pytracer's capabilities by testing the numerical stability of key functions in both SciPy and Scikit-learn, two dominant Python libraries for mathematical modeling. Through these evaluations, we demonstrate \pytracer as a scalable, automatic, and generic framework for numerical profiling in Python.
 % Numerical stability is a crucial requirement of reliable scientific computing. However, despite the pervasiveness of Python in data science, analyzing large Python programs remains challenging due to the lack of scalable numerical analysis tools available for this language. To address this issue, we developed \pytracer, a profiler to quantify numerical instability in Python applications. \pytracer automatically instruments Python code to produce numerical traces and visualize them interactively in a Plotly dashboard.
 % \pytracer is designed to work with any type of numerical noise model, including Monte-Carlo Arithmetic, random rounding or random data perturbations. We illustrate \pytracer's capabilities by testing the numerical stability of key functions in the SciPy and Scikit-learn Python libraries. Finally, \pytracer slows down executions by only $3.5 \times$ on average.
 % \tristan{Add one sentence to summarize the findings} 
@@ -120,154 +120,42 @@ Numerical stability is a crucial requirement of reliable scientific computing. H
 
 \section{Introduction}
 
-The scientific Python ecosystem \gkmod{is}{has become} a central component of data
-analyses \gkmod{}{in recent years,} owing to its rich offering of data manipulation, array programming,
+The scientific Python ecosystem has become a central component of data
+analyses in recent years, owing to its rich offering of data manipulation, array programming,
 numerical analysis, and visualization tools. In particular, libraries such
-as NumPy~\cite{harris2020array}, SciPy~\cite{virtanen2020scipy}, scikit-learn~\cite{pedregosa2011scikit} or PyTorch~\cite{paszke2019pytorch} are used in hundreds of publications \gkmod{every}{each} year, \gkmod{providing}{and serve as} a reference set of high-quality open-source core scientific libraries. Researchers have built numerous domain-specific software tools from this ecosystem, leveraging Python's simplicity and \gkmod{expressivity}{flexibility}. 
+as NumPy~\cite{harris2020array}, SciPy~\cite{virtanen2020scipy}, scikit-learn~\cite{pedregosa2011scikit} or PyTorch~\cite{paszke2019pytorch} are used in hundreds of publications each year, and serve as a reference set of high-quality open-source core scientific libraries. Researchers have built numerous domain-specific software tools from this ecosystem, leveraging Python's simplicity and flexibility. 
 
 Numerical stability is a crucial requirement of reliable scientific data
-processing. In unstable analyses, small numerical perturbations introduced by data noise, software and hardware updates, or parallelization \gkmod{lead to}{have potential to introduce} substantial deviations in final results, \gkmod{and}{leading to} potentially different scientific conclusions, \gkmod{ultimately} threatening the reliability of computational analyses. To \gkmod{address}{prevent} this \gkmod{issue}{}, numerical stability analyses need to be conducted systematically, however, no practical tool currently exists to conduct such analyses for Python programs.
+processing. In unstable analyses, small numerical perturbations introduced by data noise, software and hardware updates, or parallelization have potential to introduce substantial deviations in final results, leading to potentially different scientific conclusions, ultimately threatening the reliability of computational analyses. To prevent this, numerical stability analyses need to be conducted systematically, however, no practical tool currently exists to conduct such analyses for Python programs.
 
-We present PyTracer, a numerical stability \gkmod{analyzer}{profiling and visualization tool} for Python programs.
-\pytracer adopts a dynamic approach that evaluates numerical stability using program execution traces, and is applicable to large programs without manual intervention. \gkmod{}{The transparent nature of \pytracer is particularly valuable} in contrast \gkmod{}{to} theoretical approaches based on condition numbers or backward error analysis\gkmod{}{, which} require detailed modeling of the program and its numerical implementation. Similarly, static code analysis techniques hardly scale to large codebases, particularly in dynamically-typed languages such as Python.
+We present PyTracer, a numerical stability profiling and visualization tool for Python programs.
+\pytracer adopts a dynamic approach that evaluates numerical stability using program execution traces, and is applicable to large programs without manual intervention. The transparent nature of \pytracer is particularly valuable in contrast to theoretical approaches based on condition numbers or backward error analysis, which require detailed modeling of the program and its numerical implementation. Similarly, static code analysis techniques hardly scale to large code bases, particularly in dynamically-typed languages such as Python.
 
 \pytracer estimates the variability of floating-point variables by combining program traces obtained with different numerical perturbations, which requires (1) generating numerically-perturbed executions, (2) tracing floating-point computations along program executions, and (3) visualizing stability evaluations. \pytracer addresses these requirements with (1) a ``fuzzy" Python interpreter instrumented with Monte-Carlo arithmetic, (2) a dynamic instrumentation of Python functions, modules, and classes through meta-programming, (3) an interactive Plotly dashboard to visualize stability measures throughout program executions.
 
+This manuscript presents the design of \pytracer and demonstrates its potential in various use cases. 
 Through stability evaluations of the
-SciPy and scikit-learn libraries, we demonstrate \pytracer as a practical solution to review the numerical stability of extensive code bases. This manuscript describes related approaches, presents the design of \pytracer, and demonstrates its potential in various use cases.
-
-
-\section{Background and related work}
-
-Several tools have been developed to assess numerical quality, \gkmod{}{and can be} divided into static and dynamic approaches. Static approaches typically analyze source code, while dynamic approaches trace floating-point computations throughout executions. A detailed review of these approaches is presented in~\cite{cherubin2020tools}. 
-\pytracer adopts the dynamic approach due to its scalability to large \gkmod{existing}{} code bases. Dynamic approaches typically trace floating-point computations, detect instabilities in traces, and visualize summary statistics about instabilities. This section reviews existing approaches for each of these steps. 
-
-% In this section, we review tools and theoretical frameworks related to \pytracer components.
-% We start by reviewing state-of-the-art dynamic tools for detecting numerical instabilities.
-% Then, we focus on existing theoretical approaches for perturbations-based techniques to detect numerical instabilities,
-% \pytracer being agnostic to perturbation technique used. Finally, we review visualization tools 
-% aiming at detecting numerical instabilities over execution time.
-
-\label{sec:soa}
-\subsection{Numerical tracing techniques}
-Numerous tools exists to trace floating-point computations for C, C++, or FORTRAN programs due to the prevalence of these languages in High-Performance Computing (HPC). 
-The main tracing techniques are \textit{source-to-source}, \textit{compiler-based transformations}, and \textit{dynamic binary instrumentation}.
-
-\gkmod{}{Note: this paragraph just reads like a list with no real interpretation/commentary. I think it would be better to state the strengths of this technique, cite examples, and then state limitations/why it isn't the only technique used.}
-The source-to-source technique requires a rewriting of the application to modify floating-point types. 
-CADNA~\cite{jezequel2008cadna} is a library for C, C++, and Fortran implementing \gkmod{the}{} CESTAC~\cite{vignes1993stochastic} stochastic arithmetic. Shaman~\cite{demeure_phd} is a C++ library that uses a first-order error model to propagate numerical error. 
-MCAlib~\cite{frechtling2015mcalib} is a C library that implements the Monte Carlo Arithmetic (MCA)~\cite{parker1997monte} using the MPFR~\cite{fousse2007mpfr} library.
-Finally, the work in~\cite{tang2016software} proposed a source-to-source framework for executing targeted code in infinite and fixed precision with and without  stochastic arithmetic.
-
-\gkmod{}{Note: similar to the above, this is just a list rather than a highlight of how the compiler-based approach can be more scalable than source-to-source because it requires less manual intervention into a codebase (e.g.), then have your list, and finally say why it is still limited/not a global fix to this problem.}
-The compiler-based approach instruments floating-point expressions at compile time. 
-Verificarlo~\cite{verificarlo} is a compiler that supports different types of arithmetic instrumentations, including MCA. 
-The work in~\cite{bao2013fly} modified the GNU Compiler Collection (GCC) to track local floating-point errors across executions. pLiner~\cite{guo2020pliner} is a root-cause analyzer based on the Clang compiler that detects floating-point operations responsible for result variability using a source-to-source transformation at the Abstract Syntax Tree (AST) level to rewrite parts of code with higher precision. 
-PFPSanitizer~\cite{chowdhary2020debugging,chowdhary2021parallel} is a compiler that uses parallel shadow execution to detect numerical issues using higher precision.
-FLiT~\cite{sawaya2017flit} is a framework to detect variability induced by compilers and their optimizations.
-The work in~\cite{wang2012development} proposes a numerical debugger based on GDB~\cite{stallman1988debugging} for Discrete Stochastic Arithmetic (DSA) on FPGA as an Eclipse plugging. Similarly, Cadtrace~\cite{jezequel2008cadna} and Shaman propose a GDB-based tool to use the CADNA and Shaman libraries with GDB, respectively.
-
-Dynamic Binary Instrumentation (DBI) operates directly on executables, without the need for recompilation or manual changes. Therefore, it is applicable to any programming language.
-CraftHPC~\cite{lam2013dynamic} uses DBI to detect catastrophic cancellations at runtime.
-Verrou~\cite{fevotte2016verrou} is a Valgrind~\cite{nethercote2007valgrind} based tool that dynamically replaces
-floating-point operations with their stochastic arithmetic counterparts. FPDebug~\cite{benz2012dynamic} uses DBI to detect numerical inaccuracies by using shadow computations with higher precision.
-Herbgring~\cite{sanchez2017finding} is a Valgrind-based tool to detect
-numerical instabilities. It uses a shadow memory to detect precision losses by comparison with results obtained at higher precision. It is combined with symbolic computation to backtrack the root of the error.
-We can note that all methods based on a high-precision oracle suppose that computing with a large number of bits is sufficient to obtain an accurate result, which is not always true (see for example, the famous Muller's sequence~\cite{bajard1996introduction}). %\tristan{it looks like your veritracer paper is the first time where the ``famous Muller's sequence" was described, is that so?}).
-
-\gkmod{}{Note: I like this comparison here, but do think that the comments above about providing some more info when each is mentioned would still help this section.}
-Being agnostic to the programming language is a serious advantage of the DBI method compared to source-to-source and compiler-bases methods. However, working at the binary level makes it difficult to access high-level information needed to debug and understand the source-code logic. Conversely, the source-to-source approach provides a fine-grained control on the analyzed code, but it lacks scalability, as rewriting large codes can be a tedious task. Finally, the compiler-based approach takes advantage of the best of both by being automatic and having access to high-level information. However, like source-to-source, the compiler-based method is not suitable for analyzing closed-source libraries.
-
-To the best of our knowledge, there is currently no tool dedicated to the numerical analysis of Python code. Existing tools for tracing Python code focus on performance profiling for time (cProfile) 
-or memory consumption (memprofile). 
-Anteater~\cite{faust2019anteater} is a Python tracer tool to debug Python applications. 
-It performs source transformations at the AST level but only deals with native numeric Python types.
-Moreover, the user needs to manually tag each variable to trace. Finally, according to the authors, Anteater does not scale to large traces.
-cProfile, memprofile, and Anteater use Python decorators as the primary instrumentation technique, a Python mechanism to instrument a function by adding a line over a function declaration.
-While this method is appropriate when targeting specific functions, it is not feasible for large codebases where potentially unstable code sections are unknown.
-
-
-\label{sec:detecting-instabilities}
-\subsection{Detecting numerical instabilities with stochastic arithmetic}
-\label{sec:mca}
-
- 
-
-% We review here the existing theoretical framework that might be used to detect numerical instabilities.
-% Our experiments rely on the Monte Carlo Arithmetic (MCA), a stochastic arithmetic allowing 
-% to detect numerical errors by adding random perturbations in the floating-point computations.
-% However, Pytracer do not rely on any assumption about the perturbation model used and thus leaves the user free to use
-% an alternative model. As such, we describe two others options that we thought might be beneficial and complementary to MCA: 
-% input data uncertainty analysis and random seed sensitivity.
-
-% \subsubsection{Stochastic Arithmetic}
-
-% The Monte Carlo Arithmetic is a variant of so-called stochastic arithmetic, whose purpose is to model round-off errors by a random variable.
-
-Three main approaches exist to detect numerical instabilities: stochastic arithmetic, uncertainty or sensitivity analysis~\cite{helton2006survey}, and random seed analysis~\cite{click2011quality}.
-%\tristan{add key references for uq/sa if any}
-\pytracer focuses on stochastic arithmetic since it does not make any assumption about 
-the noise model, in contrast to sensitivity analysis. \gkmod{}{Q: isn't \pytracer agnostic to noise model/method for instability detection? Can't we just re-run the tool multiple times under whatever model for detecting instabilities that we choose and it will work all the same? If so, then I may reword this to say that pytracer works for all, and for our usecases here we use SA because X, Y, and Z...}
-%\tristan{due to...}
-Stochastic arithmetic leverages randomness to estimate numerical instabilities coming from the use of floating-point representations. The main idea is to treat round-off errors 
-% \tristan{only round-off errors or all numerical errors?} 
-as random variables and characterize them statistically.
-
-The first published complete stochastic arithmetic framework was CESTAC~\cite{vignes1993stochastic}. In CESTAC, each floating-point computation is performed multiple times with different rounding modes: round-up or round-down. From these stochastic samples, one can then derive the number of significant digits in the computed result. Discrete Stochastic Arithmetic~\cite{vignes2004discrete} extends CESTAC with comparison operators implemented in the CADNA library.
-
-Monte Carlo Arithmetic (MCA)~\cite{parker1997monte} uses the same principle but introduces two differences:
-(i) a virtual precision parameter, allowing to simulate reduced working precision, and (ii) different perturbation modes to introduce perturbations
-on function inputs or output.
-MCA replaces each floating-point number $x$ with a stochastic counterpart computed as:
-\[
-inexact(x) =  x + \beta^{e_x - t}\xi
-\]
-where $\beta$ is the number base, $e_x$ is the magnitude of $x$, $t$ the virtual precision and $\xi \in (-\frac{1}{2},\frac{1}{2})$ is a random uniform variable.
-Virtual precision allows for the simulation of reduced working precision.
-MCA can be applied in three modes: Random Rounding (RR), Precision Bounding (PB), and full MCA, which apply function $inexact$ to the output, the inputs, or both, respectively. While the RR mode is equivalent to stochastic rounding, the PB mode can also identify catastrophic cancellations.
-
-Stochastic arithmetic quantifies numerical error using the number of significant digits $s$ estimated among the sampled values. A common formula to determine this number from MCA samples is \gkmod{the one reported}{presented} in~\cite{parker1997monte}:
-\begin{equation}
-s = -\log_{\beta}{ \left| \dfrac{\sigma}{\mu} \right|} \label{eq:sig-digits}
-\end{equation}
-where $\mu$ and $\sigma$ are the sample mean and standard deviation of a variable sampled with MCA.  
-Sohier et al.~\cite{sohier2018confidence} recently provided a generalization of this formula to include confidence intervals.
-
-% \subsubsection{Uncertainty, sensitivity, and random seed analysis}
-% \tristan{I'm wondering if we could remove this sub-section, as it doesn't seem to be critical to the understanding of the paper, wdyt?}
-% Uncertainty analysis (UA) is a method to estimate the output distribution given an input distribution.
-% Sensitivity analysis (SA) is a variation of UA that measures the local response to a small perturbation~\cite{loucks2017water}. 
-% Several approaches for UA and SA exist, among them differential analysis, response surface methodology, Monte Carlo analysis, and variance decomposition (see~\cite{helton2006survey} for a review). In particular, Monte Carlo analysis is a sampling-based technique that samples inputs space to estimate output response. Monte Carlo analysis shares similarities with Monte Carlo Arithmetic. For instance, the PRECISE framework~\cite{chaitin1996lectures} shares with MCA the idea of varying virtual precision to estimate output sensitivity.
-
-% Furthermore, the quality of a Random Number Generator is a crucial characteristic when dealing with stochastic model and differ from cryptography requirements. A good RNG provides a tradeoff between performance, period, correlation, or uniformity~\cite{james2020review} for numerical simulation.  
-% On the other hand, poor-quality RNGs may have a substantial impact on results~\cite{click2011quality}. First, measuring variation induced by seed is a good indicator of program stability that we can compare against variability induced by floating-point arithmetic.
-
-
-\subsection{Visualization}
-
-Visualization \gkmod{}{Note: You kind of jump right in to this section. Visualization of what in particular? Why do we want (need?) to visualize this sort of data?} covers a wide range of numerical simulation domains, from general-purpose numerical visualization with tools
-such as VTK~\cite{schroeder2000visualizing} to topological data analysis~\cite{tierny2018topological}, including matrix~\cite{wu2008matrix} or tensor~\cite{kindlmann2006diffusion} visualization.
-Despite the large number of existing tools to identify numerically unstable sections of source code, few allow the user to have a global view of the numerical precision of their computations or to compare several executions of the same program under various perturbations.
-
-Veritracer~\cite{chatelain2018veritracer} was the first tool to propose an embedded visualizer of numerical stability over the execution of C, C++, and Fortran code. Veritracer extends Verificarlo~\cite{verificarlo} with contextual information about traced variables, which allows the user to identify instabilities quickly.
-However, Veritracer neither offers a dynamic interface nor includes information about high-level structures such as \texttt{struct} or \texttt{array}.
-FPAvizual~\cite{gu2014fpavisual} visualizes the effects of floating-point arithmetic but only for educational purposes \gkmod{}{Q: What does this mean?}.
-Anteater~\cite{faust2019anteater} proposes a visualizer for Python code, but as mentioned previously, it only deals with native Python types, and the user needs to select variables to trace manually. Anteater provides an insightful reflection 
-around visual debugging beyond floating-point analysis, which has inspired the design of \pytracer's visualization interface.
+SciPy and scikit-learn libraries, we demonstrate \pytracer as a practical solution to review the numerical stability of extensive code bases. 
+%All information was obtained through \pytracer, visualized separately for improved customizability.
+%\tristan{this is a weird place to mention this ^^}
 
 
 
 \section{\pytracer design}
 
 % \subsection{Pytracer workflow}
-\pytracer adopts the three-step workflow shown in Figure~\ref{fig:workflow}. First, \pytracer uses \gkmod{monkey patching}{\textit{monkey patching}} to replace the functions called by the application with a wrapper that saves their arguments and returned values in a trace file \gkmod{}{Q: This is conceptually similar to a decorator, no? If so, perhaps it is worth mentioning}. Second, it injects noise in the application \gkmod{}{Q: \pytracer doesn't actually inject noise, does it? You can just run your tool however you want multiple times}, executes it multiple times, and aggregates the resulting trace files to compute summary statistics about each traced variable. Finally, a Plotly dashboard provides interactive visualizations highlighting unstable code sections.
+\pytracer adopts the three-step workflow shown in Figure~\ref{fig:workflow}. First, \pytracer uses \textit{monkey patching} to replace the functions called by the application with a wrapper that saves their arguments and returned values in a trace file.
+% \gkmod{}{Q: This is conceptually similar to a decorator, no? If so, perhaps it is worth mentioning} \Yohan{Conceptually, monkey patching is the ability to dynamically change a class or a module. So it's more powerful than the decorators. But yes we use monkey-patching to automatically decorate the functions.}
+Second, it executes the application multiple times with noise injection, and aggregates the resulting trace files to compute summary statistics about each traced variable. Finally, a Plotly dashboard provides interactive visualizations highlighting unstable code sections.
 
 % \tristan{mention monkey patching}
 
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figure/workflow.pdf}
-    \caption{Pytracer workflow \gkmod{}{Note: replace "Execution" with "Multiple Independent Executions", and maybe move it to be between the gears and the pkl files.}}
+    \caption{Pytracer workflow
+    % \gkmod{}{Note: replace "Execution" with "Multiple Independent Executions", and maybe move it to be between the gears and the pkl files.}
+    }
     \label{fig:workflow}
 \end{figure}
 
@@ -278,9 +166,10 @@ around visual debugging beyond floating-point analysis, which has inspired the d
 
 \pytracer dynamically instruments Python modules
 without requiring source code modifications in the application.
-To do so, it creates a new, instrumented version of each module that preserves its original attributes so that the application can transparently use it. \gkmod{}{Note: this form of monkey patching is basically global and transparent decorating, right?}
+To do so, it creates a new, instrumented version of each module that preserves its original attributes so that the application can transparently use it.
+% \gkmod{}{Note: this form of monkey patching is basically global and transparent decorating, right?} \Yohan{Yes}
 By default, \pytracer instruments all the attributes
-in a given module except the special ones of the form \texttt{\_\_*\_\_}\gkmod{}{, which is common for reserved Python methods}.
+in a given module except the special ones of the form \texttt{\_\_*\_\_}, which is common for reserved Python methods.
 However, some attributes are not writable. In this case, \pytracer preservers the original attributes and warns the user. The user can also restrict the list of traced attributes through
 an inclusion/exclusion mechanism. The main advantage of this instrumentation approach is the lack of required modification in the application source code, in contrast with decorator-based approaches. In addition, this technique is scalable and applicable in read-only environments such as Singularity containers or HPC clusters.
 
@@ -434,10 +323,14 @@ By default, \pytracer returns a warning when it encounters such classes.
 \subsubsection{Instrumenting class instances}
 
 \pytracer automatically instruments class instances since it instruments classes. However, it cannot instrument or instantiate classes that have read-only attributes --- in particular class \texttt{ufunc}, --- which is problematic given their pervasiveness in scientific computing. In particular, NumPy's universal functions include
-vectorized elementary mathematical functions and other prevalent \gkmod{ones}{Q: prevalent whats?}. Universal functions are implemented in C, which prevents their modification.
+vectorized elementary mathematical and other prevalent functions. 
+%\gkmod{ones}{Q: prevalent whats?}.
+Universal functions are implemented in C, which prevents their modification.
 
 To overcome this issue, \pytracer wraps the class instance into a transparent wrap class (\texttt{twc}) that overloads
-1) function \texttt{\_\_getattribute\_\_}, called when an instance attribute is accessed --- instrumented to return the attributes from the original class, and 2) function \texttt{\_\_call\_\_}, called when the function is called through the () operator --- instrumented with function \texttt{generic\_wrapper}. \gkmod{}{Note: the previous sentence is a bit hard to follow; the word "called" is used a lot so I got a bit lost.} The \texttt{twc} returns the queried attribute of the instance instead of returning its attributes, allowing transparent access to the instance.  Finally, \pytracer overloads the builtin \texttt{type} function to preserve the type of the wrapped instance.
+1) function \texttt{\_\_getattribute\_\_}, called when an instance attribute is accessed --- instrumented to return the attributes from the original class, and 2) function \texttt{\_\_call\_\_}, used when an instance behaves like a function through the () operator --- instrumented with function \texttt{generic\_wrapper}.
+% \gkmod{}{Note: the previous sentence is a bit hard to follow; the word "called" is used a lot so I got a bit lost.}
+The \texttt{twc} returns the queried attribute of the instance instead of returning its attributes, allowing transparent access to the instance.  Finally, \pytracer overloads the builtin \texttt{type} function to preserve the type of the wrapped instance.
 
 \subsubsection{Instrumenting iterators}
 
@@ -477,6 +370,26 @@ A workaround would be to convert iterators into explicit containers, however, th
 \subsubsection{Noise injection}
 \label{sec:fuzzy}
 
+Three  main  approaches  exist  to  detect  numerical  instabilities:  stochastic  arithmetic,  uncertainty  or  sensitivity analysis [23], and random seed analysis [11].  PyTracer is agnostic to the noise model used and therefore works for all methods mentioned.  For our use cases, we focus on stochastic arithmetic since it does not make any assumption about the noise model, in contrast to sensitivity analysis
+
+Stochastic arithmetic leverages randomness to estimate numerical instabilities coming from the use of floating-point representations. The main idea is to treat round-off errors as random variables and characterize them statistically.
+Monte Carlo Arithmetic (MCA)~\cite{parker1997monte} uses this principle by introducing two improvements:
+(i) a virtual precision parameter, allowing to simulate reduced working precision, and (ii) different perturbation modes to introduce perturbations
+on function inputs or output.
+MCA replaces each floating-point number $x$ with a stochastic counterpart computed as:
+\[
+inexact(x) =  x + \beta^{e_x - t}\xi
+\]
+where $\beta$ is the number base, $e_x$ is the magnitude of $x$, $t$ the virtual precision and $\xi \in (-\frac{1}{2},\frac{1}{2})$ is a random uniform variable.
+Virtual precision allows for the simulation of reduced working precision.
+MCA can be applied in three modes: Random Rounding (RR), Precision Bounding (PB), and full MCA, which apply function $inexact$ to the output, the inputs, or both, respectively. While the RR mode is equivalent to stochastic rounding, the PB mode can also identify catastrophic cancellations.
+
+Stochastic arithmetic quantifies numerical error using the number of significant digits $s$ estimated among the sampled values. A common formula to determine this number from MCA samples is presented in~\cite{parker1997monte}:
+\begin{equation}
+s = -\log_{\beta}{ \left| \dfrac{\sigma}{\mu} \right|} \label{eq:sig-digits}
+\end{equation}
+where $\mu$ and $\sigma$ are the sample mean and standard deviation of a variable sampled with MCA.  
+Sohier et al.~\cite{sohier2018confidence} recently provided a generalization of this formula to include confidence intervals.
 
 We enable MCA in Python programs via Verificarlo~\cite{verificarlo}, a clang-based compiler~\cite{lattner2008llvm} that replaces floating-point operations by a generic call to a configurable floating-point model. Several floating-point models are available~\cite{chatelain2019automatic,chatelain2019outils}, also called backends.
 \pytracer leverages ``fuzzy"~\cite{kiar2020comparing}, a collection of software tools compiled with Verificarlo. In particular, fuzzy provides MCA-instrumented versions of the Python interpreter as well as the BLAS, LAPACK, NumPy, SciPy, and scikit-learn libraries, which enables MCA for a wide range of existing scientific Python programs. Fuzzy is available in Verificarlo's GitHub organization at \href{https://github.com/verificarlo/fuzzy}{\url{github.com/verificarlo/fuzzy}}.
@@ -501,7 +414,8 @@ Traces store numerical values at the granularity of function calls. When the app
 \subsubsection{Trace aggregation}
 
 Once traces are available, \pytracer sequentially parses them and computes the mean, standard deviation, and the number of significant digits (as in Equation~\ref{eq:sig-digits}) of all saved values. \pytracer saves these summary statistics in an HDF5 file, a hierarchical format that facilitates visual browsing since only
-required information are loaded when requested by the user. \gkmod{}{Q: Is there a reason we don't also use HDF for the raw traces? Lack of native compression?}
+required information are loaded when requested by the user.
+% \gkmod{}{Q: Is there a reason we don't also use HDF for the raw traces? Lack of native compression?} \Yohan{Principaly because you can't save any Python objects in HDF5 while you can with Pickle}
 This operation critically relies on the ordering of call input and output objects in the traces. Therefore, it assumes that the application is single-threaded and that the control flow does not depend on a random state. 
 % Techniques to overcome this limitation are discussed in the discussion section.
 
@@ -521,16 +435,22 @@ numeric types or NumPy arrays of numeric types.
 
 \subsection{Interactive visualization}
 The third main component of \pytracer is its interactive trace visualizer built with Plotly Dash~\cite{plotly}, a Python framework for web visualization.
-Plotly Dash abstracts the low-level details of web applications in a highly customizable development interface allowing to offload heavy computations to a server \gkmod{}{Q: does it support using a remote server with forwarding, in the event that your local system isn't that beefy?}. 
+Plotly Dash abstracts the low-level details of web applications in a highly customizable development interface allowing to offload heavy computations to a server if necessary.
+% \gkmod{}{Q: does it support using a remote server with forwarding, in the event that your local system isn't that beefy?} \Yohan{Yes, that the meaning of the sentence. Should we reword it?}
 Figure~\ref{fig:visu-layout} presents the general layout of the \pytracer visualizer, divided into five sub-components:
 \begin{enumerate}
- \item Timeline view: This view displays the values of each input and output for a given function at a given invocation. By default, \pytracer shows the number of significant digits computed across the traces. The user can switch to the mean or the standard deviation \gkmod{}{Q: mean/stdev of what? the inputs/outputs? But what if they are on a totally different scale (e.g. log(0.0001)}. The visualizer uses an upper triangle for inputs and a lower triangle for outputs. \pytracer internally represents all values as NumPy arrays. In the case of non-scalar values or types that cannot be trivially cast into NumPy arrays, \pytracer splits the value into several variables. Hence, \pytracer will transform a class containing $n$ floating-point parameters into $n$ variables. Each variable is prefixed with the original value and postfixed with the name of the parameter. \gkmod{}{Q: how is this managed for the sake of interpretability? E.g. if one of the components has very low significance and another few are fine, how can I easily identify where in my sequence we have the drop in precision?}
+ \item Timeline view: This view displays the values of each input and output for a given function at a given invocation. By default, \pytracer shows the number of significant digits computed across the traces. The mean and standard deviation across perturbed samples are also available. 
+%  \gkmod{}{Q: mean/stdev of what? the inputs/outputs? But what if they are on a totally different scale (e.g. log(0.0001)}. \Yohan{All values, a value mean one input or one output. For different scale, you can switch to the log scale. It is worth mentioning it?}
+ The visualizer uses an upper triangle for inputs and a lower triangle for outputs. \pytracer internally represents all values as NumPy arrays. In the case of non-scalar values or types that cannot be trivially cast into NumPy arrays, \pytracer splits the value into several variables. Hence, \pytracer will transform a class containing $n$ floating-point parameters into $n$ variables. Each variable is prefixed with the original value and postfixed with the name of the parameter.
+%  \gkmod{}{Q: how is this managed for the sake of interpretability? E.g. if one of the components has very low significance and another few are fine, how can I easily identify where in my sequence we have the drop in precision?} \Yohan{You can click on the value of interest in the legend and it will hide the others. }
     Finally, non-scalar values (vectors or matrices) are represented by their average and can be inspected with the Zoom view (see below).
  \item Gantt chart view: This view displays the call graph as a Gantt chart representing the instrumented functions. Each function call is represented with a bar.
     The time overlaps reflect the caller/callee relation.
     For example, in the figure, \texttt{function1} calls \texttt{function2} that itself calls \texttt{function4} and \texttt{function5}. 
-    This view provides insights on the calling context for each function, which may influence numerical stability. \gkmod{}{Note: this is a non-standard layout for gantt charts... normally the width/overlap is determined by time of start + duration. Is that information contained somewhere in here? If not, will a very fast function that calls sub-functions, say, 1000 times look longer than a very slow function that doesn't call any subfunctions?}
- \item  Source code view: This view displays \gkmod{}{a local snapshot of} the source code file of the variable hovered in the timeline view. 
+    This view provides insights on the calling context for each function, which may influence numerical stability.
+    % \gkmod{}{Note: this is a non-standard layout for gantt charts... normally the width/overlap is determined by time of start + duration. Is that information contained somewhere in here? If not, will a very fast function that calls sub-functions, say, 1000 times look longer than a very slow function that doesn't call any subfunctions?}
+    % \Yohan{I don't keep the duration because the different traces may have different time execution profiles and it will not make sense to average times. Moreover, since we focus on the numerical stability and not on performance, we only care about the call order. Yes it will look longer because the unit of the X-axis is the invocation, not the time.}
+ \item  Source code view: This view displays a local snapshot of the source code file of the variable hovered in the timeline view. 
  \item Zoom view: This view provide details about non-scalar values. For example, a matrix may have instabilities around its diagonal but not in other regions.
     The visualizer also provides additional metrics such as array shape, infinite norm, or condition number.
 \item  Functions list view: This view allows the user to select the functions plotted in the timeline view.
@@ -539,23 +459,29 @@ Figure~\ref{fig:visu-layout} presents the general layout of the \pytracer visual
 \section{Numerical evaluations}
 
 We evaluated \pytracer on two widely-used Python libraries: SciPy~\cite{virtanen2020scipy}, the main library for scientific computing in Python, and  scikit-learn~\cite{pedregosa2011scikit}, a reference machine-learning framework that
- implements a wide range of state-of-the-art algorithms. For each library, we executed the software examples provided in their respective GitHub repositories. We traced each example five times, having activated MCA in the Python interpreter, BLAS, LAPACK, NumPy, SciPy, and scikit-learn. We repeated the experiment with two MCA modes, Random Rounding (RR) and Full MCA, resulting in 2 experiments for each example. We used the default virtual precision in Verificarlo, namely 24 bits for single-precision floating-point values and 53 bits for double-precision values, which simulates machine error. We used Python-3.8.5, NummPy-1.19.1, SciPy-1.5.4, and scikit-learn-0.23.2.
+ implements a wide range of state-of-the-art algorithms. For each library, we executed the software examples provided in their respective GitHub repositories. We traced each example five times, having activated MCA in the Python interpreter, BLAS, LAPACK, NumPy, SciPy, and scikit-learn. We repeated the experiment with two MCA modes, Random Rounding (RR) and Full MCA, resulting in 2 experiments for each example. We used the default virtual precision in Verificarlo, namely 24 bits for single-precision floating-point values and 53 bits for double-precision values, which simulates machine error. We used Python-3.8.5, NumPy-1.19.1, SciPy-1.5.4, and scikit-learn-0.23.2.
 %  \tristan{Report scipy and sklearn versions used.}
 
 \subsection{Results overview}
 
 Table~\ref{tab:pytracer_results_summary} summarizes
 \pytracer's outcome on SciPy and scikit-learn examples.
-Columns \textit{trace} and \textit{parse} report on the tracing and aggregation steps with three possible outcomes: green for success, red for numerical error in the application, and orange for errors due to the fuzzy noise injection
-that are not considered numerical errors. \gkmod{}{Q: What does "success" or the other labels actually mean? What is the threshold for numerical errors, e.g.}
+Columns \textit{trace} and \textit{parse} report on the tracing and aggregation steps with three possible outcomes: 1) green for success, meaning that the execution ended well and no issues were raised by the application, 2) red for numerical error in the application, meaning that the execution raised a Python error before the end, and 3) orange for errors due to the fuzzy noise injection that are not considered numerical errors, meaning that the execution raised a Python error but due to a perturbation that should not have been introduced (i.e. a floating-point value representing an integer).
+% \gkmod{}{Q: What does "success" or the other labels actually mean? What is the threshold for numerical errors, e.g.}
 % , like for instance index errors due to an index shift.
 % \tristan{Explain what this is, in a setence here or with a subsubsection if it requires more}. 
-Overall, the tracing and parsing of SciPy and scikit-learn examples in Random Rounding mode was entirely successful \gkmod{}{, indicating on average XX loss in numerical precision,} for 32/40 examples. The remaining examples failed due to numerical errors in the libraries, which we discuss hereafter. The instrumentation with Full MCA is more invasive and reduced the number of successful \gkmod{}{Q: Does this mean the 28 failed, or completed but poorly? In general, the way the states are being referred to so far in the results are rather ambiguous} executions to 12/40.
+Overall, the tracing and parsing of SciPy and scikit-learn examples in Random Rounding mode was entirely successful for 32/40 examples and showed an average precision loss of 8 bits. The remaining examples failed due to numerical errors in the libraries, which we discuss hereafter. The instrumentation with Full MCA is more invasive and reduced the number of successful executions to 12/40. Among the 28/40 failed executions, one failed due to an actual numerical error (\texttt{Bayesian Ridge Regression} example) and the other ones failed due to 
+perturbations that should not have been introduced.
+% \tristan{finish this sentence}.
+% \gkmod{}{Q: Does this mean the 28 failed, or completed but poorly? In general, the way the states are being referred to so far in the results are rather ambiguous}
 
 Column \textit{sigbits} in Table~\ref{tab:pytracer_results_summary} summarizes the precision for the main outputs of SciPy and scikit-learn examples. 
-We measured the precision in significant bits on the \gkmod{main}{final primary} example output by taking the element-wise mean for non-scalar values and, if the example produces many outputs, the average value among all of them. The numerical quality across all examples varies from 0 to 52, with an average of 44 significant bits. For both modes, we note that only two examples failed due to a numerical error 
+We measured the precision in significant bits on the final primary example output by taking the element-wise mean for non-scalar values and, if the example produces many outputs, the average value among all of them. The numerical quality across all examples varies from 0 to 52, with an average of 44 significant bits. For both modes, we note that only two examples failed due to a numerical error 
 % \tristan{can we see that in the table? if not, don't comment on it, it is puzzling. Could you show that in the table by using the same error symbols as in Table 2?} 
-(\texttt{face\_recognition} for RR and \texttt{Bayesian Ridge Regression} for Full MCA) even though this number is underestimated since Full MCA mode is more intrusive than RR mode and most of the examples produce error caused by the fuzzy noise injection. \gkmod{}{Note: I don't understand what is being said in the rest of the sentence following the parentheses}
+(\texttt{face\_recognition} for RR and \texttt{Bayesian Ridge Regression} for Full MCA).
+% even though this number is underestimated since Full MCA mode is more intrusive than RR mode.
+% Indeed, most of the examples produce an error caused by the fuzzy noise injection. \gkmod{}{Note: I don't understand what is being said in the rest of the sentence following the parentheses} \Yohan{Full MCA mode perturbs values that should not be perturbed and so
+% it triggers artificial bugs (as for numpy arange)}
 
 \begin{table}[]
     \centering
@@ -680,7 +606,10 @@ Full MCA even perturbs exact values such as integers represented with floating-p
 Lines 3174-3178 show that the function stores the array size in a floating-point value that will be perturbed by Full MCA, as shown in Table~\ref{tab:mca_result_linspace}, resulting in array sizes that fluctuate between N and N+1.
 It is worth noting that 78\% of execution issues encountered in Full MCA mode instrumentation
 are due to this type of ``typing" errors.  
-Those code regions should not be perturbed by MCA since the injected noise does not make sense\gkmod{}{; however, given the typing errors in the source code, they are still susceptible to naturally occurring floating point errors}.
+Those code regions should not be perturbed by MCA since the injected noise does not make sense.
+% \gkmod{}{; however, given the typing errors in the source code, they are still susceptible to naturally occurring floating point errors}. \Yohan{Not really since all rounding cases were carefully handled by the developers. We are facing here the same issue as for libmath:
+% people take into account the possible rounding outcomes and the code is written knowing that
+% the floating-point numbers behave like that. We break the assumptions by introducing noise here.}
 % \tristan{conclusion: ces regions du code ne devraient pas etre bruitees car le bruit n'a pas de sens ici (exemple du spin dans -1/2,1/2. Ca correspond aux ?}
 % While they do not lead to any numerical issue, typing errors should still be fixed
 % by improving the Full MCA mode instrumentation in order to preserve code correctness.
@@ -1852,6 +1781,108 @@ Finally, the wide range of results precision obtained from our experiments demon
 We showed that well-known scientific libraries are prone to numerical error even though they have been well tested for decades.
 The omnipresence of these libraries in scientific codes should thus impel users to integrate numerical analysis in their development workflow in addition to testing their implementation.
 
+\section{Related work}
+
+Several tools have been developed to assess numerical quality, and can be divided into static and dynamic approaches. Static approaches typically analyze source code, while dynamic approaches trace floating-point computations throughout executions. A detailed review of these approaches is presented in~\cite{cherubin2020tools}. 
+% \pytracer adopts the dynamic approach due to its scalability to large code bases. Dynamic approaches typically trace floating-point computations, detect instabilities in traces, and visualize summary statistics about instabilities. This section reviews existing approaches for each of these steps. 
+% \label{sec:soa}
+% \paragraph{Numerical tracing techniques}
+Numerous tools exists to trace floating-point computations for C, C++, or FORTRAN programs due to the prevalence of these languages in High-Performance Computing (HPC). 
+The main tracing techniques are \textit{source-to-source}, \textit{compiler-based transformations}, and \textit{dynamic binary instrumentation}.
+
+% \gkmod{}{Note: this paragraph just reads like a list with no real interpretation/commentary. I think it would be better to state the strengths of this technique, cite examples, and then state limitations/why it isn't the only technique used.}
+The source-to-source technique requires a rewriting of the application to modify floating-point types and provides a fine-grained control on the analyzed code.
+CADNA~\cite{jezequel2008cadna} is a library for C, C++, and Fortran implementing  
+CESTAC~\cite{vignes1993stochastic} stochastic arithmetic. Shaman~\cite{demeure_phd} is a C++ library that uses a first-order error model to propagate numerical error. 
+MCAlib~\cite{frechtling2015mcalib} is a C library that implements the Monte Carlo Arithmetic (MCA)~\cite{parker1997monte} using the MPFR~\cite{fousse2007mpfr} library.
+Finally, the work in~\cite{tang2016software} proposed a source-to-source framework for executing targeted code in infinite and fixed precision with and without stochastic arithmetic. The main drawback of the source-to-source approach is its lacks of scalability since rewriting large codes can be a tedious task.
+ 
+% \gkmod{}{Note: similar to the above, this is just a list rather than a highlight of how the compiler-based approach can be more scalable than source-to-source because it requires less manual intervention into a codebase (e.g.), then have your list, and finally say why it is still limited/not a global fix to this problem.}
+
+The compiler-based approach instruments floating-point expressions at compile time
+and so allows the user to automatically instrument large codebases.
+Verificarlo~\cite{verificarlo} is a compiler that supports different types of arithmetic instrumentations, including MCA. 
+The work in~\cite{bao2013fly} modified the GNU Compiler Collection (GCC) to track local floating-point errors across executions. pLiner~\cite{guo2020pliner} is a root-cause analyzer based on the Clang compiler that detects floating-point operations responsible for result variability using a source-to-source transformation at the Abstract Syntax Tree (AST) level to rewrite parts of code with higher precision. 
+PFPSanitizer~\cite{chowdhary2020debugging,chowdhary2021parallel} is a compiler that uses parallel shadow execution to detect numerical issues using higher precision.
+FLiT~\cite{sawaya2017flit} is a framework to detect variability induced by compilers and their optimizations.
+The work in~\cite{wang2012development} proposes a numerical debugger based on GDB~\cite{stallman1988debugging} for Discrete Stochastic Arithmetic (DSA) on FPGA as an Eclipse plugging. Similarly, Cadtrace~\cite{jezequel2008cadna} and Shaman propose a GDB-based tool to use the CADNA and Shaman libraries with GDB, respectively.
+The main limitation of the compiler-based approach is that one must have access to the source code.
+
+Dynamic Binary Instrumentation (DBI) operates directly on executables, without the need for recompilation or manual changes. Therefore, it is applicable to any programming language.
+CraftHPC~\cite{lam2013dynamic} uses DBI to detect catastrophic cancellations at runtime.
+Verrou~\cite{fevotte2016verrou} is a Valgrind~\cite{nethercote2007valgrind} based tool that dynamically replaces
+floating-point operations with their stochastic arithmetic counterparts. FPDebug~\cite{benz2012dynamic} uses DBI to detect numerical inaccuracies by using shadow computations with higher precision.
+Herbgring~\cite{sanchez2017finding} is a Valgrind-based tool to detect
+numerical instabilities. It uses a shadow memory to detect precision losses by comparison with results obtained at higher precision. It is combined with symbolic computation to backtrack the root of the error.
+We can note that all methods based on a high-precision oracle suppose that computing with a large number of bits is sufficient to obtain an accurate result, which is not always true (see for example, the famous Muller's sequence~\cite{bajard1996introduction}). 
+Although versatile, the DBI looses high-level information useful to understand the source-code logic.
+
+% \gkmod{}{Note: I like this comparison here, but do think that the comments above about providing some more info when each is mentioned would still help this section.}
+Being agnostic to the programming language is a serious advantage of the DBI method compared to source-to-source and compiler-bases methods. However, working at the binary level makes it difficult to access high-level information needed to debug and understand the source-code logic. Conversely, the source-to-source approach provides a fine-grained control on the analyzed code, but it lacks scalability, as rewriting large codes can be a tedious task. Finally, the compiler-based approach takes advantage of the best of both by being automatic and having access to high-level information. However, like source-to-source, the compiler-based method is not suitable for analyzing closed-source libraries.
+
+To the best of our knowledge, \pytracer is the first tool dedicated to the numerical analysis of Python code. Existing tools for tracing Python code focus on performance profiling for time (cProfile) 
+or memory consumption (memprofile). 
+Anteater~\cite{faust2019anteater} is a Python tracer tool to debug Python applications. 
+It performs source transformations at the AST level but only deals with native numeric Python types.
+Moreover, the user needs to manually tag each variable to trace. Finally, according to the authors, Anteater does not scale to large traces.
+cProfile, memprofile, and Anteater use Python decorators as the primary instrumentation technique, a Python mechanism to instrument a function by adding a line over a function declaration.
+While this method is appropriate when targeting specific functions, it is not feasible for large codebases where potentially unstable code sections are unknown.
+
+
+% \label{sec:detecting-instabilities}
+% \paragraph{Dynamically detecting numerical instabilities}
+% \label{sec:mca}
+% :
+%  \Yohan{Either detail this section with UA/SA or remove it since MCA is introduced in 'noise injection' subsection. } \tristan{I agree, let's just remove it, the core of the contribution is on the tracing, not in the detection of instabilities.}
+
+% % We review here the existing theoretical framework that might be used to detect numerical instabilities.
+% % Our experiments rely on the Monte Carlo Arithmetic (MCA), a stochastic arithmetic allowing 
+% % to detect numerical errors by adding random perturbations in the floating-point computations.
+% % However, Pytracer do not rely on any assumption about the perturbation model used and thus leaves the user free to use
+% % an alternative model. As such, we describe two others options that we thought might be beneficial and complementary to MCA: 
+% % input data uncertainty analysis and random seed sensitivity.
+
+% % \subsubsection{Stochastic Arithmetic}
+
+% % The Monte Carlo Arithmetic is a variant of so-called stochastic arithmetic, whose purpose is to model round-off errors by a random variable.
+
+% Three main approaches exist to detect numerical instabilities dynamically: stochastic arithmetic, uncertainty or sensitivity analysis~\cite{helton2006survey}, and random seed analysis~\cite{click2011quality}.
+% Stochastic arithmetic leverages randomness to estimate numerical instabilities coming from the use of floating-point representations. The main idea is to treat round-off errors as random variables and characterize them statistically.
+% The first published complete stochastic arithmetic framework was CESTAC~\cite{vignes1993stochastic}. In CESTAC, each floating-point computation is performed multiple times with different rounding modes: round-up or round-down. From these stochastic samples, one can then derive the number of significant digits in the computed result. Discrete Stochastic Arithmetic~\cite{vignes2004discrete} extends CESTAC with comparison operators implemented in the CADNA library.
+% Monte Carlo Arithmetic (MCA)~\cite{parker1997monte} uses the same principle but introduces two differences:
+% (i) a virtual precision parameter, allowing to simulate reduced working precision, and (ii) different perturbation modes to introduce perturbations
+% on function inputs or output.
+% Stochastic arithmetic quantifies numerical error using the number of significant digits $s$ estimated among the sampled values. A common formula to determine this number from MCA samples is presented in~\cite{parker1997monte}.
+% Sohier et al.~\cite{sohier2018confidence} recently provided a generalization of this formula to include confidence intervals.
+
+% % \subsubsection{Uncertainty, sensitivity, and random seed analysis}
+% % \tristan{I'm wondering if we could remove this sub-section, as it doesn't seem to be critical to the understanding of the paper, wdyt?}
+% % Uncertainty analysis (UA) is a method to estimate the output distribution given an input distribution.
+% % Sensitivity analysis (SA) is a variation of UA that measures the local response to a small perturbation~\cite{loucks2017water}. 
+% % Several approaches for UA and SA exist, among them differential analysis, response surface methodology, Monte Carlo analysis, and variance decomposition (see~\cite{helton2006survey} for a review). In particular, Monte Carlo analysis is a sampling-based technique that samples inputs space to estimate output response. Monte Carlo analysis shares similarities with Monte Carlo Arithmetic. For instance, the PRECISE framework~\cite{chaitin1996lectures} shares with MCA the idea of varying virtual precision to estimate output sensitivity.
+
+% % Furthermore, the quality of a Random Number Generator is a crucial characteristic when dealing with stochastic model and differ from cryptography requirements. A good RNG provides a tradeoff between performance, period, correlation, or uniformity~\cite{james2020review} for numerical simulation.  
+% On the other hand, poor-quality RNGs may have a substantial impact on results~\cite{click2011quality}. First, measuring variation induced by seed is a good indicator of program stability that we can compare against variability induced by floating-point arithmetic.
+
+
+% \paragraph{Visualization of numerical data}
+% \tristan{now that it's here, I'm not sure if this section really adds to the paper. It could also go.}
+
+% Floating-point values approximate real number in the computer arithmetic but
+% data manipulated by scientific applications include a large variety of mathematical objects
+% beyond scalar values. 
+% Indeed, scientific visualization 
+% \gkmod{}{Note: You kind of jump right in to this section. Visualization of what in particular? Why do we want (need?) to visualize this sort of data?} 
+% covers a wide range of numerical simulation domains, from general-purpose numerical visualization with tools such as VTK~\cite{schroeder2000visualizing} to topological data analysis~\cite{tierny2018topological}, including matrix~\cite{wu2008matrix} or tensor~\cite{kindlmann2006diffusion} visualization.
+% To be able to visualize those objects is crucial for the practitioner 
+% as information about the structure of the object may be as important as the basic elements that constitute it (i.e. vectors or matrices). 
+% Despite the large number of existing tools to identify numerically unstable sections of source code, few allow the user to have a global view of the numerical precision of their computations or to compare several executions of the same program under various perturbations.
+
+% Veritracer~\cite{chatelain2018veritracer} was the first tool to propose an embedded visualizer of numerical stability over the execution of C, C++, and Fortran code. Veritracer extends Verificarlo~\cite{verificarlo} with contextual information about traced variables, which allows the user to identify instabilities quickly.
+% However, Veritracer neither offers a dynamic interface nor includes information about high-level structures such as \texttt{struct} or \texttt{array}.
+% FPAvizual~\cite{gu2014fpavisual} visualizes the effects of floating-point arithmetic but only for educational purposes and so does not target computational intensive applications\gkmod{}{Q: What does this mean?}.
+% Anteater~\cite{faust2019anteater} proposes a visualizer for Python code, but as mentioned previously, it only deals with native Python types, and the user needs to select variables to trace manually. Anteater provides an insightful reflection 
+% around visual debugging beyond floating-point analysis, which has inspired the design of \pytracer's visualization interface.
 
 % Through our analysis of SciPy and Scikit-learn, we demonstrated \pytracer's scalability, automaticity, and applicability to any Python program. The relatively low instrumentation overhead of $3.5\times$ on average enables the analysis of real applications. \pytracer's instrumentation is fully automatic and does not require manual intervention from the user. \pytracer works on any Python libraries, with any data format supported by Pickle and any numerical noise model.
 
