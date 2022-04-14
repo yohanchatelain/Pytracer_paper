@@ -1,0 +1,260 @@
+\begin{thebibliography}{10}
+
+\bibitem{bajard1996introduction}
+J.-C. Bajard, D.~Michelucci, J.-M. Moreau, and J.-M. Muller.
+\newblock {Introduction to the Special Issue "Real Numbers and Computers"}.
+\newblock In {\em The Journal of Universal Computer Science}, pages 436--438.
+  Springer, 1996.
+
+\bibitem{bao2013fly}
+T.~Bao and X.~Zhang.
+\newblock On-the-fly detection of instability problems in floating-point
+  program execution.
+\newblock In {\em Proceedings of the 2013 ACM SIGPLAN international conference
+  on Object oriented programming systems languages \& applications}, pages
+  817--832, 2013.
+
+\bibitem{benz2012dynamic}
+F.~Benz, A.~Hildebrandt, and S.~Hack.
+\newblock A dynamic program analysis to find floating-point accuracy problems.
+\newblock {\em ACM SIGPLAN Notices}, 47(6):453--462, 2012.
+
+\bibitem{BFGS}
+C.~G. BROYDEN.
+\newblock {The Convergence of a Class of Double-rank Minimization Algorithms:
+  2. The New Algorithm}.
+\newblock {\em IMA Journal of Applied Mathematics}, 6(3):222--231, 09 1970.
+
+\bibitem{chatelain2019outils}
+Y.~Chatelain.
+\newblock {\em Outils de d{\'e}bogage et d'optimisation des calculs flottants
+  dans le contexte HPC}.
+\newblock PhD thesis, Universit{\'e} Paris-Saclay, 2019.
+
+\bibitem{chatelain2019automatic}
+Y.~Chatelain, E.~Petit, P.~de~Oliveira~Castro, G.~Lartigue, and D.~Defour.
+\newblock Automatic exploration of reduced floating-point representations in
+  iterative methods.
+\newblock In {\em European Conference on Parallel Processing}, pages 481--494.
+  Springer, 2019.
+
+\bibitem{cherubin2020tools}
+S.~Cherubin and G.~Agosta.
+\newblock Tools for reduced precision computation: A survey.
+\newblock {\em ACM Computing Surveys (CSUR)}, 53(2):1--35, 2020.
+
+\bibitem{chowdhary2020debugging}
+S.~Chowdhary, J.~P. Lim, and S.~Nagarakatte.
+\newblock Debugging and detecting numerical errors in computation with posits.
+\newblock In {\em Proceedings of the 41st ACM SIGPLAN Conference on Programming
+  Language Design and Implementation}, pages 731--746, 2020.
+
+\bibitem{chowdhary2021parallel}
+S.~Chowdhary and S.~Nagarakatte.
+\newblock Parallel shadow execution to accelerate the debugging of numerical
+  errors.
+\newblock In {\em 2021 The ACM Joint European Software Engineering Conference
+  and Symposium on the Foundations of Software Engineering (ESEC/FSE)}, 2021.
+
+\bibitem{demeure_phd}
+N.~Demeure.
+\newblock {\em Compromise between precision and performance in high performance
+  computing.}
+\newblock Theses, {{\'E}cole Normale sup{\'e}rieure Paris-Saclay}, Jan. 2021.
+
+\bibitem{verificarlo}
+C.~Denis, P.~de~Oliveira~Castro, and E.~Petit.
+\newblock Verificarlo: Checking floating point accuracy through monte carlo
+  arithmetic.
+\newblock In {\em 23nd {IEEE} Symposium on Computer Arithmetic, {ARITH} 2016,
+  Silicon Valley, CA, USA, July 10-13, 2016}, pages 55--62, 2016.
+
+\bibitem{faust2019anteater}
+R.~Faust, K.~Isaacs, W.~Z. Bernstein, M.~Sharp, and C.~Scheidegger.
+\newblock Anteater: Interactive visualization for program understanding.
+\newblock {\em arXiv preprint arXiv:1907.02872}, 2019.
+
+\bibitem{fevotte2016verrou}
+F.~F{\'e}votte and B.~Lathuiliere.
+\newblock Verrou: a cestac evaluation without recompilation.
+\newblock {\em SCAN 2016}, page~47, 2016.
+
+\bibitem{fousse2007mpfr}
+L.~Fousse, G.~Hanrot, V.~Lef{\`e}vre, P.~P{\'e}lissier, and P.~Zimmermann.
+\newblock Mpfr: A multiple-precision binary floating-point library with correct
+  rounding.
+\newblock {\em ACM Transactions on Mathematical Software (TOMS)}, 33(2):13--es,
+  2007.
+
+\bibitem{frechtling2015mcalib}
+M.~Frechtling and P.~H. Leong.
+\newblock Mcalib: Measuring sensitivity to rounding error with monte carlo
+  programming.
+\newblock {\em ACM Transactions on Programming Languages and Systems (TOPLAS)},
+  37(2):1--25, 2015.
+
+\bibitem{gould1999solving}
+N.~I. Gould, S.~Lucidi, M.~Roma, and P.~L. Toint.
+\newblock Solving the trust-region subproblem using the lanczos method.
+\newblock {\em SIAM Journal on Optimization}, 9(2):504--525, 1999.
+
+\bibitem{guo2020pliner}
+H.~Guo, I.~Laguna, and C.~Rubio-Gonz{\'a}lez.
+\newblock pliner: isolating lines of floating-point code for compiler-induced
+  variability.
+\newblock In {\em SC20: International Conference for High Performance
+  Computing, Networking, Storage and Analysis}, pages 1--14. IEEE, 2020.
+
+\bibitem{halko2011finding}
+N.~Halko, P.-G. Martinsson, and J.~A. Tropp.
+\newblock Finding structure with randomness: Probabilistic algorithms for
+  constructing approximate matrix decompositions.
+\newblock {\em SIAM review}, 53(2):217--288, 2011.
+
+\bibitem{harris2020array}
+C.~R. Harris, K.~J. Millman, S.~J. van~der Walt, R.~Gommers, P.~Virtanen,
+  D.~Cournapeau, E.~Wieser, J.~Taylor, S.~Berg, N.~J. Smith, et~al.
+\newblock Array programming with numpy.
+\newblock {\em Nature}, 585(7825):357--362, 2020.
+
+\bibitem{plotly}
+P.~T. Inc.
+\newblock Collaborative data science, 2015.
+
+\bibitem{jezequel2008cadna}
+F.~J{\'e}z{\'e}quel and J.-M. Chesneaux.
+\newblock Cadna: a library for estimating round-off error propagation.
+\newblock {\em Computer Physics Communications}, 178(12):933--955, 2008.
+
+\bibitem{kiar2020comparing}
+G.~Kiar, P.~de~Oliveira~Castro, P.~Rioux, E.~Petit, S.~T. Brown, A.~C. Evans,
+  and T.~Glatard.
+\newblock Comparing perturbation models for evaluating stability of
+  neuroimaging pipelines.
+\newblock {\em The International Journal of High Performance Computing
+  Applications}, page 1094342020926237, 2020.
+
+\bibitem{kowalik1968analysis}
+J.~Kowalik and J.~Morrison.
+\newblock Analysis of kinetic data for allosteric enzyme reactions as a
+  nonlinear regression problem.
+\newblock {\em Mathematical Biosciences}, 2(1-2):57--66, 1968.
+
+\bibitem{kraft1988software}
+D.~Kraft et~al.
+\newblock A software package for sequential quadratic programming.
+\newblock Technical report, Deutsche Forschungs- und Versuchsanstalt fuer Luft-
+  und Raumfahrt e.V., 1988.
+
+\bibitem{lam2013dynamic}
+M.~O. Lam, J.~K. Hollingsworth, and G.~Stewart.
+\newblock Dynamic floating-point cancellation detection.
+\newblock {\em Parallel Computing}, 39(3):146--155, 2013.
+
+\bibitem{lattner2008llvm}
+C.~Lattner.
+\newblock Llvm and clang: Next generation compiler technology.
+\newblock In {\em The BSD conference}, volume~5, 2008.
+
+\bibitem{li1993centering}
+Y.~Li.
+\newblock Centering, trust region, reflective techniques for nonlinear
+  minimization subject to bounds.
+\newblock Technical report, Cornell University, 1993.
+
+\bibitem{nakatsukasa2013stable}
+Y.~Nakatsukasa and N.~J. Higham.
+\newblock Stable and efficient spectral divide and conquer algorithms for the
+  symmetric eigenvalue decomposition and the svd.
+\newblock {\em SIAM Journal on Scientific Computing}, 35(3):A1325--A1349, 2013.
+
+\bibitem{nethercote2007valgrind}
+N.~Nethercote and J.~Seward.
+\newblock Valgrind: a framework for heavyweight dynamic binary instrumentation.
+\newblock {\em ACM Sigplan notices}, 42(6):89--100, 2007.
+
+\bibitem{nocedal2006numerical}
+J.~Nocedal and S.~Wright.
+\newblock {\em Numerical optimization}.
+\newblock Springer Science \& Business Media, 2006.
+
+\bibitem{parker1997monte}
+D.~S. Parker.
+\newblock {\em Monte Carlo arithmetic: exploiting randomness in floating-point
+  arithmetic}.
+\newblock University of California (Los Angeles). Computer Science Department,
+  1997.
+
+\bibitem{paszke2019pytorch}
+A.~Paszke, S.~Gross, F.~Massa, A.~Lerer, J.~Bradbury, G.~Chanan, T.~Killeen,
+  Z.~Lin, N.~Gimelshein, L.~Antiga, et~al.
+\newblock Pytorch: An imperative style, high-performance deep learning library.
+\newblock {\em Advances in neural information processing systems},
+  32:8026--8037, 2019.
+
+\bibitem{pedregosa2011scikit}
+F.~Pedregosa, G.~Varoquaux, A.~Gramfort, V.~Michel, B.~Thirion, O.~Grisel,
+  M.~Blondel, P.~Prettenhofer, R.~Weiss, V.~Dubourg, et~al.
+\newblock Scikit-learn: Machine learning in python.
+\newblock {\em the Journal of machine Learning research}, 12:2825--2830, 2011.
+
+\bibitem{Platt99probabilisticoutputs}
+J.~C. Platt.
+\newblock Probabilistic outputs for support vector machines and comparisons to
+  regularized likelihood methods.
+\newblock In {\em ADVANCES IN LARGE MARGIN CLASSIFIERS}, pages 61--74. MIT
+  Press, 1999.
+
+\bibitem{sanchez2017finding}
+A.~Sanchez-Stern, P.~Panchekha, S.~Lerner, and Z.~Tatlock.
+\newblock Finding root causes of floating point error with herbgrind.
+\newblock {\em arXiv preprint arXiv:1705.10416}, 2017.
+
+\bibitem{sawaya2017flit}
+G.~Sawaya, M.~Bentley, I.~Briggs, G.~Gopalakrishnan, and D.~H. Ahn.
+\newblock Flit: Cross-platform floating-point result-consistency tester and
+  workload.
+\newblock In {\em 2017 IEEE international symposium on workload
+  characterization (IISWC)}, pages 229--238. IEEE, 2017.
+
+\bibitem{singer2009nelder}
+S.~Singer and J.~Nelder.
+\newblock Nelder-mead algorithm.
+\newblock {\em Scholarpedia}, 4(7):2928, 2009.
+
+\bibitem{sohier2018confidence}
+D.~Sohier, P.~D.~O. Castro, F.~F{\'e}votte, B.~Lathuili{\`e}re, E.~Petit, and
+  O.~Jamond.
+\newblock Confidence intervals for stochastic arithmetic.
+\newblock {\em arXiv preprint arXiv:1807.09655}, 2018.
+
+\bibitem{stallman1988debugging}
+R.~Stallman, R.~Pesch, S.~Shebs, et~al.
+\newblock Debugging with gdb.
+\newblock {\em Free Software Foundation}, 675, 1988.
+
+\bibitem{tang2016software}
+E.~Tang, X.~Zhang, N.~T. M{\"u}ller, Z.~Chen, and X.~Li.
+\newblock Software numerical instability detection and diagnosis by combining
+  stochastic and infinite-precision testing.
+\newblock {\em IEEE Transactions on Software Engineering}, 43(10):975--994,
+  2016.
+
+\bibitem{vignes1993stochastic}
+J.~Vignes.
+\newblock A stochastic arithmetic for reliable scientific computation.
+\newblock {\em Mathematics and computers in simulation}, 35(3):233--261, 1993.
+
+\bibitem{virtanen2020scipy}
+P.~Virtanen, R.~Gommers, T.~E. Oliphant, M.~Haberland, T.~Reddy, D.~Cournapeau,
+  E.~Burovski, P.~Peterson, W.~Weckesser, J.~Bright, et~al.
+\newblock Scipy 1.0: fundamental algorithms for scientific computing in python.
+\newblock {\em Nature methods}, 17(3):261--272, 2020.
+
+\bibitem{wang2012development}
+K.~Wang.
+\newblock Development of a graphical numerical accuracy debugger based on an
+  fpga computing system.
+\newblock Master's thesis, Universität Stuttgart, 2012.
+
+\end{thebibliography}

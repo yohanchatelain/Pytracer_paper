@@ -1,0 +1,235 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyperFirstAtBeginDocument{\AtBeginDocument}
+\HyperFirstAtBeginDocument{\ifx\hyper@anchor\@undefined
+\global\let\oldcontentsline\contentsline
+\gdef\contentsline#1#2#3#4{\oldcontentsline{#1}{#2}{#3}}
+\global\let\oldnewlabel\newlabel
+\gdef\newlabel#1#2{\newlabelxx{#1}#2}
+\gdef\newlabelxx#1#2#3#4#5#6{\oldnewlabel{#1}{{#2}{#3}}}
+\AtEndDocument{\ifx\hyper@anchor\@undefined
+\let\contentsline\oldcontentsline
+\let\newlabel\oldnewlabel
+\fi}
+\fi}
+\global\let\hyper@last\relax 
+\gdef\HyperFirstAtBeginDocument#1{#1}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{harris2020array}
+\citation{virtanen2020scipy}
+\citation{pedregosa2011scikit}
+\citation{paszke2019pytorch}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Pytracer workflow \relax }}{2}{figure.caption.1}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:workflow}{{1}{2}{Pytracer workflow \relax }{figure.caption.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}PyTracer\xspace  design}{2}{section.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Python code instrumentation}{2}{subsection.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.1}Intercepting module import}{2}{subsubsection.2.1.1}\protected@file@percent }
+\@writefile{lol}{\contentsline {listing}{\numberline {1}{\ignorespaces Function to create the instrumented version of a function. PyTracer\xspace  uses the identifier of the function instead of the actual function to handle aliases and avoid duplicate instrumentation.\relax }}{3}{listing.1}\protected@file@percent }
+\newlabel{fig:wrapper_creation}{{1}{3}{Function to create the instrumented version of a function. \pytracer uses the identifier of the function instead of the actual function to handle aliases and avoid duplicate instrumentation.\relax }{listing.1}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.2}Instrumenting module functions}{3}{subsubsection.2.1.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.3}Instrumenting classes}{3}{subsubsection.2.1.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.4}Instrumenting class instances}{3}{subsubsection.2.1.4}\protected@file@percent }
+\@writefile{lol}{\contentsline {listing}{\numberline {2}{\ignorespaces PyTracer\xspace  's generic wrapper function that saves the inputs and outputs of the wrapped function.\relax }}{4}{listing.2}\protected@file@percent }
+\newlabel{fig:generic_wrapper}{{2}{4}{\pytracer 's generic wrapper function that saves the inputs and outputs of the wrapped function.\relax }{listing.2}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.5}Instrumenting iterators}{4}{subsubsection.2.1.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Detecting numerical instabilities}{4}{subsection.2.2}\protected@file@percent }
+\citation{parker1997monte}
+\citation{parker1997monte}
+\citation{sohier2018confidence}
+\citation{verificarlo}
+\citation{lattner2008llvm}
+\citation{chatelain2019automatic}
+\citation{chatelain2019outils}
+\citation{kiar2020comparing}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.1}Noise injection}{5}{subsubsection.2.2.1}\protected@file@percent }
+\newlabel{sec:fuzzy}{{2.2.1}{5}{Noise injection}{subsubsection.2.2.1}{}}
+\newlabel{eq:sig-digits}{{1}{5}{Noise injection}{equation.2.1}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.2}Trace format}{5}{subsubsection.2.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.3}Trace aggregation}{5}{subsubsection.2.2.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Pytracer visualization layout.\relax }}{6}{figure.caption.2}\protected@file@percent }
+\newlabel{fig:visu-layout}{{2}{6}{Pytracer visualization layout.\relax }{figure.caption.2}{}}
+\citation{plotly}
+\citation{virtanen2020scipy}
+\citation{pedregosa2011scikit}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Interactive visualization}{7}{subsection.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Numerical evaluations}{7}{section.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Results overview}{7}{subsection.3.1}\protected@file@percent }
+\@writefile{lol}{\contentsline {listing}{\numberline {3}{\ignorespaces Source code of the \texttt  {PyArray\_Range} Cython function called by NumPy function \texttt  {linspace} to create an array of equally-spaced elements. The temporary array size assigned in line 3178 is stored as a floating-point value and is therefore perturbed in Full MCA mode, leading to differences amplified by the use of ceil rounding at line 3190 and resulting in different array sizes across MCA-perturbed executions. See also Table\nobreakspace  {}\ref  {tab:mca_result_linspace}.\relax }}{8}{listing.3}\protected@file@percent }
+\newlabel{fig:pyarray_range_code}{{3}{8}{Source code of the \texttt {PyArray\_Range} Cython function called by NumPy function \texttt {linspace} to create an array of equally-spaced elements. The temporary array size assigned in line 3178 is stored as a floating-point value and is therefore perturbed in Full MCA mode, leading to differences amplified by the use of ceil rounding at line 3190 and resulting in different array sizes across MCA-perturbed executions. See also Table~\ref {tab:mca_result_linspace}.\relax }{listing.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Effect of MCA modes}{8}{subsection.3.2}\protected@file@percent }
+\newlabel{sec:impact_mca_modes}{{3.2}{8}{Effect of MCA modes}{subsection.3.2}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces PyTracer\xspace  execution summary on SciPy and Scikit-learn examples. \emph {trace}: outcome of PyTracer\xspace  tracing, \emph {parse}: outcome of PyTracer\xspace  trace parsing and aggregation, \emph {result}: precision for main outputs in significant bits. \cellcolor  {green!75!black}{\fontfamily  {pzd}\fontencoding  {U}\fontseries  {m}\fontshape  {n}\selectfont  \char 51}: successful run, \cellcolor  {orange!75}?: error from invalid noise injection, \cellcolor  {red!65}{\fontfamily  {pzd}\fontencoding  {U}\fontseries  {m}\fontshape  {n}\selectfont  \char 53}: numerical error or divergent traces. \textit  {nan} stands for (\texttt  {Not-A-Number}). Example names are linked to their source code.\relax }}{9}{table.caption.3}\protected@file@percent }
+\newlabel{tab:pytracer_results_summary}{{1}{9}{\pytracer execution summary on SciPy and Scikit-learn examples. \emph {trace}: outcome of \pytracer tracing, \emph {parse}: outcome of \pytracer trace parsing and aggregation, \emph {result}: precision for main outputs in significant bits. \valid : successful run, \warn : error from invalid noise injection, \cross : numerical error or divergent traces. \textit {nan} stands for (\texttt {Not-A-Number}). Example names are linked to their source code.\relax }{table.caption.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Results obtained through lines 3177-3190 in Listing\nobreakspace  {}\ref  {fig:pyarray_range_code}. In contrast with RR, Full MCA does not preserve exact operations which leads to an array length oscillating between 600 and 601.\relax }}{10}{table.caption.4}\protected@file@percent }
+\newlabel{tab:mca_result_linspace}{{2}{10}{Results obtained through lines 3177-3190 in Listing~\ref {fig:pyarray_range_code}. In contrast with RR, Full MCA does not preserve exact operations which leads to an array length oscillating between 600 and 601.\relax }{table.caption.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}SciPy}{10}{subsection.3.3}\protected@file@percent }
+\newlabel{sec:scipy_tests}{{3.3}{10}{SciPy}{subsection.3.3}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.1}FFT}{10}{subsubsection.3.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Interpolation}{10}{subsection.3.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Absolute value of the mean and standard deviation values for fft 1D inputs within RR mode (log scale). The real part is shown in blue and the imaginary part in orange.\relax }}{11}{figure.caption.5}\protected@file@percent }
+\newlabel{fig:fft1D_inputs}{{3}{11}{Absolute value of the mean and standard deviation values for fft 1D inputs within RR mode (log scale). The real part is shown in blue and the imaginary part in orange.\relax }{figure.caption.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Absolute value of the mean and standard deviation values for fft 1D outputs within RR mode (log scale).\relax }}{11}{figure.caption.6}\protected@file@percent }
+\newlabel{fig:fft1D_outputs}{{4}{11}{Absolute value of the mean and standard deviation values for fft 1D outputs within RR mode (log scale).\relax }{figure.caption.6}{}}
+\citation{BFGS}
+\citation{nocedal2006numerical}
+\citation{gould1999solving}
+\citation{nocedal2006numerical}
+\citation{singer2009nelder}
+\citation{kraft1988software}
+\citation{li1993centering}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.4.1}Optimization}{12}{subsubsection.3.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Unconstrained minimization of multivariate scalar functions:}{12}{section*.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Constrained minimization of multivariate scalar functions:}{12}{section*.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{}{12}{section*.11}\protected@file@percent }
+\newlabel{fig:bspline_original_image}{{5a}{13}{Original image.\relax }{figure.caption.7}{}}
+\newlabel{sub@fig:bspline_original_image}{{a}{13}{Original image.\relax }{figure.caption.7}{}}
+\newlabel{fig:bspline_bisplev_sig}{{5b}{13}{\centering \texttt {sepfir2d} significant bits. \newline \textcolor {white}{.}\relax }{figure.caption.7}{}}
+\newlabel{sub@fig:bspline_bisplev_sig}{{b}{13}{\centering \texttt {sepfir2d} significant bits. \newline \textcolor {white}{.}\relax }{figure.caption.7}{}}
+\newlabel{fig:bspline_bisplev_mean}{{5c}{13}{\centering \texttt {sepfir2d} mean. \newline (log)\relax }{figure.caption.7}{}}
+\newlabel{sub@fig:bspline_bisplev_mean}{{c}{13}{\centering \texttt {sepfir2d} mean. \newline (log)\relax }{figure.caption.7}{}}
+\newlabel{fig:bspline_bisplev_std}{{5d}{13}{\centering \texttt {sepfir2d} standard deviation. (log)\relax }{figure.caption.7}{}}
+\newlabel{sub@fig:bspline_bisplev_std}{{d}{13}{\centering \texttt {sepfir2d} standard deviation. (log)\relax }{figure.caption.7}{}}
+\newlabel{fig:bspline_convol2d_sig}{{5e}{13}{\centering \texttt {convol2d} significant bits. \newline \textcolor {white}{.}\relax }{figure.caption.7}{}}
+\newlabel{sub@fig:bspline_convol2d_sig}{{e}{13}{\centering \texttt {convol2d} significant bits. \newline \textcolor {white}{.}\relax }{figure.caption.7}{}}
+\newlabel{fig:bspline_convol2d_mean}{{5f}{13}{\centering \texttt {convol2d} mean. \newline (log)\relax }{figure.caption.7}{}}
+\newlabel{sub@fig:bspline_convol2d_mean}{{f}{13}{\centering \texttt {convol2d} mean. \newline (log)\relax }{figure.caption.7}{}}
+\newlabel{fig:bspline_convol2d_std}{{5g}{13}{\centering \texttt {convol2d} standard deviation. (log)\relax }{figure.caption.7}{}}
+\newlabel{sub@fig:bspline_convol2d_std}{{g}{13}{\centering \texttt {convol2d} standard deviation. (log)\relax }{figure.caption.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces \texttt  {bspline} results within RR mode. \texttt  {sepfir2d} and \texttt  {convol2d} have a similar precision. \relax }}{13}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:bspline_rr}{{5}{13}{\texttt {bspline} results within RR mode. \texttt {sepfir2d} and \texttt {convol2d} have a similar precision. \relax }{figure.caption.7}{}}
+\citation{kowalik1968analysis}
+\newlabel{fig:bisplev_mean}{{6a}{14}{Mean value\relax }{figure.caption.8}{}}
+\newlabel{sub@fig:bisplev_mean}{{a}{14}{Mean value\relax }{figure.caption.8}{}}
+\newlabel{fig:bisplev_mean_log}{{6b}{14}{Absolute mean value (log)\relax }{figure.caption.8}{}}
+\newlabel{sub@fig:bisplev_mean_log}{{b}{14}{Absolute mean value (log)\relax }{figure.caption.8}{}}
+\newlabel{fig:bisplev_std_log}{{6c}{14}{Standard deviation (log)\relax }{figure.caption.8}{}}
+\newlabel{sub@fig:bisplev_std_log}{{c}{14}{Standard deviation (log)\relax }{figure.caption.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces 2D Spline interpolation results. Figure\nobreakspace  {}\ref  {fig:bisplev_mean} shows the mean result of the 2D-spline interpolation. Figures\nobreakspace  {}\ref  {fig:bisplev_mean_log} and\nobreakspace  {}\ref  {fig:bisplev_std_log} show respectively in the logarithmic scale the absolute mean value and the standard deviation of the 5 samples run within RR mode. \relax }}{14}{figure.caption.8}\protected@file@percent }
+\newlabel{fig:spline2d_rr}{{6}{14}{2D Spline interpolation results. Figure~\ref {fig:bisplev_mean} shows the mean result of the 2D-spline interpolation. Figures~\ref {fig:bisplev_mean_log} and~\ref {fig:bisplev_std_log} show respectively in the logarithmic scale the absolute mean value and the standard deviation of the 5 samples run within RR mode. \relax }{figure.caption.8}{}}
+\@writefile{toc}{\contentsline {paragraph}{Root finding:}{14}{section*.12}\protected@file@percent }
+\citation{nakatsukasa2013stable}
+\citation{halko2011finding}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Comparison of results precision for different optimization solvers within RR mode.\relax }}{15}{figure.caption.13}\protected@file@percent }
+\newlabel{fig:unconstrained_optimization}{{7}{15}{Comparison of results precision for different optimization solvers within RR mode.\relax }{figure.caption.13}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Scikit learn}{15}{subsection.3.5}\protected@file@percent }
+\newlabel{sec:sklearn_tests}{{3.5}{15}{Scikit learn}{subsection.3.5}{}}
+\@writefile{toc}{\contentsline {paragraph}{Bayesian Ridge Regression}{15}{section*.16}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Face Recognition}{15}{section*.18}\protected@file@percent }
+\newlabel{fig:mean_solution_rr}{{8a}{16}{Mean solution (RR)\relax }{figure.caption.14}{}}
+\newlabel{sub@fig:mean_solution_rr}{{a}{16}{Mean solution (RR)\relax }{figure.caption.14}{}}
+\newlabel{fig:stdev_rr}{{8b}{16}{Standard deviation solution (RR)\relax }{figure.caption.14}{}}
+\newlabel{sub@fig:stdev_rr}{{b}{16}{Standard deviation solution (RR)\relax }{figure.caption.14}{}}
+\newlabel{fig:mean_solution_mca}{{8c}{16}{Mean solution (Full MCA)\relax }{figure.caption.14}{}}
+\newlabel{sub@fig:mean_solution_mca}{{c}{16}{Mean solution (Full MCA)\relax }{figure.caption.14}{}}
+\newlabel{fig:stdev_mca}{{8d}{16}{Standard deviation (Full MCA)\relax }{figure.caption.14}{}}
+\newlabel{sub@fig:stdev_mca}{{d}{16}{Standard deviation (Full MCA)\relax }{figure.caption.14}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Solution of \texttt  {root\_finding\_large} example. The standard deviation has two maximum for both RR and Full MCA modes. The standard deviation remains lower than the stopping criterion threshold fixed at $6.10^{-6}$. \relax }}{16}{figure.caption.14}\protected@file@percent }
+\newlabel{fig:root_finding_large}{{8}{16}{Solution of \texttt {root\_finding\_large} example. The standard deviation has two maximum for both RR and Full MCA modes. The standard deviation remains lower than the stopping criterion threshold fixed at $6.10^{-6}$. \relax }{figure.caption.14}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Call paths of the Bayesian Ridge Regression (BRR) and Ordinary Least Square (OLS) function. Color represents the calling library: orange for scikit-learn, blue for SciPy and yellow for LAPACK. Dashed color represents the original path in red and the alternative one in green. Figure\nobreakspace  {}\ref  {fig:brr_svd_sig} shows the original method leads to numerical instabilities while the alternative one converges. \relax }}{17}{figure.caption.15}\protected@file@percent }
+\newlabel{fig:call_path_brr}{{9}{17}{Call paths of the Bayesian Ridge Regression (BRR) and Ordinary Least Square (OLS) function. Color represents the calling library: orange for scikit-learn, blue for SciPy and yellow for LAPACK. Dashed color represents the original path in red and the alternative one in green. Figure~\ref {fig:brr_svd_sig} shows the original method leads to numerical instabilities while the alternative one converges. \relax }{figure.caption.15}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Precision of Bayesian Ridge Regression coefficients in RR mode. \texttt  {BRR\_*} show the \texttt  {BayesianRidge} results using the \texttt  {gesdd} and \texttt  {gesvd} methods. \texttt  {OLS\_*} show the \texttt  {LinearRegression} results with the \texttt  {dgelsd} and \texttt  {dgelss} methods. The Divide \& Conquer method (\texttt  {gesdd} and \texttt  {dgelsd}) has low precision for \textit  {BRR} and results in \texttt  {NaN} values (star points) for \textit  {OLS}. By switching to the \texttt  {gesvd} method, results have a precision of 42 bits on average. \relax }}{17}{figure.caption.17}\protected@file@percent }
+\newlabel{fig:brr_svd_sig}{{10}{17}{Precision of Bayesian Ridge Regression coefficients in RR mode. \texttt {BRR\_*} show the \texttt {BayesianRidge} results using the \texttt {gesdd} and \texttt {gesvd} methods. \texttt {OLS\_*} show the \texttt {LinearRegression} results with the \texttt {dgelsd} and \texttt {dgelss} methods. The Divide \& Conquer method (\texttt {gesdd} and \texttt {dgelsd}) has low precision for \textit {BRR} and results in \texttt {NaN} values (star points) for \textit {OLS}. By switching to the \texttt {gesvd} method, results have a precision of 42 bits on average. \relax }{figure.caption.17}{}}
+\citation{Platt99probabilisticoutputs}
+\newlabel{fig:randomized_svd_U}{{11a}{18}{Left matrix $U$ of the SVD decomposition\relax }{figure.caption.19}{}}
+\newlabel{sub@fig:randomized_svd_U}{{a}{18}{Left matrix $U$ of the SVD decomposition\relax }{figure.caption.19}{}}
+\newlabel{fig:randomized_svd_S}{{11b}{18}{Singular values $\Sigma $ of the SVD decomposition\relax }{figure.caption.19}{}}
+\newlabel{sub@fig:randomized_svd_S}{{b}{18}{Singular values $\Sigma $ of the SVD decomposition\relax }{figure.caption.19}{}}
+\newlabel{fig:randomized_svd_V}{{11c}{18}{Right matrix $V$ of the SVD decomposition\relax }{figure.caption.19}{}}
+\newlabel{sub@fig:randomized_svd_V}{{c}{18}{Right matrix $V$ of the SVD decomposition\relax }{figure.caption.19}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Precision of the \texttt  {randomized\_svd} function in the \texttt  {face\_recognition} example using the \texttt  {gesvd} SVD method and RR. Figures\nobreakspace  {}\ref  {fig:randomized_svd_U},\nobreakspace  {}\ref  {fig:randomized_svd_S}, and\nobreakspace  {}\ref  {fig:randomized_svd_V} show respectively the values $U$, $\Sigma $ and $V$. Numerical precision is lower for smaller singular values and this loss of precision translates to singular vectors. It would be interesting to investigate the use of numerical precision for dimensionality reduction. \relax }}{18}{figure.caption.19}\protected@file@percent }
+\newlabel{fig:face_recognition_svd}{{11}{18}{Precision of the \texttt {randomized\_svd} function in the \texttt {face\_recognition} example using the \texttt {gesvd} SVD method and RR. Figures~\ref {fig:randomized_svd_U},~\ref {fig:randomized_svd_S}, and~\ref {fig:randomized_svd_V} show respectively the values $U$, $\Sigma $ and $V$. Numerical precision is lower for smaller singular values and this loss of precision translates to singular vectors. It would be interesting to investigate the use of numerical precision for dimensionality reduction. \relax }{figure.caption.19}{}}
+\@writefile{toc}{\contentsline {paragraph}{Separating hyperplane}{18}{section*.20}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{SVM}{18}{section*.22}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{SGD weighted samples}{18}{section*.23}\protected@file@percent }
+\newlabel{fig:hyperplan_sig_zoom}{{12a}{19}{Separating hyperplane\relax }{figure.caption.21}{}}
+\newlabel{sub@fig:hyperplan_sig_zoom}{{a}{19}{Separating hyperplane\relax }{figure.caption.21}{}}
+\newlabel{fig:SVM_nw_sig}{{12b}{19}{SVM (non weighted)\relax }{figure.caption.21}{}}
+\newlabel{sub@fig:SVM_nw_sig}{{b}{19}{SVM (non weighted)\relax }{figure.caption.21}{}}
+\newlabel{fig:SVM_w_sig}{{12c}{19}{SVM (weighted)\relax }{figure.caption.21}{}}
+\newlabel{sub@fig:SVM_w_sig}{{c}{19}{SVM (weighted)\relax }{figure.caption.21}{}}
+\newlabel{fig:weighted_nw_sig}{{12d}{19}{SGD weighted (non-weighted)\relax }{figure.caption.21}{}}
+\newlabel{sub@fig:weighted_nw_sig}{{d}{19}{SGD weighted (non-weighted)\relax }{figure.caption.21}{}}
+\newlabel{fig:weighted_w_sig}{{12e}{19}{SGD weighted (weighted)\relax }{figure.caption.21}{}}
+\newlabel{sub@fig:weighted_w_sig}{{e}{19}{SGD weighted (weighted)\relax }{figure.caption.21}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces  Three examples of separating hyperplane prediction. All the figures show the number of significant bits of the prediction in RR mode. The separating hyperplane corresponds to a lower-precsion region in each figure. Using a large discretization step amplifies this instability. \relax }}{19}{figure.caption.21}\protected@file@percent }
+\newlabel{fig:separating_hyperplan}{{12}{19}{Three examples of separating hyperplane prediction. All the figures show the number of significant bits of the prediction in RR mode. The separating hyperplane corresponds to a lower-precsion region in each figure. Using a large discretization step amplifies this instability. \relax }{figure.caption.21}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces  PyTracer\xspace  tracing overheads. \textit  {Slowdown} represents the slowdown of PyTracer\xspace  without fuzzy measured as the ratio between the actual execution time (without PyTracer\xspace  ) and the execution time using PyTracer\xspace  . \textit  {Slowdown (Instrumentation)} show the actual instrumentation cost computed by subtracting the initialization step. The \textit  {Slowdown (RR)} and \textit  {Slowdown (MCA)} are the slowdown of PyTracer\xspace  using the fuzzy environment with RR and Full MCA modes. The first four examples measure the initialization steps depending on the modules instrumented. \relax }}{20}{figure.caption.24}\protected@file@percent }
+\newlabel{fig:performance_tracing}{{13}{20}{\pytracer tracing overheads. \textit {Slowdown} represents the slowdown of \pytracer without fuzzy measured as the ratio between the actual execution time (without \pytracer ) and the execution time using \pytracer . \textit {Slowdown (Instrumentation)} show the actual instrumentation cost computed by subtracting the initialization step. The \textit {Slowdown (RR)} and \textit {Slowdown (MCA)} are the slowdown of \pytracer using the fuzzy environment with RR and Full MCA modes. The first four examples measure the initialization steps depending on the modules instrumented. \relax }{figure.caption.24}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.6}Overhead evaluation}{20}{subsection.3.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Discussion}{20}{section.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces PyTracer\xspace  aggregation performance. \relax }}{21}{figure.caption.25}\protected@file@percent }
+\newlabel{fig:performance_parsing}{{14}{21}{\pytracer aggregation performance. \relax }{figure.caption.25}{}}
+\citation{cherubin2020tools}
+\citation{jezequel2008cadna}
+\citation{vignes1993stochastic}
+\citation{demeure_phd}
+\citation{frechtling2015mcalib}
+\citation{parker1997monte}
+\citation{fousse2007mpfr}
+\citation{tang2016software}
+\citation{verificarlo}
+\citation{bao2013fly}
+\citation{guo2020pliner}
+\citation{chowdhary2020debugging}
+\citation{chowdhary2021parallel}
+\citation{sawaya2017flit}
+\citation{wang2012development}
+\citation{stallman1988debugging}
+\citation{jezequel2008cadna}
+\citation{lam2013dynamic}
+\citation{fevotte2016verrou}
+\citation{nethercote2007valgrind}
+\citation{benz2012dynamic}
+\citation{sanchez2017finding}
+\citation{bajard1996introduction}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Related work}{22}{section.5}\protected@file@percent }
+\citation{faust2019anteater}
+\bibstyle{abbrv}
+\bibdata{paper}
+\bibcite{bajard1996introduction}{1}
+\bibcite{bao2013fly}{2}
+\bibcite{benz2012dynamic}{3}
+\bibcite{BFGS}{4}
+\bibcite{chatelain2019outils}{5}
+\bibcite{chatelain2019automatic}{6}
+\bibcite{cherubin2020tools}{7}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Conclusion}{23}{section.6}\protected@file@percent }
+\bibcite{chowdhary2020debugging}{8}
+\bibcite{chowdhary2021parallel}{9}
+\bibcite{demeure_phd}{10}
+\bibcite{verificarlo}{11}
+\bibcite{faust2019anteater}{12}
+\bibcite{fevotte2016verrou}{13}
+\bibcite{fousse2007mpfr}{14}
+\bibcite{frechtling2015mcalib}{15}
+\bibcite{gould1999solving}{16}
+\bibcite{guo2020pliner}{17}
+\bibcite{halko2011finding}{18}
+\bibcite{harris2020array}{19}
+\bibcite{plotly}{20}
+\bibcite{jezequel2008cadna}{21}
+\bibcite{kiar2020comparing}{22}
+\bibcite{kowalik1968analysis}{23}
+\bibcite{kraft1988software}{24}
+\bibcite{lam2013dynamic}{25}
+\bibcite{lattner2008llvm}{26}
+\bibcite{li1993centering}{27}
+\bibcite{nakatsukasa2013stable}{28}
+\bibcite{nethercote2007valgrind}{29}
+\bibcite{nocedal2006numerical}{30}
+\bibcite{parker1997monte}{31}
+\bibcite{paszke2019pytorch}{32}
+\bibcite{pedregosa2011scikit}{33}
+\bibcite{Platt99probabilisticoutputs}{34}
+\bibcite{sanchez2017finding}{35}
+\bibcite{sawaya2017flit}{36}
+\bibcite{singer2009nelder}{37}
+\bibcite{sohier2018confidence}{38}
+\bibcite{stallman1988debugging}{39}
+\bibcite{tang2016software}{40}
+\bibcite{vignes1993stochastic}{41}
+\bibcite{virtanen2020scipy}{42}
+\bibcite{wang2012development}{43}
