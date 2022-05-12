@@ -403,11 +403,15 @@
 \definecolor{lightred}{rgb}{0.6,0.0,0.0}
 \definecolor{lightgreen}{rgb}{0.8,1.0,0.8}
 
+\ifdefined\annotated
 \DeclareRobustCommand{\add}[1]{\sethlcolor{lightgreen}\hl{#1}}
 \DeclareRobustCommand{\remove}[1]{\textcolor{lightred}{\sout{#1}}}
-
 \DeclareRobustCommand{\addCite}[1]{\textcolor{lightgreen}{\mbox{#1}}}
-
+\else
+\DeclareRobustCommand{\add}[1]{#1}
+\DeclareRobustCommand{\remove}[1]{}
+\DeclareRobustCommand{\addCite}[1]{#1}
+\fi
 
 \setlength{\arrayrulewidth}{0.1pt}
 

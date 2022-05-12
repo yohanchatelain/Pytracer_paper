@@ -402,11 +402,25 @@
 \definecolor{lightred}{rgb}{0.6,0.0,0.0}
 \definecolor{lightgreen}{rgb}{0.8,1.0,0.8}
 
+\usepackage{ifthen}
+\newif\ifANNOTATED
+\ifthenelse{\equal{\detokenize{annotated}}{\jobname}}{
+\ANNOTATEDtrue
+}{
+\ANNOTATEDfalse
+}
+
+\ifANNOTATED
+\DeclareRobustCommand{\add}[1]{\sethlcolor{lightgreen}\hl{#1}}
+\DeclareRobustCommand{\remove}[1]{\textcolor{lightred}{\sout{#1}}}
+\DeclareRobustCommand{\addCite}[1]{\textcolor{lightgreen}{\mbox{#1}}}
+\newcommand{\TG}[1]{\color{red}\textsc{From Tristan}: #1\xspace\color{black}}
+\else
 \DeclareRobustCommand{\add}[1]{#1}
 \DeclareRobustCommand{\remove}[1]{}
-
-\DeclareRobustCommand{\addCite}[1]{\textcolor{lightgreen}{\mbox{#1}}}
-
+\DeclareRobustCommand{\addCite}[1]{#1}
+\newcommand{\TG}[1]{}
+\fi
 
 \setlength{\arrayrulewidth}{0.1pt}
 
@@ -590,7 +604,7 @@
         capabilities by testing the numerical stability of key functions in both
         SciPy and Scikit-learn, two dominant Python libraries for mathematical
         modeling. Through these evaluations, we demonstrate \pytracer as a
-        scalable, automatic, and generic framework for numerical profiling in
+        scalable, automated, and generic framework for numerical profiling in
         Python.
     \end{abstract}
     
@@ -664,9 +678,9 @@ Python programs. \pytracer adopts a dynamic approach that evaluates numerical
 stability using program execution traces, and is applicable to large programs
 without manual intervention. The transparent nature of \pytracer is particularly
 valuable in contrast to theoretical approaches based on condition numbers or
-backward error analysis~\cite{higham2002accuracy}, which require
+backward error analysis~\addCite{\cite{higham2002accuracy}}, which require
 detailed modeling of the program and its numerical implementation. Similarly,
-static code analysis techniques~\cite{goubault2006static} hardly scale
+static code analysis techniques~\addCite{\cite{goubault2006static}} hardly scale
 to large code bases, particularly in dynamically-typed languages such as Python.
 
 \pytracer estimates the variability of floating-point variables by combining
@@ -674,11 +688,11 @@ program traces obtained with different numerical perturbations, which requires
 (\add{a}\remove{1}) generating numerically-perturbed executions,
 (\add{b}\remove{2}) tracing floating-point computations along program
 executions, and (\add{c}\remove{3}) visualizing stability evaluations.
-\add{PyTracer uses the ``fuzzy" Python environment instrumented with Monte-Carlo
-    arithmetic to address the requirement (a). \mbox{\pytracer} addresses the
-    remaining requirements with (b) a dynamic instrumentation of Python functions,
-    modules, and classes through meta-programming, (c) an interactive Plotly
-    dashboard to visualize stability measures throughout program executions.
+\add{PyTracer addresses (a) by relying on the ``fuzzy" Python environment instrumented with Monte-Carlo
+    arithmetic, (b) by dynamically instrumenting Python functions,
+    modules, and classes through meta-programming, and (c) by visualizing stability measures throughout program executions
+    with an interactive Plotly
+    dashboard.
     \mbox{\pytracer} is available at
     \mbox{\href{https://github.com/big-data-lab-team/pytracer.git}{github.com/big-data-lab-team/pytracer.git}}
     under MIT License.} \remove{\mbox{\pytracer} addresses these requirements with
@@ -692,17 +706,28 @@ in various use cases. Through stability evaluations of the SciPy and
 scikit-learn libraries, we demonstrate \pytracer as a practical solution to
 review the numerical stability of extensive code bases. 
 
-\section{Philosophy of \pytracer}
+\section{\pytracer design}
 
-\add{PyTracer follows a three steps approach:}
-\begin{enumerate}
-    \item \add{Automatic instrumentation of Python programs to save the value of inputs and outputs of function in a file.}
-    \item \add{Aggregation of the traces generated to produce a statistics summary.}
-    \item \add{Interactive visualization to navigate through the code execution.}
-\end{enumerate}
+\TG{I'm still unsure what to do with this part, it looks out of place.}
+% \add{PyTracer follows a three steps approach:}
+% \begin{enumerate}
+%     \item \add{Automatic instrumentation of Python programs to save traces containing input and output values of all functions.}
+%     \item \add{Traces aggregation to produce a statistics summary.}
+%     \item \add{Interactive visualization to navigate through code execution.}
+% \end{enumerate}
+
+\pytracer adopts the three-step workflow shown in Figure~\ref{fig:workflow}.
+First, \pytracer uses \textit{monkey patching} to replace the functions called
+by the application with a wrapper that saves their arguments and returned values
+in a trace file.
+Second, it executes the application multiple times with noise injection, and
+aggregates the resulting trace files to compute summary statistics about each
+traced variable. Finally, a Plotly dashboard provides interactive visualizations
+highlighting unstable code sections.
+
 
 \add{
-    The main goal of PyTracer is to help the developper visualizing the numerical
+    The main goal of PyTracer is to help developpers visualize the numerical
     stability of Python applications. PyTracer saves time for the user by
     instrumenting and aggregating values. In the same way that GDB makes the user
     save time when debugging an application by providing all information in one
@@ -715,33 +740,26 @@ review the numerical stability of extensive code bases.
 }
 
 \add{
-    The main challenge addresses by PyTracer is the transparent instrumentation of Python 
-    applications. Indeed, since Python is interpreted language, one has no complete 
+    The main challenge addressed by PyTracer is the transparent instrumentation of Python 
+    applications. Indeed, since Python is an interpreted language, one has no complete 
     view of the function that will be executed by a given program. 
-    Moreover, since we target Python application used in HPC environments, one has
+    Moreover, for Python applications used in HPC environments, one has
     most of the time no access to source codes or with limited write access.
     Therefore, PyTracer tackles this issue by instrumenting the function dynamically 
     thanks to the Python introspection.
 }
 
 \add{
-    The based-trace approach used by PyTracer permits to limit the 
+    The trace-based approach used by PyTracer permits to limit the 
     overhead at runtime since the statistics computation is reported to the postprocess analysis.
     However, it limits the aggregation to deterministic executions,
     although control-flow analysis can help to merge divergent execution paths.
+    Hence, PyTracer is restricted to single-threaded applications even if its usage
+    is limited in Python due to the Global Interperter Lock (GIL) mechanism
+    that allows only one thread to hold the control of the Python interpreter.
 }
 
-\section{\pytracer design}
-
 % \subsection{Pytracer workflow}
-\pytracer adopts the three-step workflow shown in Figure~\ref{fig:workflow}.
-First, \pytracer uses \textit{monkey patching} to replace the functions called
-by the application with a wrapper that saves their arguments and returned values
-in a trace file.
-Second, it executes the application multiple times with noise injection, and
-aggregates the resulting trace files to compute summary statistics about each
-traced variable. Finally, a Plotly dashboard provides interactive visualizations
-highlighting unstable code sections.
 
 % \tristan{mention monkey patching}
 
@@ -775,7 +793,7 @@ the user. The user can also restrict the list of traced attributes through an
 inclusion/exclusion mechanism. The main advantage of this instrumentation
 approach is the lack of required modification in the application source code, in
 contrast with \remove{decorator-based approaches} \add{a decorator-based
-    approache~\mbox{\cite{hunt2019decorators}}}. In addition, this technique is
+    approach~\mbox{\cite{hunt2019decorators}}}. In addition, this technique is
 scalable and applicable in read-only environments such as Singularity containers
 or HPC clusters.
 
@@ -951,7 +969,7 @@ iterators.
 multiple executions perturbed with numerical noise. While \pytracer's
 instrumentation, trace aggregation, and visualization work with various types of
 numerical noise, we experimented primarily with Monte-Carlo Arithmetic (MCA) as
-it is an accurate model for floating-point errors~\cite{verificarlo}.
+it is an accurate model for floating-point errors~\addCite{\cite{verificarlo}}.
 
 \subsubsection{Noise injection}
 \label{sec:fuzzy}
@@ -976,12 +994,13 @@ number $x$ with a stochastic counterpart computed as:
 \]
 where $\beta$ is the number base, $e_x$ is the magnitude of $x$, $t$ the virtual
 precision and $\xi \in (-\frac{1}{2},\frac{1}{2})$ is a random uniform variable.
-Virtual precision allows for the simulation of reduced working precision. MCA
-can be applied in three modes \add{but we only used the} Random Rounding (RR) \add{in our
-    experiments} \remove{, Precision Bounding (PB), and full MCA,} which apply
-function $inexact$ to the output. \remove{, the inputs, or both, respectively.
-    While the RR mode is equivalent to stochastic rounding, the PB mode can also
-    identify catastrophic cancellations.} \add{Random Rounding simulates roundoff errors.}
+Virtual precision allows for the simulation of reduced working precision.
+\add{In our experiments, we used MCA in Random Rounding (RR) mode, which
+    simulates roundoff errors by applying function $inexact$ only to the
+    output returned by a function. The Precision Bounding (PB) mode can
+    identify other types of instabilities, in particular catastrophic
+    cancellations, however, it is more difficult to apply to large code bases
+    as it often leads to execution errors that require human intervention.}
 
 Stochastic arithmetic quantifies numerical error using the number of significant
 digits $s$ estimated among the sampled values. A common formula to determine
@@ -990,11 +1009,11 @@ this number from MCA samples is presented in~\cite{parker1997monte}:
     s = -\log_{\beta}{ \left| \dfrac{\sigma}{\mu} \right|} \label{eq:sig-digits}
 \end{equation}
 where $\mu$ and $\sigma$ are the sample mean and standard deviation of a
-variable sampled with MCA.
+variable sampled with MCA. \add{This can be seen as the ratio signal over noise.}
 Sohier et al.~\cite{sohier2021confidence} recently provided a generalization of
 this formula to include confidence intervals.
 
-We enable MCA in Python programs via Verificarlo~\cite{verificarlo}, a
+We enabled MCA in Python programs via Verificarlo~\cite{verificarlo}, a
 clang-based compiler~\cite{lattner2008llvm} that replaces floating-point
 operations by a generic call to a configurable floating-point model. Several
 floating-point models are
@@ -1007,12 +1026,24 @@ existing scientific Python programs. Fuzzy is available in Verificarlo's GitHub
 organization at
 \href{https://github.com/verificarlo/fuzzy}{\url{github.com/verificarlo/fuzzy}}.
 
+
+\add{Monte Carlo Arithmetic samples the floating-point variability of a given
+    program, and hence the more MCA repetitions we have, the more accurate the
+    distribution will be. In theory, an infinite number of MCA repetitions
+    should give the exact distribution. While in practice low sample sizes (3 to 30)
+    can give good estimates, the issue is to capture ``rare events" that could make the
+    computation strongly diverge from the mean. Determining the number of
+    MCA samples to use for a given instrumented code is still an open research question. 
+    Recent theoretical works}~\cite{sohier2021confidence}
+\add{on the estimation of significant digits allow computing an associated
+    confidence interval depending on the sample size and the underlying distribution.}
+
 \subsubsection{Trace format}
 
 \pytracer stores traces in the pickle format, a binary format to serialize
-Python objects. The main advantage of the pickle format compared to other
-serialization approaches such as marshal or JSON is the ability to serialize
-most Python objects with a native compression. In addition, pickle writes
+Python objects. The main advantages of the pickle format compared to other
+serialization approaches such as marshal or JSON are its ability to serialize
+most Python objects and its native compression.  In addition, pickle writes
 Python objects sequentially, which preserves the temporal ordering required by
 subsequent trace analyses.
 
@@ -1033,8 +1064,8 @@ browsing since only required information are loaded when requested by the user.
 This operation critically relies on the ordering of call input and output
 objects in the traces. Therefore, it assumes that the application is
 single-threaded and that the control flow does not depend on a random state.
-\add{Therefore, \mbox{\pytracer} cannot merge traces resulting from a different
-    control flow path and stops the parsing when encountering one.}
+\add{Therefore, \mbox{\pytracer} cannot merge traces resulting from different
+    control flow paths and will stop the parsing when encountering such a situation.}
 
 \begin{figure*}
     \centering
@@ -1100,23 +1131,14 @@ machine-learning framework that implements a wide range of state-of-the-art
 algorithms. For each library, we executed the software examples provided in
 their respective GitHub repositories. We traced each example five times, having
 activated MCA in the Python interpreter \add{as well as} BLAS, LAPACK, NumPy,
-SciPy, and scikit-learn. \add{Only instrumented the Python interpreter would
-    lead to only perturbe pure Python floating-point operations and thus to miss
-    operations in compiled codes (i.e. Cython and shared libraries).} We used the default virtual
+SciPy, and scikit-learn. \add{Instrumenting only the Python interpreter would
+    lead to only perturb pure Python floating-point operations and thus miss
+    operations in compiled codes (i.e., Cython and shared libraries).} \add{We
+    used MCA in Random Rounding (RR) mode, with 5 repetitions}. We used the default virtual
 precision in Verificarlo, namely 24 bits for single-precision floating-point
 values and 53 bits for double-precision values, which simulates machine error.
 We used Python-3.8.5, NumPy-1.19.1, SciPy-1.5.4, and scikit-learn-0.23.2.
 
-\add{Monte Carlo Arithmetic samples the floating-point variability of a given
-    program, and hence the more MCA repetitions we have, the more accurate will be
-    the sampling distribution. In theory, an infinite number of MCA repetitions
-    should give the exact distribution. While in practice low sample size (3$\simeq$30)
-    can give a good estimate, the issue is to capture "rare events" that could make the
-    computation strongly diverge from the mean. For now, determining the number of
-    MCA samples to use is still an open research question. 
-    Recent theoretical works}~\cite{sohier2021confidence}
-\add{on the significant digits computation allow computing an associated
-    confidence interval depending on the sample size and the underlying distribution of the outputs.}
 
 % \subsection{Results overview}
 
@@ -1244,7 +1266,7 @@ We used Python-3.8.5, NumPy-1.19.1, SciPy-1.5.4, and scikit-learn-0.23.2.
 \end{table*}
 
 
-\subsection{Pytracer is applicable to scientific computation libraries of reference}
+\subsection{\pytracer is applicable to reference scientific computating libraries}
 
 Table~\ref{tab:pytracer_results_summary} summarizes \pytracer's outcome on SciPy
 and scikit-learn examples. Columns \textit{trace} and \textit{parse} report on
@@ -1258,8 +1280,8 @@ execution raised a Python error before the end. \remove{, and 3)
     should not have been introduced (i.e. a floating-point value
     representing an integer).}
 Overall, the tracing and parsing of SciPy and scikit-learn examples in Random
-Rounding mode was entirely successful for 32/40 examples and showed an average
-precision loss of 8 bits. The remaining examples failed due to numerical errors
+Rounding mode was entirely successful for 32/40 examples\remove{ and showed an average
+    precision loss of 8 bits}. The remaining examples failed due to numerical errors
 in the libraries, which we discuss hereafter. 
 \remove{The instrumentation with Full MCA is
     more invasive and reduced the number of successful exe-
@@ -1272,8 +1294,8 @@ Column \textit{sigbits} in Table~\ref{tab:pytracer_results_summary} summarizes
 the precision for the main outputs of SciPy and scikit-learn examples. We
 measured the precision in significant bits on the final primary example output
 by taking the element-wise mean for non-scalar values and, if the example
-produces many outputs, the average value among all of them. The numerical
-quality across all examples varies from 0 to 52, with an average of 44
+produces many outputs, the average value among them. The numerical
+quality across all examples varied from 0 to 52, with an average of 44
 significant bits. We note that only one example failed due to a
 numerical error (\texttt{face\_recognition}
 \remove{for RR and \texttt{Bayesian Ridge Regression} for full MCA}).
@@ -1308,16 +1330,14 @@ numerical error (\texttt{face\_recognition}
     Those code regions should not be perturbed by MCA since the injected noise does
     not make sense.}
 
-\subsection{\pytracer supports the visualization of compound data type}
+\subsection{\pytracer supports the profiling of compound data types}
 
-\add{PyTracer supports native floating point formats as well as compound data type,
+\add{PyTracer supports native floating point formats as well as compound data types,
     such as complex floating point values, N-dimensional arrays and arbitrary Python
-    classes. For the Python classes, PyTracer recursively parses the class attributes to
-    extract scalar and N-dimensional arrays floating-points values.}
-
+    classes.}
 Figures~\ref{fig:fft1D_inputs} and~\ref{fig:fft1D_outputs} \add{show the
-    visualization of the \texttt{fft\_1D} inputs and outputs values. Results are
-    complex value encoded on double precision. PyTracer allows visualizing the
+    visualization of the \texttt{fft\_1D} input and output values. Results are
+    complex values encoded in double precision. PyTracer allows visualizing the
     numerical precision of real (blue points) and imaginary (orange points) parts.}
 \add{The} top row in Figures~\ref{fig:fft1D_inputs} and~\ref{fig:fft1D_outputs}
 show the input mean value while the bottom row shows the standard deviation. The
@@ -1337,7 +1357,7 @@ Figure~\ref{fig:spline2d_rr} \add{shows the results of the spline evaluation wit
     \texttt{bisplev} from the \texttt{spline\_2D} example. It computes the 2D spline
     interpolation for function $z=(x+y)e^{-6(x^2+y^2)}$, with $(x,y) \in
         [-1,1]\times[-1,1]$. The result is a 2D-array that is natively supported by
-    PyTracer. We observe a significant loss of precision in places, which follows
+    PyTracer. We observe a significant loss of precision in some regions, which follows
     an interesting pattern that could be further investigated.}
 
 
@@ -1388,19 +1408,18 @@ Figure~\ref{fig:spline2d_rr} \add{shows the results of the spline evaluation wit
     \label{fig:spline2d_rr}
 \end{figure*}
 
-\subsection{\pytracer allows visualizing numerical stability at a fine grained level}
+\subsection{\pytracer allows visualizing numerical stability at a fine-grained level}
 
 
 \add{We illustrate on two examples how PyTracer is effective for analyzing
-    the numerical stability at a fine grained level: Face recognition and Bayesian Ridge Regression.}
+    numerical stability in complex codes at a fine-grained level: Face recognition and Bayesian Ridge Regression.}
 The face recognition example uses eigenfaces (eigenvectors) and Support Vector
 Machines (SVMs) to classify faces from the Labeled Faces in the Wild dataset.
 This example uses a Principal Component Analysis (PCA) to extract the eigenfaces
-and then trains an SVM classifier to predict the name associated with a face.
-\add{When executing within fuzzy environment, this example crashed with the following
-    Python error raised: \texttt{"SVD did not converge"}.}
+and then trains an SVM classifier to predict the label associated with a face.
+\add{When executing in PyTracer, this example crashed because the Singular Value Decomposition (SVD) did not converge.}
 This example is the only one to raise an error due to the
-non-convergence of the Singular Value Decomposition (SVD) performed in the PCA.
+non-convergence of the SVD performed in the PCA.
 The PCA uses the Randomized SVD~\cite{halko2011finding} method
 that first computes a low-rank approximation of the input matrix using a
 stochastic algorithm and then uses this approximation as input for the SVD. 
@@ -1410,51 +1429,52 @@ method \texttt{gesdd}. The LAPACK library has two main methods for computing the
 \texttt{gesdd} and \texttt{gesvd}. The former uses a Divide \& Conquer approach,
 while the latter uses a QR decomposition. While both methods are expected to
 have the same accuracy~\cite{nakatsukasa2013stable}, the Divide \& Conquer
-makes the SVD to not converge with MCA.
+does not converge with MCA.
 
-Replacing \texttt{gesdd} for \texttt{gesvd} solves the SVD convergence issue.
+Replacing \texttt{gesdd} for \texttt{gesvd} solved the SVD convergence issue.
 \pytracer allows to quickly visualize the new precision of the result.
-Figure~\ref{fig:randomized_svd_S} shows the precision of the eigenvalues
+Figure~\ref{fig:face_recognition_svd} shows the precision of the eigenvalues
 computed displayed in decreasing order with \texttt{gesvd} \add{in single precision}, 
 which varies between 15 and 20
 significant bits out of the 24 available in single precision. The classifier
 metrics (precision, recall, F1-score, and support) are identical to the IEEE
-execution for all MCA samples. \add{We can note that even with using the \texttt{gesvd},
-    the precision of the singular values (vectors) is not uniform. 
-    Indeed, we can see that the precision of the lowest singular values (vectors) decreases 
+execution for all MCA samples. \add{We can note that even with the \texttt{gesvd} method,
+    the precision of the singular values and eigenvectors is not uniform. 
+    Indeed, we can see that the precision of the lowest singular values and eigenvectors decreases 
     until reaching 0 significant bits.}
 
-The second example, compares a Bayesian Ridge Regression (BRR) to the Ordinary
+The second example compares a Bayesian Ridge Regression (BRR) to the Ordinary
 Least Squares (OLS) estimator on a synthetic dataset and for one-dimensional
 regression using polynomial feature expansion. Although the example does not
 raise a runtime error, the regression coefficients computed from the fitting are
-non-significant. \pytracer traces reveal that the SVD solver used is the root
+non-significant. \pytracer traces reveal that the SVD solver used is once again the root
 cause for this error. \add{Indeed, the BayesianRidge model first computes an SVD
     before iteratively updating the coefficients until reaching the convergence
-    criterion. However, PyTracer reveals an issue in the singular values computed.}
-\add{We can see on Figure}~\ref{fig:BRR_svd} \add{that the last singular values is
-    \texttt{NaN} due to numerical error during the SVD although the remaining
+    criterion. However, PyTracer shows an issue in the singular values computed.}
+\add{We can see in Figure}~\ref{fig:BRR_svd} \add{that the last singular values is
+    \texttt{NaN} due to numerical errors in the SVD, although the remaining
     singular values exhibit high numerical precision (between 44 and 50 bits).
-    Surprinsingly, this \texttt{NaN} value does not raise issue and is silently
-    propagated. Indeed, the stopping criterion compares that the sum of the absolute
-    differences between coefficients of two successive iterations but coefficients
-    contain \texttt{NaN} since they are computed from singular values. Hence, the
-    following right condition is never met \texttt{if iter\_!=0 and np.sum(np.abs(coef\_old\_-coef\_))<self.tol:} since the comparison with a
-    \texttt{NaN} is always false.}
+    Surprinsingly, this \texttt{NaN} value does not raise an exception and is silently
+    propagated. Indeed, the stopping criterion is never verified and the 
+    optimization stops after reaching the maximal number of iterations.
+    Figure}~\ref{fig:BRR_svd_fixed} \add{shows that uses
+    the \texttt{gesvd} instead of the \texttt{gesdd} method removes the \texttt{NaN} value
+    although the last singular values stills have a low precision (below 0).
+    Following Equation}~\ref{eq:sig-digits}, \add{a number of significant digits below 0 means that the
+    variability ($\sigma$) is higher than the average value ($\mu$)}.
 
 
-\add{The OLS uses the Least Square to fit the model. PyTracer shows that the
-    coefficients fitted are \texttt{NaN} values. By looking at the callgraph, we can
+\add{Similarly, for OLS, PyTracer tracers show that the
+    regression coefficients fitted are \texttt{NaN} values. By looking at the callgraph, we can
     see that the scipy calls the \texttt{lstsq} method from the
-    \texttt{scipy.linalg} package which uses the \texttt{gelsd} LAPACK function.
-    Figure}~\ref{fig:OLS_svd} \add{shows the singular values returned by the
-    \texttt{lstsq} method shows that one singular value has a \texttt{NaN} value
-    that corrupted the calculation of the coefficients. By using the \texttt{gelss},
-    PyTracer shows that the \texttt{NaN} value disapeared from the singular values
-    (fig.}~\ref{fig:OLS_svd_fixed}\add{) and thus does not contaminated the computation of
-    the coefficients that exhibit a precision of 42 bits in average. We can see that
-    the full access to all values computed by the application with PyTracer allows
-    the user to quickly identify the issue.}
+    \texttt{scipy.linalg} package which uses the \texttt{gesdd} LAPACK function.
+    Figure}~\ref{fig:OLS_svd} \add{shows that one singular value is a \texttt{NaN} value,
+    which corrupted the calculation of the coefficients. When using the \texttt{gesvd} method, 
+    the \texttt{NaN} value disapears 
+    (Fig.}~\ref{fig:OLS_svd_fixed}\add{), resulting in a precision of
+    42 bits in average in the coefficients. We can see that having
+    access to all the values computed by the application with PyTracer allows
+    the user to efficiently identify numerical issues.}
 
 In conclusion, \pytracer and the MCA model were helpful to detect the
 instability of the \texttt{gesdd} method mentioned in several GitHub issues,
@@ -1462,9 +1482,8 @@ including the LAPACK repository. Furthermore, it is worth mentioning that a Pull
 Request has recently been submitted to let the user select the SVD method and
 avoid this kind of issue. Thus, \pytracer can detect instabilities that affect
 fundamental scientific computing components such as the LAPACK library. \add{The
-    unify view of all traces allows the user to quickly navigate through the
-    different numerical precision of variables which saves time for the developer
-    compare to the print statement debugging.}
+    unified view of all traces allows the user to quickly navigate through the
+    numerical precision of different variables.}
 % The Pytracer findings can therefore be extended to many application domains. %
 % \tristan{conclusion needs to be discussed. Note to self: generaliser un peu la
 % conclusion: pytracer permet de se rendre compte de problemes de stabilite dont
@@ -1504,30 +1523,30 @@ fundamental scientific computing components such as the LAPACK library. \add{The
     \centering
     \begin{subfigure}{0.49\linewidth}
         \includegraphics[width=\linewidth]{figure/BRR_singular_values.png}
-        \caption{BRR}
+        \caption{BRR (\texttt{gesdd})}
         \label{fig:BRR_svd}
     \end{subfigure}
     \begin{subfigure}{0.49\linewidth}
         \includegraphics[width=\linewidth]{figure/OLS_singular_values.png}
-        \caption{OLS}
+        \caption{OLS (\texttt{gesdd})}
         \label{fig:OLS_svd}
     \end{subfigure}
     \begin{subfigure}{0.49\linewidth}
         \includegraphics[width=\linewidth]{figure/BRR_singular_values_fixed.png}
-        \caption{BRR (fixed)}
+        \caption{BRR (\texttt{gesvd})}
         \label{fig:BRR_svd_fixed}
     \end{subfigure}
     \begin{subfigure}{0.49\linewidth}
         \includegraphics[width=\linewidth]{figure/OLS_singular_values_fixed.png}
-        \caption{OLS (fixed)}
+        \caption{OLS (\texttt{gesvd})}
         \label{fig:OLS_svd_fixed}
     \end{subfigure}
     \caption{\add{Numerical precision of the singular values of the SVD from the
             Bayesian Ridge model fitting (left) and from the Ordinary Least Square model
-            fitting (right) in the Bayesian Ridge Regression example. Red star
-            represents \texttt{NaN} value. Both SVD give \texttt{NaN} coefficients.
-            Switching from Divide \& Conquer to QR factorization improve numerical precision.
-            PyTracer helps to quickly visualize improvements.}}
+            fitting (right) in the Bayesian Ridge Regression example. Red stars
+            represent \texttt{NaN} values. 
+            Switching from Divide \& Conquer (\texttt{gesdd}) to QR (\texttt{gesvd}) factorization improves numerical precision.
+            PyTracer helps visualizing improvements.}}
 \end{figure}
 
 % RR: Crash due to FP32 use. Does FP64 converge? No. Does sgsvd converge? Yes
@@ -1714,6 +1733,23 @@ fundamental scientific computing components such as the LAPACK library. \add{The
 % execution. Moreover, \pytracer was able to visualize the aggregated traces,
 % demonstrating its scalability fluently.
 
+\subsection{\pytracer instrumentation limitations}
+
+\add{
+    The limitations of the PyTracer's instrumentation have little impact in practice
+    since we have encountered few classes having non-writeable attributes in practice.
+    Moreover, those classes are generally used in higher-level classes written in
+    pure Python. For instance, the SGD class that implements the Stochastic Gradient
+    Descent in scikit-learn takes a loss function as a parameter. Loss functions are
+    implemented in Cython in scikit-learn and Pytracer is not able to instrument
+    them. However, Pytracer can dump the instance of LossFunction if they are used
+    by the SGD class as arguments, which is a frequently observed pattern in
+    Scikit-learn for instance. So one still has an estimation of variability for the
+    attributes of the class. Finally, one can use Veritracer to trace the methods of
+    those Cython classes for an in-depth analysis since it is the C language
+    underhood. We have encountered few iterators and none of them involved floating
+    point values so we were able to safely ignore them. 
+}
 
 \subsection{Overhead remains tractable and evolves linearly with the trace size}
 
@@ -1729,14 +1765,14 @@ SciPy and scikit-learn examples. \textit{Slowdown} represents the slowdown of
 \pytracer without fuzzy measured as the ratio between the actual execution time
 (without \pytracer) and the execution time using \pytracer. The \textit{Slowdown
     RR} \remove{and \textit{Slowdown MCA}} shows the slowdown within the fuzzy environment.
-Without fuzzy, \pytracer introduces an average slowdown of $17\times$ high for
+Without fuzzy, \pytracer introduces an average slowdown of $17\times$ for
 the examples running less than 8 seconds because \pytracer spends most of its
 time in the initialization step. Since this step is a constant factor of the
 number of functions instrumented, we also measured the instrumentation cost
 itself (\textit{Slowdown (Instrumentation)}) calculated by subtracting the
 initialization time to \textit{Slowdown}. We then obtain an average slowdown of
 $3.5\times$. Finally, the \remove{fuzzy instrumentation} \add{using MCA
-    operations (throuhg fuzzy) instead of the native ones} increases the average
+    operations (through fuzzy) instead of the native ones} increases the average
 slowdown to $37\times$ for RR\remove{and $43\times$ for Full MCA}.
 
 % \pytracer's tracing overhead consists of (1) module instrumentation time
@@ -1765,7 +1801,7 @@ slowdown to $37\times$ for RR\remove{and $43\times$ for Full MCA}.
         instrumentation cost computed by subtracting the initialization step.
         The \textit{Slowdown (RR)} \remove{and \textit{Slowdown (MCA)} are} \add{is} the slowdown
         of \pytracer using the fuzzy environment with \add{the} RR \remove{and Full MCA} mode\remove{s}. The
-        first \remove{first} \add{last} four examples measure the initialization
+        \remove{first} \add{last} four examples measure the initialization
         steps depending on the modules instrumented. 
         % \tristan{there's too much text in this caption, move some of it to the text, the caption should just explain the difference between the 4 slowdowns. From the text I'm not sure what is the difference between slowdown and slowdown(RR)/slowdown(MCA).}
     }
@@ -2015,8 +2051,8 @@ Shaman~\cite{demeure_phd} is a C++ library that uses a first-order error model
 to propagate numerical error. MCAlib~\cite{frechtling2015mcalib} is a C library
 that implements the Monte Carlo Arithmetic (MCA)~\cite{parker1997monte} using
 the MPFR~\cite{fousse2007mpfr} library. \add{ADAPT \mbox{~\cite{menon2018adapt}} uses
-    Automatic Differentiation to compute a sensitivity profile for each variable of
-    given program}. Finally, the work in~\cite{tang2016software} proposed a
+    Automatic Differentiation to compute a sensitivity profile for each variable in a
+    program}. Finally, the work in~\cite{tang2016software} proposed a
 source-to-source framework for executing targeted code in infinite and fixed
 precision with and without stochastic arithmetic. The main drawback of the
 source-to-source approach is its lacks of scalability since rewriting large
@@ -2602,10 +2638,8 @@ under MIT License.
 % is flush with the other column.
 %\enlargethispage{-5in}
 
-\clearpage
-\appendix
-
-\include{annex}
+% \appendix
+% \include{annex}
 
 % that's all folks
 \end{document}

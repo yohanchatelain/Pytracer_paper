@@ -5,11 +5,12 @@ all:
 	pdflatex --interaction=nonstopmode  -file-line-error paper.tex
 
 revision:
-	pdflatex --interaction=nonstopmode -file-line-error paper-annotated.tex  
-	bibtex paper-annotated
-	pdflatex --interaction=nonstopmode  -file-line-error paper-annotated.tex  
-	pdflatex --interaction=nonstopmode  -file-line-error paper-annotated.tex
-
+	pdflatex --jobname=annotated --interaction=nonstopmode -file-line-error paper.tex  -o paper-annotated.pdf
+	bibtex paper
+	pdflatex --jobname=annotated --interaction=nonstopmode  -file-line-error paper.tex -o paper-annotated.pdf
+	pdflatex --jobname=annotated --interaction=nonstopmode  -file-line-error paper.tex -o paper-annotated.pdf
+	mv annotated.pdf paper-annotated.pdf
+	
 tar:
 	rm -f paper.tar.gz
 	tar  --exclude='.git' --exclude='paper.tar.gz' -cvf paper.tar.gz .
