@@ -696,12 +696,22 @@ review the numerical stability of extensive code bases.
 \section{\pytracer design}
 
 \TG{I'm still unsure what to do with this part, it looks out of place.}
-\add{PyTracer follows a three steps approach:}
-\begin{enumerate}
-    \item \add{Automatic instrumentation of Python programs to save traces containing input and output values of all functions.}
-    \item \add{Traces aggregation to produce a statistics summary.}
-    \item \add{Interactive visualization to navigate through code execution.}
-\end{enumerate}
+% \add{PyTracer follows a three steps approach:}
+% \begin{enumerate}
+%     \item \add{Automatic instrumentation of Python programs to save traces containing input and output values of all functions.}
+%     \item \add{Traces aggregation to produce a statistics summary.}
+%     \item \add{Interactive visualization to navigate through code execution.}
+% \end{enumerate}
+
+\pytracer adopts the three-step workflow shown in Figure~\ref{fig:workflow}.
+First, \pytracer uses \textit{monkey patching} to replace the functions called
+by the application with a wrapper that saves their arguments and returned values
+in a trace file.
+Second, it executes the application multiple times with noise injection, and
+aggregates the resulting trace files to compute summary statistics about each
+traced variable. Finally, a Plotly dashboard provides interactive visualizations
+highlighting unstable code sections.
+
 
 \add{
     The main goal of PyTracer is to help developpers visualize the numerical
@@ -731,17 +741,12 @@ review the numerical stability of extensive code bases.
     overhead at runtime since the statistics computation is reported to the postprocess analysis.
     However, it limits the aggregation to deterministic executions,
     although control-flow analysis can help to merge divergent execution paths.
+    Hence, PyTracer is restricted to single-threaded applications even if its usage
+    is limited in Python due to the Global Interperter Lock (GIL) mechanism
+    that allows only one thread to hold the control of the Python interpreter.
 }
 
 % \subsection{Pytracer workflow}
-\pytracer adopts the three-step workflow shown in Figure~\ref{fig:workflow}.
-First, \pytracer uses \textit{monkey patching} to replace the functions called
-by the application with a wrapper that saves their arguments and returned values
-in a trace file.
-Second, it executes the application multiple times with noise injection, and
-aggregates the resulting trace files to compute summary statistics about each
-traced variable. Finally, a Plotly dashboard provides interactive visualizations
-highlighting unstable code sections.
 
 % \tristan{mention monkey patching}
 
@@ -978,11 +983,11 @@ where $\beta$ is the number base, $e_x$ is the magnitude of $x$, $t$ the virtual
 precision and $\xi \in (-\frac{1}{2},\frac{1}{2})$ is a random uniform variable.
 Virtual precision allows for the simulation of reduced working precision.
 \add{In our experiments, we used MCA in Random Rounding (RR) mode, which
-simulates roundoff errors by applying function $inexact$ only to the
-outputs returned by functions. The Precision Bounding (PB) mode can
-identify other types of instabilities, in particular catastrophic
-cancellations, however, it is more difficult to apply to large code bases
-as it often leads to execution errors that require human intervention.}
+    simulates roundoff errors by applying function $inexact$ only to the
+    output returned by a function. The Precision Bounding (PB) mode can
+    identify other types of instabilities, in particular catastrophic
+    cancellations, however, it is more difficult to apply to large code bases
+    as it often leads to execution errors that require human intervention.}
 
 Stochastic arithmetic quantifies numerical error using the number of significant
 digits $s$ estimated among the sampled values. A common formula to determine
@@ -1263,7 +1268,7 @@ execution raised a Python error before the end. \remove{, and 3)
     representing an integer).}
 Overall, the tracing and parsing of SciPy and scikit-learn examples in Random
 Rounding mode was entirely successful for 32/40 examples\remove{ and showed an average
-precision loss of 8 bits}. The remaining examples failed due to numerical errors
+    precision loss of 8 bits}. The remaining examples failed due to numerical errors
 in the libraries, which we discuss hereafter. 
 \remove{The instrumentation with Full MCA is
     more invasive and reduced the number of successful exe-
@@ -1438,7 +1443,12 @@ cause for this error. \add{Indeed, the BayesianRidge model first computes an SVD
     singular values exhibit high numerical precision (between 44 and 50 bits).
     Surprinsingly, this \texttt{NaN} value does not raise an exception and is silently
     propagated. Indeed, the stopping criterion is never verified and the 
-    optimization stops after reaching the maximal number of iterations.}
+    optimization stops after reaching the maximal number of iterations.
+    Figure}~\ref{fig:BRR_svd_fixed} \add{shows that uses
+    the \texttt{gesvd} instead of the \texttt{gesdd} method removes the \texttt{NaN} value
+    although the last singular values stills have a low precision (below 0).
+    Following Equation}~\ref{eq:sig-digits}, \add{a number of significant digits below 0 means that the
+    variability ($\sigma$) is higher than the average value ($\mu$)}.
 
 
 \add{Similarly, for OLS, PyTracer tracers show that the
@@ -1447,8 +1457,8 @@ cause for this error. \add{Indeed, the BayesianRidge model first computes an SVD
     \texttt{scipy.linalg} package which uses the \texttt{gesdd} LAPACK function.
     Figure}~\ref{fig:OLS_svd} \add{shows that one singular value is a \texttt{NaN} value,
     which corrupted the calculation of the coefficients. When using the \texttt{gesvd} method, 
-     the \texttt{NaN} value disapears 
-    (Fig.}~\ref{fig:OLS_svd_fixed}\add{), resulting in a precision of 
+    the \texttt{NaN} value disapears 
+    (Fig.}~\ref{fig:OLS_svd_fixed}\add{), resulting in a precision of
     42 bits in average in the coefficients. We can see that having
     access to all the values computed by the application with PyTracer allows
     the user to efficiently identify numerical issues.}
@@ -1460,7 +1470,7 @@ Request has recently been submitted to let the user select the SVD method and
 avoid this kind of issue. Thus, \pytracer can detect instabilities that affect
 fundamental scientific computing components such as the LAPACK library. \add{The
     unified view of all traces allows the user to quickly navigate through the
-     numerical precision of different variables.}
+    numerical precision of different variables.}
 % The Pytracer findings can therefore be extended to many application domains. %
 % \tristan{conclusion needs to be discussed. Note to self: generaliser un peu la
 % conclusion: pytracer permet de se rendre compte de problemes de stabilite dont
@@ -1710,6 +1720,23 @@ fundamental scientific computing components such as the LAPACK library. \add{The
 % execution. Moreover, \pytracer was able to visualize the aggregated traces,
 % demonstrating its scalability fluently.
 
+\subsection{\pytracer instrumentation limitations}
+
+\add{
+    The limitations of the PyTracer's instrumentation have little impact in practice
+    since we have encountered few classes having non-writeable attributes in practice.
+    Moreover, those classes are generally used in higher-level classes written in
+    pure Python. For instance, the SGD class that implements the Stochastic Gradient
+    Descent in scikit-learn takes a loss function as a parameter. Loss functions are
+    implemented in Cython in scikit-learn and Pytracer is not able to instrument
+    them. However, Pytracer can dump the instance of LossFunction if they are used
+    by the SGD class as arguments, which is a frequently observed pattern in
+    Scikit-learn for instance. So one still has an estimation of variability for the
+    attributes of the class. Finally, one can use Veritracer to trace the methods of
+    those Cython classes for an in-depth analysis since it is the C language
+    underhood. We have encountered few iterators and none of them involved floating
+    point values so we were able to safely ignore them. 
+}
 
 \subsection{Overhead remains tractable and evolves linearly with the trace size}
 
