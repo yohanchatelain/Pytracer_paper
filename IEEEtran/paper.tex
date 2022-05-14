@@ -708,7 +708,6 @@ review the numerical stability of extensive code bases.
 
 \section{\pytracer design}
 
-\TG{I'm still unsure what to do with this part, it looks out of place.}
 % \add{PyTracer follows a three steps approach:}
 % \begin{enumerate}
 %     \item \add{Automatic instrumentation of Python programs to save traces containing input and output values of all functions.}
@@ -716,48 +715,55 @@ review the numerical stability of extensive code bases.
 %     \item \add{Interactive visualization to navigate through code execution.}
 % \end{enumerate}
 
-\pytracer adopts the three-step workflow shown in Figure~\ref{fig:workflow}.
-First, \pytracer uses \textit{monkey patching} to replace the functions called
+\add{To detect numerical instabilities, \pytracer works in three main steps:}
+\begin{enumerate}
+\item It instruments Python programs and their module dependencies automatically, to save the input and output values of functions in a trace file.
+\item It executes the instrumented program several times using Monte-Carlo Arithmetic to inject perturbations in function outputs.
+\item It aggregates all trace files to compute statistics about the traced values, and visualize them in a GUI.
+\end{enumerate}
+\add{
+    To implement these steps, \pytracer adopts the workflow shown in Figure~\ref{fig:workflow}.
+At step 1, \pytracer uses \textit{monkey patching} to replace the functions called
 by the application with a wrapper that saves their arguments and returned values
-in a trace file.
-Second, it executes the application multiple times with noise injection, and
-aggregates the resulting trace files to compute summary statistics about each
-traced variable. Finally, a Plotly dashboard provides interactive visualizations
+in a trace file. At step 2, it executes the application multiple times with Monte-Carlo Arithmetic as implemented in Fuzzy, a collection 
+of scientific computing libraries recompiled with the Verificarlo tool. It then
+aggregates the resulting trace files to compute summary statistics on
+traced variable. At step 3, a Plotly dashboard provides interactive visualizations
 highlighting unstable code sections.
-
-
-\add{
-    The main goal of PyTracer is to help developpers visualize the numerical
-    stability of Python applications. PyTracer saves time for the user by
-    instrumenting and aggregating values. In the same way that GDB makes the user
-    save time when debugging an application by providing all information in one
-    layout, PyTracer allows the user to visualize the overall numerical quality to
-    quickly detect instabilities. The PyTracer visualization layout improves result
-    analysis in any case since 1) the user does not have to manually instrument its
-    code to dump raw data and creates specific post-processing scripts to visualize
-    it 2) PyTracer allows the user to export the raw data traced to extend the
-    analysis. 
 }
 
-\add{
-    The main challenge addressed by PyTracer is the transparent instrumentation of Python 
-    applications. Indeed, since Python is an interpreted language, one has no complete 
-    view of the function that will be executed by a given program. 
-    Moreover, for Python applications used in HPC environments, one has
-    most of the time no access to source codes or with limited write access.
-    Therefore, PyTracer tackles this issue by instrumenting the function dynamically 
-    thanks to the Python introspection.
-}
+% \add{
+%     The main goal of PyTracer is to help developpers visualize the numerical
+%     stability of Python applications. PyTracer saves time for the user by
+%     instrumenting and aggregating values. In the same way that GDB makes the user
+%     save time when debugging an application by providing all information in one
+%     layout, PyTracer allows the user to visualize the overall numerical quality to
+%     quickly detect instabilities. The PyTracer visualization layout improves result
+%     analysis in any case since 1) the user does not have to manually instrument its
+%     code to dump raw data and creates specific post-processing scripts to visualize
+%     it 2) PyTracer allows the user to export the raw data traced to extend the
+%     analysis. 
+% }
 
-\add{
-    The trace-based approach used by PyTracer permits to limit the 
-    overhead at runtime since the statistics computation is reported to the postprocess analysis.
-    However, it limits the aggregation to deterministic executions,
-    although control-flow analysis can help to merge divergent execution paths.
-    Hence, PyTracer is restricted to single-threaded applications even if its usage
-    is limited in Python due to the Global Interperter Lock (GIL) mechanism
-    that allows only one thread to hold the control of the Python interpreter.
-}
+% \add{
+%     The main challenge addressed by PyTracer is the transparent instrumentation of Python 
+%     applications. Indeed, since Python is an interpreted language, one has no complete 
+%     view of the function that will be executed by a given program. 
+%     Moreover, for Python applications used in HPC environments, one has
+%     most of the time no access to source codes or with limited write access.
+%     Therefore, PyTracer tackles this issue by instrumenting the function dynamically 
+%     thanks to the Python introspection.
+% }
+
+% \add{
+%     The trace-based approach used by PyTracer permits to limit the 
+%     overhead at runtime since the statistics computation is reported to the postprocess analysis.
+%     However, it limits the aggregation to deterministic executions,
+%     although control-flow analysis can help to merge divergent execution paths.
+%     Hence, PyTracer is restricted to single-threaded applications even if its usage
+%     is limited in Python due to the Global Interperter Lock (GIL) mechanism
+%     that allows only one thread to hold the control of the Python interpreter.
+% }
 
 % \subsection{Pytracer workflow}
 
@@ -2535,7 +2541,7 @@ under MIT License.
 \fi
 
 \bibliographystyle{IEEEtran}
-\bibliography{paper-annotated}
+\bibliography{paper}
 
 
 % trigger a \newpage just before the given reference
