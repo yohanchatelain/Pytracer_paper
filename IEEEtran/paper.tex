@@ -829,6 +829,13 @@ syntax and semantic errors, and 2) mask class attributes, leading to
 \texttt{\_\_call\_\_} attribute with the wrapper function when possible to
 overcome this issue. When the \texttt{\_\_call\_\_} attribute is not writable,
 Pytracer does not instrument the class and returns a warning. 
+\add{
+    This limitation is expected to have a minor impact since non-writable
+    classes are usually called from pure Python classes that can be
+    instrumented. PyTracer reports information about the stability of
+    non-writable classes through the instrumentation of the pure Python
+    classes that use them.
+}
 
 \subsubsection{Instrumenting classes}
 
@@ -870,8 +877,18 @@ returned by an iterator exists in memory since the application computes each
 element on the fly. Therefore, iterators are not serializable which implies that
 \pytracer cannot save them to output traces. A workaround would be to convert
 iterators into explicit containers, however, this would increase the memory
-footprint significantly. \pytracer, therefore, does not instrument non-builtin
-iterators. 
+footprint significantly. \pytracer, therefore, does not instrument
+iterators.
+
+\add{
+We do not expect this limitation to have a critical impact on the
+applicability of \pytracer. 
+In general, iterators involve simple computations that are unlikely to be
+unstable. In particular, we encountered only a few iterators in our
+experiments and none of them involved floating point values. Should
+instabilities occur in iterators, \pytracer would detect them through the
+inputs of the functions consuming these iterators. 
+}
 
 \subsection{Detecting numerical instabilities}
 
@@ -972,7 +989,7 @@ Equation~\ref{eq:sig-digits}) of all saved values. \pytracer saves these summary
 statistics in an HDF5 file, a hierarchical format that facilitates visual
 browsing since only required information are loaded when requested by the user.
 This operation critically relies on the ordering of call input and output
-objects in the traces. Therefore, it assumes that the application is
+objects in the traces. It assumes that the application is
 single-threaded and that the control flow does not depend on a random state.
 \add{Therefore, \mbox{\pytracer} cannot merge traces resulting from different
     control flow paths and will stop the parsing when encountering such a situation.}
@@ -1350,7 +1367,7 @@ cause for this error. \add{Indeed, the BayesianRidge model first computes an SVD
     Figure}~\ref{fig:BRR_svd_fixed} \add{shows that uses
     the \texttt{gesvd} instead of the \texttt{gesdd} method removes the \texttt{NaN} value
     although the last singular values stills have a low \add{result} precision (below 0).
-    Following Equation}~\ref{eq:sig-digits}, \add{a number of significant digits below 0 means that the
+    According to Equation}~\ref{eq:sig-digits}, \add{a number of significant bits less than 0 means that the
     variability ($\sigma$) is higher than the average value ($\mu$)}.
 
 
@@ -1438,24 +1455,6 @@ fundamental scientific computing components such as the LAPACK library. \add{The
             Switching from Divide \& Conquer (\texttt{gesdd}) to QR (\texttt{gesvd}) factorization improves numerical precision.
             PyTracer helps visualizing improvements.}
 \end{figure}
-
-\subsection{\pytracer instrumentation limitations}
-
-\add{
-    The limitations of the PyTracer's instrumentation have little impact in practice
-    since we have encountered few classes having non-writeable attributes in practice.
-    Moreover, those classes are generally used in higher-level classes written in
-    pure Python. For instance, the SGD class that implements the Stochastic Gradient
-    Descent in scikit-learn takes a loss function as a parameter. Loss functions are
-    implemented in Cython in scikit-learn and Pytracer is not able to instrument
-    them. However, Pytracer can dump the instance of LossFunction if they are used
-    by the SGD class as arguments, which is a frequently observed pattern in
-    Scikit-learn for instance. So one still has an estimation of variability for the
-    attributes of the class. Finally, one can use Veritracer to trace the methods of
-    those Cython classes for an in-depth analysis since it is the C language
-    underhood. We have encountered few iterators and none of them involved floating
-    point values so we were able to safely ignore them. 
-}
 
 \subsection{Overhead remains tractable and evolves linearly with the trace size}
 
@@ -1874,11 +1873,13 @@ with an average instrumentation slowdown of $3.5\times$. Moreover, \pytracer's
 visualization interface remains responsive even with traces of up to 1TB.  
 
 In the future, we plan to extend the post-processing analysis to aggregate
-traces \add{obtained with different control flow paths,} by leveraging techniques used in
-code coverage analysis. Moreover, we would like to extend \pytracer to
-instrument elementary arithmetic operations. \remove{Finally, although \pytracer supports multiple noise models,
-we only tested it with Monte-Carlo arithmetic. Therefore, we would like to
-compare different models against MCA.} \pytracer is available at
+traces \add{obtained with different control flow paths,} by leveraging
+techniques used in code coverage analysis. \add{This would also enable a larger support 
+of multi-threaded applications.} Moreover, we would like to
+extend \pytracer to instrument elementary arithmetic operations \add{(+,-,*,/), to allow for more detailed analyses}.
+\remove{Finally, although \pytracer supports multiple noise models, we only
+tested it with Monte-Carlo arithmetic. Therefore, we would like to compare
+different models against MCA.} \pytracer is available at
 \href{https://github.com/big-data-lab-team/pytracer}{github://big-data-lab-team/pytracer}
 under MIT License.
 
