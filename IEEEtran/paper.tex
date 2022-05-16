@@ -410,17 +410,18 @@
 \ANNOTATEDfalse
 }
 
-\ifANNOTATED
-\DeclareRobustCommand{\add}[1]{\sethlcolor{lightgreen}\hl{#1}}
+% \ifANNOTATED
+\definecolor{ao(english)}{rgb}{0.0, 0.5, 0.0}
+\DeclareRobustCommand{\add}[1]{\textcolor{ao(english)}{#1}}%\sethlcolor{lightgreen}\hl{#1}}
 \DeclareRobustCommand{\remove}[1]{\textcolor{lightred}{\sout{#1}}}
 \DeclareRobustCommand{\addCite}[1]{\textcolor{lightgreen}{\mbox{#1}}}
 \newcommand{\TG}[1]{\color{red}\textsc{From Tristan}: #1\xspace\color{black}}
-\else
-\DeclareRobustCommand{\add}[1]{#1}
-\DeclareRobustCommand{\remove}[1]{}
-\DeclareRobustCommand{\addCite}[1]{#1}
-\newcommand{\TG}[1]{}
-\fi
+% \else
+% \DeclareRobustCommand{\add}[1]{#1}
+% \DeclareRobustCommand{\remove}[1]{}
+% \DeclareRobustCommand{\addCite}[1]{#1}
+% \newcommand{\TG}[1]{}
+% \fi
 
 \setlength{\arrayrulewidth}{0.1pt}
 
@@ -683,23 +684,24 @@ detailed modeling of the program and its numerical implementation. Similarly,
 static code analysis techniques~\addCite{\cite{goubault2006static}} hardly scale
 to large code bases, particularly in dynamically-typed languages such as Python.
 
-\pytracer estimates the variability of floating-point variables by combining
-program traces obtained with different numerical perturbations, which requires
-(\add{a}\remove{1}) generating numerically-perturbed executions,
-(\add{b}\remove{2}) tracing floating-point computations along program
-executions, and (\add{c}\remove{3}) visualizing stability evaluations.
-\add{PyTracer addresses (a) by relying on the ``fuzzy" Python environment instrumented with Monte-Carlo
-    arithmetic, (b) by dynamically instrumenting Python functions,
-    modules, and classes through meta-programming, and (c) by visualizing stability measures throughout program executions
-    with an interactive Plotly
-    dashboard.
-    \mbox{\pytracer} is available at
-    \mbox{\href{https://github.com/big-data-lab-team/pytracer.git}{github.com/big-data-lab-team/pytracer.git}}
-    under MIT License.} \remove{\mbox{\pytracer} addresses these requirements with
-    (1) a ``fuzzy" Python interpreter instrumented with Monte-Carlo arithmetic, (2)
-    a dynamic instrumentation of Python functions, modules, and classes through
-    meta-programming, (3) an interactive Plotly dashboard to visualize stability
-    measures throughout program executions. }
+\pytracer estimates the variability of floating-point variables by
+combining program traces obtained with different numerical perturbations,
+which requires (\add{a}\remove{1}) generating numerically-perturbed
+executions, (\add{b}\remove{2}) tracing floating-point computations along
+program executions, and (\add{c}\remove{3}) visualizing stability
+evaluations. \add{PyTracer addresses (a) by relying on
+Fuzzy~\addCite{\cite{kiar2020comparing}}, a pre-existing collection of scientific
+computing libraries instrumented with Monte-Carlo arithmetic through the
+Verificarlo tool~\cite{verificarlo}, (b) by dynamically instrumenting
+Python functions, modules, and classes through meta-programming, and (c) by
+visualizing stability measures throughout program executions with an
+interactive Plotly dashboard. \mbox{\pytracer} is available at
+\mbox{\href{https://github.com/big-data-lab-team/pytracer.git}{github.com/big-data-lab-team/pytracer.git}}
+under MIT License.} \remove{\mbox{\pytracer} addresses these requirements
+with (1) a Fuzzy Python interpreter instrumented with Monte-Carlo
+arithmetic, (2) a dynamic instrumentation of Python functions, modules, and
+classes through meta-programming, (3) an interactive Plotly dashboard to
+visualize stability measures throughout program executions. }
 
 This manuscript presents the design of \pytracer and demonstrates its potential
 in various use cases. Through stability evaluations of the SciPy and
@@ -708,66 +710,27 @@ review the numerical stability of extensive code bases.
 
 \section{\pytracer design}
 
-% \add{PyTracer follows a three steps approach:}
-% \begin{enumerate}
-%     \item \add{Automatic instrumentation of Python programs to save traces containing input and output values of all functions.}
-%     \item \add{Traces aggregation to produce a statistics summary.}
-%     \item \add{Interactive visualization to navigate through code execution.}
-% \end{enumerate}
-
-\add{To detect numerical instabilities, \pytracer works in three main steps:}
-\begin{enumerate}
-\item It instruments Python programs and their module dependencies automatically, to save the input and output values of functions in a trace file.
-\item It executes the instrumented program several times using Monte-Carlo Arithmetic to inject perturbations in function outputs.
-\item It aggregates all trace files to compute statistics about the traced values, and visualize them in a GUI.
-\end{enumerate}
 \add{
-    To implement these steps, \pytracer adopts the workflow shown in Figure~\ref{fig:workflow}.
-At step 1, \pytracer uses \textit{monkey patching} to replace the functions called
-by the application with a wrapper that saves their arguments and returned values
-in a trace file. At step 2, it executes the application multiple times with Monte-Carlo Arithmetic as implemented in Fuzzy, a collection 
-of scientific computing libraries recompiled with the Verificarlo tool. It then
+    To detect numerical instabilities, \pytracer works in three main steps:
+\begin{enumerate}
+\item It instruments Python programs and their module dependencies
+automatically, to save the input and output values of functions in a trace
+file.
+\item It executes the instrumented program several times using Monte-Carlo
+Arithmetic to inject perturbations in function outputs.
+\item It aggregates all trace files to compute statistics about the traced
+values, and visualize them in a GUI.
+\end{enumerate}
+\pytracer adopts the workflow shown in Figure~\ref{fig:workflow}.
+At step 1, \pytracer uses monkey patching to replace the functions called
+by the application with a wrapper that saves their arguments and returned
+values in a trace file. At step 2, it executes the application multiple
+times with Monte-Carlo Arithmetic as implemented in the
+Fuzzy~\cite{kiar2020comparing} environment. It then
 aggregates the resulting trace files to compute summary statistics on
-traced variable. At step 3, a Plotly dashboard provides interactive visualizations
-highlighting unstable code sections.
+traced variable. At step 3, a Plotly dashboard provides interactive
+visualizations highlighting unstable code sections.
 }
-
-% \add{
-%     The main goal of PyTracer is to help developpers visualize the numerical
-%     stability of Python applications. PyTracer saves time for the user by
-%     instrumenting and aggregating values. In the same way that GDB makes the user
-%     save time when debugging an application by providing all information in one
-%     layout, PyTracer allows the user to visualize the overall numerical quality to
-%     quickly detect instabilities. The PyTracer visualization layout improves result
-%     analysis in any case since 1) the user does not have to manually instrument its
-%     code to dump raw data and creates specific post-processing scripts to visualize
-%     it 2) PyTracer allows the user to export the raw data traced to extend the
-%     analysis. 
-% }
-
-% \add{
-%     The main challenge addressed by PyTracer is the transparent instrumentation of Python 
-%     applications. Indeed, since Python is an interpreted language, one has no complete 
-%     view of the function that will be executed by a given program. 
-%     Moreover, for Python applications used in HPC environments, one has
-%     most of the time no access to source codes or with limited write access.
-%     Therefore, PyTracer tackles this issue by instrumenting the function dynamically 
-%     thanks to the Python introspection.
-% }
-
-% \add{
-%     The trace-based approach used by PyTracer permits to limit the 
-%     overhead at runtime since the statistics computation is reported to the postprocess analysis.
-%     However, it limits the aggregation to deterministic executions,
-%     although control-flow analysis can help to merge divergent execution paths.
-%     Hence, PyTracer is restricted to single-threaded applications even if its usage
-%     is limited in Python due to the Global Interperter Lock (GIL) mechanism
-%     that allows only one thread to hold the control of the Python interpreter.
-% }
-
-% \subsection{Pytracer workflow}
-
-% \tristan{mention monkey patching}
 
 \begin{figure*}
     \centering
@@ -864,68 +827,6 @@ syntax and semantic errors, and 2) mask class attributes, leading to
 overcome this issue. When the \texttt{\_\_call\_\_} attribute is not writable,
 Pytracer does not instrument the class and returns a warning. 
 
-% \begin{listing}
-%     \centering
-%     \begin{lstlisting}[language=Python,style=customPython]
-% def get_wrapper_function(module, qualname, name, function):
-%     """Returns the instrumented function as a string.
-%     This string will be compiled with the compile builtin function
-
-%     Parameters:
-%         module: Name of the function module
-%         qualname: Qualified name of the function
-%         name: Name of the function
-%         function: Python object function
-
-%     Returns:
-%         wrapper_code: The code source of the wrapper
-%     """
-%     info = (id(function), function_module, qualname)
-%     wrapper_code = f"""
-%     def {function_wrapper_name}(*args, **kwargs):
-%         return generic_wrapper({info},*args,**kwargs)"""
-%     return wrapper_code
-% \end{lstlisting}
-%     \caption{Function to create the instrumented version of a function.
-%         \pytracer uses the identifier of the function instead of the 
-%         actual function to handle aliases and avoid duplicate instrumentation.}
-%     \label{fig:wrapper_creation}
-% \end{listing}
-
-
-% \begin{listing}
-%     \centering
-%     \begin{lstlisting}[language=Python,style=customPython,]
-% def generic_wrapper(self, info, *args, **kwargs):
-%     """Generic wrapper saving inputs and outputs of the wrapped function.
-%     The id_dict dict keeps a mapping between the original function identifier
-%     and itself. Arguments are binded to avoid mispositioning.
-%     Returns the actual output of the wrapped function.
-
-%     Parameters:
-%         info: Tuple with the function's id, function's module and function's name
-%         *args: Positional calling arguments
-%         **kwargs: Keyword calling arguments
-
-%     Returns:
-%         outputs: Outputs of the wrapped function
-%     """
-%     fid, module_name, function_name = info
-%     function = original_function_cache.id_dict[fid]
-%     bind = Binding(function, *args, **kwargs)
-%     stack = self.backtrace()
-%     time = elements()
-%     self.inputs(time, module_name, function_name, function, bind.arguments, stack)
-%     outputs = function(*bind.args, **bind.kwargs)
-%     self.outputs(time, module_name, function_name, function, outputs, stack)
-%     return outputs
-% \end{lstlisting}
-%     \caption{\pytracer's generic wrapper function that saves
-%         the inputs and outputs of the wrapped function.}
-%     \label{fig:generic_wrapper}
-% \end{listing}
-
-
 \subsubsection{Instrumenting classes}
 
 \pytracer instruments classes by wrapping their callable attributes as described
@@ -982,8 +883,8 @@ it is an accurate model for floating-point errors~\addCite{\cite{verificarlo}}.
 
 Three  main  approaches  exist  to  detect  numerical  instabilities:
 stochastic  arithmetic,  uncertainty  or  sensitivity analysis [23], and random
-seed analysis [11].  \add{PyTracer is agnostic to the noise model used and therefore
-    works for all methods mentioned}.  For our use cases, we focus on stochastic
+seed analysis [11].  \add{PyTracer is agnostic to the noise model used and can therefore
+be used for all these methods}.  For our use cases, we focus on stochastic
 arithmetic since it does not make any assumption about the noise model, in
 contrast to sensitivity analysis\add{.}
 
@@ -1024,8 +925,8 @@ clang-based compiler~\cite{lattner2008llvm} that replaces floating-point
 operations by a generic call to a configurable floating-point model. Several
 floating-point models are
 available~\cite{chatelain2019automatic,chatelain2019outils}, also called
-backends. \pytracer leverages ``fuzzy"~\cite{kiar2020comparing}, a collection of
-software tools compiled with Verificarlo. In particular, fuzzy provides
+backends. \pytracer leverages Fuzzy~\cite{kiar2020comparing}, a collection of
+software tools compiled with Verificarlo. In particular, Fuzzy provides
 MCA-instrumented versions of the Python interpreter as well as the BLAS, LAPACK,
 NumPy, SciPy, and scikit-learn libraries, which enables MCA for a wide range of
 existing scientific Python programs. Fuzzy is available in Verificarlo's GitHub
@@ -1136,45 +1037,17 @@ Python, and  scikit-learn~\cite{pedregosa2011scikit}, a reference
 machine-learning framework that implements a wide range of state-of-the-art
 algorithms. For each library, we executed the software examples provided in
 their respective GitHub repositories. We traced each example five times, having
-activated MCA in the Python interpreter \add{as well as} BLAS, LAPACK, NumPy,
-SciPy, and scikit-learn. \add{Instrumenting only the Python interpreter would
-    lead to only perturb pure Python floating-point operations and thus miss
-    operations in compiled codes (i.e., Cython and shared libraries).} \add{We
-    used MCA in Random Rounding (RR) mode, with 5 repetitions}. We used the default virtual
+activated MCA through Fuzzy in the Python interpreter \add{as well as} BLAS, LAPACK, NumPy,
+SciPy, and scikit-learn. \add{These libraries are written in large parts in a 
+compiled language other than Python (such as C or Cython) and their execution is not 
+perturbed by the sole use of Fuzzy Python. We chose to activate MCA in these libraries 
+to provide an overall picture of numerical uncertainty in the tested examples. 
+Depending on the use-case of interest, one might choose to use MCA only in 
+a subset of these libraries or even just in the Python interpreter.} \add{We
+    used MCA in Random Rounding (RR) mode}. We used the default virtual
 precision in Verificarlo, namely 24 bits for single-precision floating-point
 values and 53 bits for double-precision values, which simulates machine error.
 We used Python-3.8.5, NumPy-1.19.1, SciPy-1.5.4, and scikit-learn-0.23.2.
-
-
-% \subsection{Results overview}
-
-% Table~\ref{tab:pytracer_results_summary} summarizes \pytracer's outcome on SciPy
-% and scikit-learn examples. Columns \textit{trace} and \textit{parse} report on
-% the tracing and aggregation steps with three possible outcomes: 1) green for
-% success, meaning that the execution ended well and no issues were raised by the
-% application, 2) red for numerical error in the application, meaning that the
-% execution raised a Python error before the end, and 3) orange for errors due to
-% the fuzzy noise injection that are not considered numerical errors, meaning that
-% the execution raised a Python error but due to a perturbation that should not
-% have been introduced (i.e. a floating-point value representing an integer).
-% Overall, the tracing and parsing of SciPy and scikit-learn examples in Random
-% Rounding mode was entirely successful for 32/40 examples and showed an average
-% precision loss of 8 bits. The remaining examples failed due to numerical errors
-% in the libraries, which we discuss hereafter. The instrumentation with Full MCA
-% is more invasive and reduced the number of successful executions to 12/40. Among
-% the 28/40 failed executions, one failed due to an actual numerical error
-% (\texttt{Bayesian Ridge Regression} example) and the other ones failed due to
-% perturbations that should not have been introduced.
-
-% Column \textit{sigbits} in Table~\ref{tab:pytracer_results_summary} summarizes
-% the precision for the main outputs of SciPy and scikit-learn examples. We
-% measured the precision in significant bits on the final primary example output
-% by taking the element-wise mean for non-scalar values and, if the example
-% produces many outputs, the average value among all of them. The numerical
-% quality across all examples varies from 0 to 52, with an average of 44
-% significant bits. For both modes, we note that only two examples failed due to a
-% numerical error (\texttt{face\_recognition} for RR and \texttt{Bayesian Ridge
-%     Regression} for Full MCA).
 
 \begin{table*}[]
     \centering
@@ -1280,7 +1153,7 @@ the tracing and aggregation steps with two possible outcomes: 1) green for
 success, meaning that the execution ended well and no issues were raised by the
 application, and 2) red for numerical error in the application, meaning that the
 execution raised a Python error before the end. \remove{, and 3)
-    orange for errors due to the fuzzy noise injection that are
+    orange for errors due to the Fuzzy noise injection that are
     not considered numerical errors, meaning that the execu-
     tion raised a Python error but due to a perturbation that
     should not have been introduced (i.e. a floating-point value
@@ -1555,190 +1428,6 @@ fundamental scientific computing components such as the LAPACK library. \add{The
             PyTracer helps visualizing improvements.}}
 \end{figure}
 
-% RR: Crash due to FP32 use. Does FP64 converge? No. Does sgsvd converge? Yes
-
-% MCA: arange issue
-
-% File "/usr/local/lib/python3.8/site-packages/sklearn/datasets/\_lfw.py", line
-%     169, in \_load\_imgs faces[i, ...] = face ValueError: could not broadcast
-%     input array from shape (49,37) into shape (50,37)
-
-% \paragraph{L1 Penalty} This test compares the percentage of zero coefficients
-% for logistic regression by varying the penalty (L1, L2 and Elastic-Net) and
-% regularization (1, 0.1, 0.01) parameters. A large regularization value gives
-% the model more freedom than a small value, which puts more constraints on the
-% model.
-
-
-% of L1, L2 and Elastic-Net penalty.
-
-% Comparison of the sparsity (percentage of zero coefficients) of solutions when
-% L1, L2 and Elastic-Net penalty are used for different values of C. We can see
-% that large values of C give more freedom to the model. Conversely, smaller
-% values of C constrain the model more. In the L1 penalty case, this leads to
-% sparser solutions. As expected, the Elastic-Net penalty sparsity is between
-% that of L1 and L2. We classify 8x8 images of digits into two classes: 0-4
-% against 5-9. The visualization shows coefficients of the models for varying C.
-
-% RR: ok \\
-% MCA: stable for L1 and L2, not for Len but coef have less zeroes. 
-
-
-% \paragraph{Lasso and Elastic-Net} This test compares the Lasso and Elastic-Net
-% regression models on a corrupted signal.
-
-% Estimates Lasso and Elastic-Net regression models on a manually generated
-% sparse signal corrupted with an additive noise. Estimated coefficients are
-% compared with the ground-truth.
-
-% RR: Good (48 bits on coefs) \\
-% MCA: Good like RR if we exclude one trace that fails due to arange issue
-
-
-% \paragraph{MNIST classification} This test fits a logistic regression with the
-% SAGA solver with the L1 penalty on the MNIST digits classification task
-% subset.
-
-
-% Here we fit a multinomial logistic regression with L1 penalty on a subset of
-% the MNIST digits classification task. We use the SAGA algorithm for this
-% purpose: this a solver that is fast when the number of samples is
-% significantly larger than the number of features and is able to finely
-% optimize non-smooth objective functions which is the case with the l1-penalty.
-% Test accuracy reaches > 0.8, while weight vectors remains sparse and therefore
-% more easily interpretable. Note that this accuracy of this l1-penalized linear
-% model is significantly below what can be reached by an l2-penalized linear
-% model or a non-linear multi-layer perceptron model on this dataset.
-
-% RR: Very stable \\
-% MCA: Parse by excluding a trace that failed due to an arange issue
-
-% \paragraph{Multitask Lasso} This test compares the Lasso and MultiTaskLasso
-% regression models on a corrupted signal.
-
-% The multi-task lasso allows to fit multiple regression problems jointly
-% enforcing the selected features to be the same across tasks. This example
-% simulates sequential measurements, each task is a time instant, and the
-% relevant features vary in amplitude over time while being the same. The
-% multi-task lasso imposes that features that are selected at one time point are
-% select for all time point. This makes feature selection by the Lasso more
-% stable.
-
-% RR: Stable (44~53 bits for coef) \\
-% MCA: Stable like RR if we exclude a trace that failed due index issue
-
-% \paragraph{Orthogonal matching} This test uses the Orthogonal Matching Pursuit
-% algorithm for recovering a sparse signal from a noisy measurement encoded with
-% a dictionary.
-
-% RR: Very stable \\
-% MCA: Very stable
-
-% \paragraph{PCA decomposition} This test makes a PCA decomposition on a
-% synthetic dataset. These figures aid in illustrating how a point cloud can be
-% very flat in one direction–which is where PCA comes in to choose a direction
-% that is not flat.
-
-% rr: stable (48 bits on components) \\
-% mca: stable (48 bits on components)
-
-% \paragraph{Robust Linear Regression} This test compares the linear and  RANSAC
-% regression methods on noisy data. In this example we see how to robustly fit a
-% linear model to faulty data using the RANSAC algorithm.   
-
-
-% RR: Very stable \\
-% MCA: Very stable if we exclude two traces that failed due to arange/index
-% issues
-
-% \paragraph{Segmentation Toy} This test uses spectral clustering to separate
-% connected circles in an image.
-
-% In this example, an image with connected circles is generated and spectral
-% clustering is used to separate the circles.
-
-% In these settings, the Spectral clustering approach solves the problem know as
-% ‘normalized graph cuts’: the image is seen as a graph of connected voxels, and
-% the spectral clustering algorithm amounts to choosing graph cuts defining
-% regions while minimizing the ratio of the gradient along the cut, and the
-% volume of the region.
-
-% As the algorithm tries to balance the volume (ie balance the region sizes), if
-% we take circles with different sizes, the segmentation fails.
-
-% In addition, as there is no useful information in the intensity of the image,
-% or its gradient, we choose to perform the spectral clustering on a graph that
-% is only weakly informed by the gradient. This is close to performing a Voronoi
-% partition of the graph.
-
-% In addition, we use the mask of the objects to restrict the graph to the
-% outline of the objects. In this example, we are interested in separating the
-% objects one from the other, and not from the background.
-
-% RR Stable \\
-% MCA: Stable if we exclude three traces that failed due to index issue
-
-% Find the optimal separating hyperplane using an SVC for classes that are
-% unbalanced.
-
-% We first find the separating plane with a plain SVC and then plot (dashed) the
-% separating hyperplane with automatically correction for unbalanced classes.
-
-% RR: stable (48 bits) \\
-% MCA: stable (48 bits)
-
-% \paragraph{Tomography} This test compares the LASSO and Ridge regression
-% models to reconstruct an image from  projections for a dataset acquired from
-% computed tomography.
-
-% This test shows the reconstruction of an image from a set of parallel
-% projections, acquired along different angles. Such a dataset is acquired in
-% computed tomography (CT). 
-
-% Without any prior information on the sample, the number of projections
-% required to reconstruct the image is of the order of the linear size l of the
-% image (in pixels). For simplicity we consider here a sparse image, where only
-% pixels on the boundary of objects have a non-zero value. Such data could
-% correspond for example to a cellular material. Note however that most images
-% are sparse in a different basis, such as the Haar wavelets. Only l/7
-% projections are acquired, therefore it is necessary to use prior information
-% available on the sample (its sparsity): this is an example of compressive
-% sensing.
-
-% The tomography projection operation is a linear transformation. In addition to
-% the data-fidelity term corresponding to a linear regression, we penalize the
-% L1 norm of the image to account for its sparsity. The resulting optimization
-% problem is called the Lasso. We use the class Lasso, that uses the coordinate
-% descent algorithm. Importantly, this implementation is more computationally
-% efficient on a sparse matrix, than the projection operator used here.
-
-% The reconstruction with L1 penalization gives a result with zero error (all
-% pixels are successfully labeled with 0 or 1), even if noise was added to the
-% projections. In comparison, an L2 penalization (Ridge) produces a large number
-% of labeling errors for the pixels. Important artifacts are observed on the
-% reconstructed image, contrary to the L1 penalization. Note in particular the
-% circular artifact separating the pixels in the corners, that have contributed
-% to fewer projections than the central disk.
-
-% RR Divergence \\
-% MCA Index issue
-
-% Finally, taking into account the points' weight allows for a better separation
-% \tristan{is this related to numerical stability? If not, you can ommit the
-% comment.}.
-
-% RR Stable (30~48 bits on coef) \\
-% MCA Unstable (0 bits on coef)
-
-% \subsection{PyAFQ}
-
-% PyAFQ is a Python package for Automated Fiber Quantification. It aims to find
-% delineation of the major fiber tracts in individual human brains and quantify
-% the tissue properties within the tracts. PyAFQ \pytracer tracing produces
-% traces of 1TB with an average slowdown $\times 6$ compared to the actual
-% execution. Moreover, \pytracer was able to visualize the aggregated traces,
-% demonstrating its scalability fluently.
-
 \subsection{\pytracer instrumentation limitations}
 
 \add{
@@ -1770,15 +1459,15 @@ Figure~\ref{fig:performance_tracing} summarizes \pytracer's tracing overhead for
 SciPy and scikit-learn examples. \textit{Slowdown} represents the slowdown of
 \pytracer without fuzzy measured as the ratio between the actual execution time
 (without \pytracer) and the execution time using \pytracer. The \textit{Slowdown
-    RR} \remove{and \textit{Slowdown MCA}} shows the slowdown within the fuzzy environment.
-Without fuzzy, \pytracer introduces an average slowdown of $17\times$ for
+    RR} \remove{and \textit{Slowdown MCA}} shows the slowdown within the Fuzzy environment.
+Without Fuzzy, \pytracer introduces an average slowdown of $17\times$ for
 the examples running less than 8 seconds because \pytracer spends most of its
 time in the initialization step. Since this step is a constant factor of the
 number of functions instrumented, we also measured the instrumentation cost
 itself (\textit{Slowdown (Instrumentation)}) calculated by subtracting the
 initialization time to \textit{Slowdown}. We then obtain an average slowdown of
-$3.5\times$. Finally, the \remove{fuzzy instrumentation} \add{using MCA
-    operations (through fuzzy) instead of the native ones} increases the average
+$3.5\times$. Finally, the \remove{Fuzzy instrumentation} \add{using MCA
+    operations (through Fuzzy) instead of the native ones} increases the average
 slowdown to $37\times$ for RR\remove{and $43\times$ for Full MCA}.
 
 % \pytracer's tracing overhead consists of (1) module instrumentation time
@@ -1801,12 +1490,12 @@ slowdown to $37\times$ for RR\remove{and $43\times$ for Full MCA}.
     \includegraphics[width=\linewidth]{figure/performance.pdf}
     \caption{
         \pytracer tracing overheads. \textit{Slowdown} represents the slowdown
-        of \pytracer without fuzzy measured as the ratio between the actual
+        of \pytracer without Fuzzy measured as the ratio between the actual
         execution time (without \pytracer) and the execution time using
         \pytracer. \textit{Slowdown (Instrumentation)} show the actual
         instrumentation cost computed by subtracting the initialization step.
         The \textit{Slowdown (RR)} \remove{and \textit{Slowdown (MCA)} are} \add{is} the slowdown
-        of \pytracer using the fuzzy environment with \add{the} RR \remove{and Full MCA} mode\remove{s}. The
+        of \pytracer using the Fuzzy environment with \add{the} RR \remove{and Full MCA} mode\remove{s}. The
         \remove{first} \add{last} four examples measure the initialization
         steps depending on the modules instrumented. 
         % \tristan{there's too much text in this caption, move some of it to the text, the caption should just explain the difference between the 4 slowdowns. From the text I'm not sure what is the difference between slowdown and slowdown(RR)/slowdown(MCA).}
@@ -1954,11 +1643,11 @@ for real-life examples.
 % broadly used Python libraries.
 
 Through our analysis of SciPy and scikit-learn, we demonstrated \pytracer's
-scalability, automaticity, and applicability to a wide range of Python program.
+scalability, automaticity, and applicability to a wide range of Python programs.
 The relatively low instrumentation overhead of 3.5$\times$ on average enables
 the analysis of real-scale applications. \pytracer's instrumentation is fully
 automatic and does not require manual intervention from the user. Furthermore,
-\pytracer works on any Python libraries, with any data format supported by
+\pytracer works with any Python libraries, with any data format supported by
 pickle and any numerical noise model.
 
 \pytracer is the first tool to enable a systematic numerical analysis of Python
@@ -1969,20 +1658,35 @@ specialized libraries such as NumPy. Therefore, \pytracer meets the numerical
 analysis needs of an ever-increasing number of applications.
 
 \pytracer allows users to pinpoint the root causes of numerical instabilities by
-working at the function level. Numerical stability evaluations are complex since
+working at the level of Python functions. Numerical stability evaluations are complex since
 calculations are strongly interdependent. Function-level instrumentation limits
 the size of the traces since only inputs and outputs of a function are dumped.
 Moreover, it decreases instrumentation overhead and helps the user identify
 instabilities quickly. Working at the function level is thus a suitable
-compromise between analysis conducted at the floating-point operation level and
-user debug prints. Indeed,  fine-grained analyses are costly and hard to
+compromise between analyses conducted at the floating-point operation level and
+user debug prints. Indeed, operation-level analyses are costly and hard to
 interpret as they overwhelm users with information. In contrast, looking at
 intermediate results through print statements is lightweight but not reliable
-since developers may not systematically instrument unstable functions. Finally,
-the SciPy environment wraps many computation kernels written in C, such as BLAS
-or LAPACK. By working at the function level, \pytracer allows the user to
-evaluate the numerical precision of such kernels and their impact on the code
-without getting deep into technical implementation aspects. 
+since developers may not systematically instrument unstable functions. 
+
+\add{\pytracer can be used with different types of numerical perturbations,
+including random seeds, data noise, or stochastic arithmetic. The
+use of Verificarlo to implement stochastic arithmetic through the Fuzzy
+environment enables to study the impact of numerical perturbations
+introduced in non-Python dependencies while preserving the high-level view
+of Python variables and functions. For instance, the SciPy environment
+wraps many computation kernels written in C, such as BLAS or LAPACK, which
+have a considerable impact on the stability of applications using them.}
+
+\add{
+Enabling Monte-Carlo arithmetic in such non-Python dependencies requires
+their recompilation with Verificarlo, which usually requires human
+intervention. The Fuzzy environment provides pre-instrumented version of
+NumPy, BLAS, LAPACK, GNU libmath, SciPy, and Scikit-learn, which, given the
+prevalence of these libraries in scientific Python codes, should cover a
+large ground of non-Python dependencies encountered in scientific Python programs.
+}
+
 
 Integrating \pytracer at the early stages of the development cycle would improve
 the overall numerical quality of the developed code. \pytracer's automaticity
@@ -1990,7 +1694,7 @@ facilitates its usage and enables its integration in unit testing. For example,
 \pytracer could be used in regression tests to ensure that updates do not
 degrade the numerical quality of a calculation. 
 
-\pytracer can also be useful for selecting hyperparameters, as is the case in
+\pytracer might also be useful for selecting hyperparameters, as is the case in
 machine learning. Indeed, it is common for data scientists to explore a range of
 hyperparameters and select the ones giving the best scores. With \pytracer, the
 user has a practical way to quantify numerical quality and understand why
@@ -2000,9 +1704,9 @@ to make solvers converge. For instance, the Face Recognition example
 inform the selection of the number of components in dimensionality reduction. 
 
 
-The visualization provides a global view of the code and interactions between
+\pytracer's visualization provides a global view of the code and interactions between
 computations. In addition, the Plotly dashboard helps navigate through the code
-easily, without the need for ad-hoc scripts to visualize data. Finally, the
+easily, without the need for ad-hoc scripts to visualize data. The
 dashboard can be extended to support other data formats to visualize. At this
 stage, \pytracer currently supports n-dimensional NumPy arrays as well as native
 Python data. 
@@ -2019,11 +1723,11 @@ Python data.
 }
 
 
-Finally, the wide range of results precision obtained from our experiments
-demonstrate that looking at the numerical variability is essential and that such
+Finally, the wide range of results precision observed in our experiments
+suggests that such
 analyses would benefit from being conducted systematically. We showed that
-well-known scientific libraries are prone to numerical error even though they
-have been well tested for decades. The omnipresence of these libraries in
+well-known scientific libraries are prone to numerical errors even though they
+have been well tested for decades. The prevalence of these libraries in
 scientific codes should thus impel users to integrate numerical analysis in
 their development workflow in addition to testing their implementation.
 
@@ -2137,354 +1841,6 @@ when targeting specific functions, it is not feasible for large codebases where
 potentially unstable code sections are unknown.
 
 
-% \label{sec:detecting-instabilities} \paragraph{Dynamically detecting numerical
-% instabilities} \label{sec:mca}
-% :
-%  \Yohan{Either detail this section with UA/SA or remove it since MCA is
-%  introduced in 'noise injection' subsection. } \tristan{I agree, let's just
-%  remove it, the core of the contribution is on the tracing, not in the
-%  detection of instabilities.}
-
-% % We review here the existing theoretical framework that might be used to
-% detect numerical instabilities. % Our experiments rely on the Monte Carlo
-% Arithmetic (MCA), a stochastic arithmetic allowing % to detect numerical
-% errors by adding random perturbations in the floating-point computations. %
-% However, Pytracer do not rely on any assumption about the perturbation model
-% used and thus leaves the user free to use % an alternative model. As such, we
-% describe two others options that we thought might be beneficial and
-% complementary to MCA: % input data uncertainty analysis and random seed
-% sensitivity.
-
-% % \subsubsection{Stochastic Arithmetic}
-
-% % The Monte Carlo Arithmetic is a variant of so-called stochastic arithmetic,
-% whose purpose is to model round-off errors by a random variable.
-
-% Three main approaches exist to detect numerical instabilities dynamically:
-% stochastic arithmetic, uncertainty or sensitivity
-% analysis~\cite{helton2006survey}, and random seed
-% analysis~\cite{click2011quality}. Stochastic arithmetic leverages randomness
-% to estimate numerical instabilities coming from the use of floating-point
-% representations. The main idea is to treat round-off errors as random
-% variables and characterize them statistically. The first published complete
-% stochastic arithmetic framework was CESTAC~\cite{vignes1993stochastic}. In
-% CESTAC, each floating-point computation is performed multiple times with
-% different rounding modes: round-up or round-down. From these stochastic
-% samples, one can then derive the number of significant digits in the computed
-% result. Discrete Stochastic Arithmetic~\cite{vignes2004discrete} extends
-% CESTAC with comparison operators implemented in the CADNA library. Monte Carlo
-% Arithmetic (MCA)~\cite{parker1997monte} uses the same principle but introduces
-% two differences: (i) a virtual precision parameter, allowing to simulate
-% reduced working precision, and (ii) different perturbation modes to introduce
-% perturbations on function inputs or output. Stochastic arithmetic quantifies
-% numerical error using the number of significant digits $s$ estimated among the
-% sampled values. A common formula to determine this number from MCA samples is
-% presented in~\cite{parker1997monte}. Sohier et al.~\cite{sohier2018confidence}
-% recently provided a generalization of this formula to include confidence
-% intervals.
-
-% % \subsubsection{Uncertainty, sensitivity, and random seed analysis} %
-% \tristan{I'm wondering if we could remove this sub-section, as it doesn't seem
-% to be critical to the understanding of the paper, wdyt?} % Uncertainty
-% analysis (UA) is a method to estimate the output distribution given an input
-% distribution. % Sensitivity analysis (SA) is a variation of UA that measures
-% the local response to a small perturbation~\cite{loucks2017water}. % Several
-% approaches for UA and SA exist, among them differential analysis, response
-% surface methodology, Monte Carlo analysis, and variance decomposition
-% (see~\cite{helton2006survey} for a review). In particular, Monte Carlo
-% analysis is a sampling-based technique that samples inputs space to estimate
-% output response. Monte Carlo analysis shares similarities with Monte Carlo
-% Arithmetic. For instance, the PRECISE framework~\cite{chaitin1996lectures}
-% shares with MCA the idea of varying virtual precision to estimate output
-% sensitivity.
-
-% % Furthermore, the quality of a Random Number Generator is a crucial
-% characteristic when dealing with stochastic model and differ from cryptography
-% requirements. A good RNG provides a tradeoff between performance, period,
-% correlation, or uniformity~\cite{james2020review} for numerical simulation.  
-% On the other hand, poor-quality RNGs may have a substantial impact on
-% results~\cite{click2011quality}. First, measuring variation induced by seed is
-% a good indicator of program stability that we can compare against variability
-% induced by floating-point arithmetic.
-
-
-% \paragraph{Visualization of numerical data} \tristan{now that it's here, I'm
-% not sure if this section really adds to the paper. It could also go.}
-
-% Floating-point values approximate real number in the computer arithmetic but
-% data manipulated by scientific applications include a large variety of
-% mathematical objects beyond scalar values. Indeed, scientific visualization
-% \gkmod{}{Note: You kind of jump right in to this section. Visualization of
-% what in particular? Why do we want (need?) to visualize this sort of data?}
-% covers a wide range of numerical simulation domains, from general-purpose
-% numerical visualization with tools such as VTK~\cite{schroeder2000visualizing}
-% to topological data analysis~\cite{tierny2018topological}, including
-% matrix~\cite{wu2008matrix} or tensor~\cite{kindlmann2006diffusion}
-% visualization. To be able to visualize those objects is crucial for the
-% practitioner as information about the structure of the object may be as
-% important as the basic elements that constitute it (i.e. vectors or matrices).
-% Despite the large number of existing tools to identify numerically unstable
-% sections of source code, few allow the user to have a global view of the
-% numerical precision of their computations or to compare several executions of
-% the same program under various perturbations.
-
-% Veritracer~\cite{chatelain2018veritracer} was the first tool to propose an
-% embedded visualizer of numerical stability over the execution of C, C++, and
-% Fortran code. Veritracer extends Verificarlo~\cite{verificarlo} with
-% contextual information about traced variables, which allows the user to
-% identify instabilities quickly. However, Veritracer neither offers a dynamic
-% interface nor includes information about high-level structures such as
-% \texttt{struct} or \texttt{array}. FPAvizual~\cite{gu2014fpavisual} visualizes
-% the effects of floating-point arithmetic but only for educational purposes and
-% so does not target computational intensive applications\gkmod{}{Q: What does
-% this mean?}. Anteater~\cite{faust2019anteater} proposes a visualizer for
-% Python code, but as mentioned previously, it only deals with native Python
-% types, and the user needs to select variables to trace manually. Anteater
-% provides an insightful reflection around visual debugging beyond
-% floating-point analysis, which has inspired the design of \pytracer's
-% visualization interface.
-
-% Through our analysis of SciPy and Scikit-learn, we demonstrated \pytracer's
-% scalability, automaticity, and applicability to any Python program. The
-% relatively low instrumentation overhead of $3.5\times$ on average enables the
-% analysis of real applications. \pytracer's instrumentation is fully automatic
-% and does not require manual intervention from the user. \pytracer works on any
-% Python libraries, with any data format supported by Pickle and any numerical
-% noise model.
-
-% \pytracer is the first tool to enable a systematic numerical analysis of
-% Python codes. Existing tools focus on traditional languages of the HPC
-% community such as C, C++, and FORTRAN. However, Python's high-level
-% abstraction allows for quickly developing applications while maintaining high
-% performance thanks to specialized libraries such as NumPy. Therefore,
-% \pytracer meets the numerical analysis needs of an ever-increasing number of
-% applications.
-
-% Furthermore, \pytracer allows users to pinpoint numerical instabilities root
-% causes precisely by working at the function level. Indeed, evaluating the
-% numerical stability is complex since calculations are strongly correlated
-% between them. The instrumentation at the function level limits the size of the
-% traces since only inputs and outputs of a function are dumped. It moreover
-% decreases the overhead of the instrumentation and helps the user to identify
-% instabilities quickly. Working at function level is thus a suitable compromise
-% between (1) analyzing at the floating-point operation level and (2) user debug
-% prints. (1) Indeed, the fine-grained analysis is costly and hard to analyze
-% due to the large amount of computations evolved in HPC codes. It overwhelms
-% the user with too much information, making analysis more difficult but can be
-% interesting at the final step of the understanding. (2) Looking at
-% intermediate results through print statements focuses on valuable information
-% (like residuals or norms) but may miss numerically unstable functions
-% unsuspected by the developer. Finally, the SciPy environment wraps a lot of
-% computation kernels written in C, like BLAS or LAPACK. By working at function
-% level, \pytracer allows the user to evaluate the numerical precision of such
-% kernels and their impact on the code without getting deep into technical
-% implementation aspects. 
-
-% Python is a popular language to prototype proof-of-concept. Integrating
-% \pytracer at early stages of the development cycle allows identifying
-% numerical instabilities to write code of better quality. \pytracer's
-% automaticity facilitates the usage and enables its integration in unit
-% testing. It can be for example used in a non-regression test to ensure that
-% the numerical quality of a calculation is not degraded by updates. Moreover,
-% the Plotly dashboard offers a quick visualization to analyze more finely the
-% potential issues.
-
-% \pytracer can also be useful to select the hyperparameters of a code, as it is
-% the case in machine learning. Indeed, we find many cases in the literature
-% where users explore a range of hyperparameters to select the ones giving the
-% best scores. With \pytracer, the user has a practical way to quantify the
-% numerical quality and to understand why hyperparameters lead to unstable
-% outputs, instead of tweaking hyperparameters to make solvers converge, 
-
-% The visualization permits a global view of the code and to understand
-% interactions between computations. The Plotly dashboard help to easily
-% navigate through the code. It moreover removes the need for ad-hoc scripts to
-% visualize data. Finally, the dashboard can be extended to support other data
-% format to visualize. \pytracer currently supports n-dimensional NumPy arrays
-% as well as native Python data. 
-
-% As we showed in Section~\ref{sec:impact_mca_modes}, using Full MCA mode leads
-% to runtime errors that have a considerable impact on the proper functioning of
-% the execution. This is unfortunate since these errors do not reflect actual
-% numerical errors but errors related to perturbations that should not occur.
-% Conversely, RR mode is far more conservative since it preserves exact
-% operations and is easier to use even though it does not simulate all
-% perturbations. From our experiments, we do not recommend the Full MCA mode for
-% now and more researches are needed to help fixing issues we encountered.
-
-% Fixing this issue would enable the study of catastrophic cancellations, which
-% are common sources of numerical errors. In addition to the runtime errors it
-% raises, mismatching shapes is also a problem when aggregating traces as
-% \pytracer will not compute statistics for a set of arrays with different
-% shapes \tristan{So do you conclude that Full MCA is not usable while RR is? If
-% so, you should recommend to use Pytracer with RR only.} \tristan{are you still
-% talking about Full MCA here? if not, make another paragraph. If so, make it
-% clearer.}. Two solutions exist to overcome this issue: the first is not to
-% instrument the \texttt{PyArray\_Arange} function with MCA. The advantage is
-% that it is easy to set up since it requires one extra line in the exclusion
-% file. However, the same kind of problem may appear somewhere else because, as
-% we have seen, the evolved operations are elementary. Therefore, the chances
-% that developers reproduce the same pattern are very probable. Therefore, the
-% second solution is to ensure that the Full MCA mode preserves the exact
-% operations. This solution has the advantage of not worrying about which
-% functions should be instrumented or not with MCA, but it is hard to achieve it
-% in practice. Indeed, we rely on the MCA implementation provided by Verificarlo
-% that uses an internal precision to add the random perturbation that is higher
-% than the working precision for applying the random noise. Verificarlo then
-% rounds the result to the working precision before returning it, so any
-% residual noise lower than the working precision is lost. Keeping track of that
-% noise would require recording each intermediate computation in a shadow memory
-% or keeping a tag about their exactness. This option would require more extra
-% works than the first one but would ensure more consistent results. \tristan{I
-% find this paragraph too verbose, you should contract it to a few key
-% sentences.}
-
-% \tristan{The following paragraphs are future work, not discussion. I'd remove
-% them and flesh out the discussion from the ideas mentioned in the current 3rd
-% paragraph}
-
-% Also, we would like to extend the post-process analysis to aggregate traces
-% where the execution flow path diverges. Therefore, a posteriori reconstruction
-% is challenging as one must precisely identify the flow path taken and find
-% synchronization points to pursue the analysis. We retrieve, for example, this
-% divergence behavior in two general classes of numerical schemes: iterative
-% methods and optimization processes. One solution is to integrate methods used
-% in code coverage analysis to keep track of flow paths taken and the
-% backtraces. However, this would increase the complexity of the postprocess
-% analysis as well as an extra slowdown factor. However, by coupling the Gantt
-% chart with static analysis, \pytracer would catch some divergence patterns
-% occurring within a function. Indeed, by instrumenting at the function level,
-% \pytracer views the function's callees (i.e., the functions called within a
-% function) and thus should partially detect flow divergences.
-
-% By design principle, \pytracer is flexible on the noise model used, although
-% we only tested it with the MCA model in our experiments. Nevertheless, we
-% would like to compare different models against MCA in future works to see the
-% resulting differences. Furthermore, we would like to test \pytracer on
-% parallel codes.
-
-% Finally, we would extend \pytracer to instrument elementary arithmetic
-% operations which can be helpful to more profound analyses. We nevertheless
-% believe that instrumentation at the function level presents two advantages: it
-% first limits the size of the traces since only inputs and outputs of a
-% function are saved instead of a full report which, on the one hand, decreases
-% the overhead of the instrumentation and, on the other hand, help the user to
-% identify instabilities quickly. Indeed, full reporting can overwhelm the user
-% with too much information, making analysis more difficult at first. Second,
-% the analysis at fine granularity is interesting at the final step of the
-% understanding. Such an analysis would require a different instrumentation
-% approach by, for example, working at the Abstract Syntax Tree (AST) level
-% since it is trivial to get it in Python. Moreover, working at the AST level
-% allows doing dependency analysis. Another extension would be to extract and
-% replay a function, in the same vein as the CERE tool does but for Python, and
-% to use an AST instrumentation to analyze the numerical quality of elementary
-% operations step by step within the fuzzy environment.
-
-
-
-% \pytracer is a tool for visualizing the numerical quality of function
-% inputs/outputs over time. It generates numerical traces that are aggregated in
-% postprocessing to measure numerical discrepancies between executions.
-% \pytracer does not assume the noise model used to estimate uncertainties but
-% has been tested with the MCA through the fuzzy ecosystem on two broadly used
-% scientific libraries for Python with partial success.
-
-% We demonstrated the Pytracer's capabilities to analyze intensively used Python
-% libraries such as NumPy or Scikit-learn, such as 
-% 1) Scalability. The low instrumentation overhead of 3.5x enables analysis of
-%    real applications and permits having a global representation of the
-%    numerical quality of an application. 
-% 2) Automaticity. Pytracer instrumentation is fully automatic and does not
-%    require manual intervention from the user, allowing the instrumentation of
-%    the NumPy, SciPy and Scikit-learn libraries. // that cumulate 5600 and 2043
-%    pure Python functions and classes. 
-% 3) Agnosticity. Pytracer works on any python libraries, with any data format
-%    supported by pickle, and any numerical noise model flavor.
-
-% Pytracer is the first tool to bring numerical analysis of Python codes
-% available to everyone. Indeed, existing tools developed in the last years
-% focused on traditional HPC languages community such as C,C++, and FORTRAN.
-% However, the Python high-level abstraction allows you to quickly develop
-% applications while maintaining high performance with the help of specialized
-% libraries like NumPy. Therefore, it is quite natural to see more fields
-% systematically using Python, as is the case in neuroimaging. Thus, Pytracer
-% meets the numerical analysis needs of an ever increasing number of
-% applications writing in Python.
-
-% By working at function level, Pytracer allows users to precisely pinpoint
-% numerical instabilities root causes. Furthermore, the automaticity facilitates
-% the usage and its integration in unit testing. Hence, instead of tweaking
-% hyperparameters to make solvers converging, the user has a practical way with
-% Pytracer to quantify the numerical quality of its computations. 
-
-% As we showed in section~\ref{sec:impact_mca_modes}, using the Full MCA mode
-% leads to runtime errors that have a considerable impact on the proper
-% functioning of the execution, which is unfortunate since these errors do not
-% reflect actual numerical errors but errors related to perturbations that
-% should not occur. Fixing this misbehavior would greatly help use Full MCA mode
-% since this mode allows simulating catastrophic cancellations, which are
-% familiar sources of numerical errors. By preserving exact operations, RR mode
-% is far more conservative and so easy to use even though it does not simulate
-% all perturbations that might be encountered. 
-
-% Also, using a post-process analysis to aggregate traces, \pytracer falls in
-% the same pitfalls as veritracer and is limited to aggregate traces where the
-% execution flow path extremely diverges. Therefore, a posteriori reconstruction
-% is challenging as one must precisely identify the flow path taken and find
-% synchronization points to pursue the analysis. We retrieve, for example, this
-% divergence behavior in two general classes of numerical schemes: iterative
-% methods and optimization processes. One solution to overcome this issue is to
-% integrate methods used in code coverage analysis to keep track of flow paths
-% taken and the backtraces. However, this would increase the complexity of the
-% postprocess analysis as well as an extra slowdown factor. However, by coupling
-% the Gantt chart with static analysis, \pytracer would catch some divergence
-% patterns occurring within a function. Indeed, by instrumenting at the function
-% level, \pytracer views the function's callees (i.e., the functions called
-% within a function) and thus should partially detect flow divergences.
-
-% By design principle, \pytracer is flexible on the noise model used, although
-% we only tested it with the MCA model in our experiments. Nevertheless, we
-% would like to compare different models against MCA in future works to see the
-% resulting differences. In particular, although \pytracer only works on a
-% sequential application for the moment, it can be used to analyze parallel
-% sections internal to a function. The only restriction is that the section does
-% not call other functions traced by \pytracer; we would fall into the previous
-% issue of divergence if it would not be the case. Since \pytracer only cares
-% about inputs and outputs of a function, the order of internal operations is
-% transparent for it and thus should be able to handle those cases.
-
-% Finally, \pytracer does not instrument elementary arithmetic operations, and
-%it can be a barrier to more profound analysis. Such an analysis would require a
-%different instrumentation approach by, for example, working at the Abstract
-%Syntax Tree (AST) level since it is trivial to get it in Python. An ideal way
-%to do that would be to extract and replay a function, in the same vein as the
-%CERE~\cite{castro2015cere} tool does but for Python, and use an AST
-%instrumentation to analyze the numerical quality of elementary operations step
-%by step within the fuzzy environment. Lastly, AST analysis can serve as a basis
-%for finding relationships between variables, valuable information for the user.
-
-% In addition to the runtime errors it raises, mismatching shapes is also a
-% problem when aggregating traces as PyTracer will not compute statistics for a
-% set of arrays with different shapes. Two solutions exist to overcome this
-% issue: the first is not to instrument the \texttt{PyArray\_Arange} function
-% with MCA. The advantage is that it is easy to set up since it requires one
-% extra line in the exclusion file. However, the same kind of problem may appear
-% somewhere else because, as we have seen, the operations being evolved are
-% elementary. Therefore, the chances that developers reproduce the same pattern
-% are very probable. The second solution is to ensure that the Full MCA mode
-% preserves the exact operations. This solution has the advantage of not
-% worrying about which functions should be instrumented or not with MCA, but it
-% is hard to achieve it in practice. Indeed, we rely on the MCA implementation
-% provided by Verificarlo that uses an internal precision to add the random
-% perturbation that is higher than the working precision for applying the random
-% noise. Verificarlo then rounds the result to the working precision before
-% returning it, so any residual noise lower than the working precision is lost.
-% Keeping track of that noise would require recording each intermediate
-% computation in a shadow memory or keeping a tag about their exactness.
-% \Yohan{This idea emerged by discussing with Verificarlo's team. I must find a
-% way to express that and not give the impression that we discovered or suggest
-% it.} This option would require more extra works than the first one but would
-% ensure more consistent results.
 
 \section{Conclusion}
 
@@ -2495,25 +1851,23 @@ potentially unstable code sections are unknown.
 
 Evaluating the numerical stability of scientific Python programs is a tedious
 task that requires substantial expertise. Automatic tools to help users
-understand the behavior of their code are therefore crucial. In this
-perspective, \pytracer is the first tool to offer a complete framework for
+understand the behavior of their code are therefore crucial. \pytracer is the first tool to offer a complete framework for
 analyzing and visualizing the numerical stability of Python codes. It works by
-automatically instrumenting Python libraries to produce numerical traces
-visualized through an interactive Plotly Dash server. \pytracer does not require
-manual code modification, and we tested it with major scientific libraries such
-as NumPy, SciPy, and Scikit-learn. Our results show that \pytracer is scalable,
+automatically instrumenting Python programs to produce traces \add{of numerically-perturbed 
+executions and}
+visualize these traces through an interactive Plotly Dash server. \pytracer does not require
+manual code modification. We tested it with \add{Python programs involving} major scientific libraries such
+as NumPy, SciPy, and Scikit-learn. \pytracer enabled the systematic evaluation of 40 examples from the
+SciPy and scikit-learn libraries. Our results show that \pytracer is scalable,
 with an average instrumentation slowdown of $3.5\times$. Moreover, \pytracer's
-visualization interface remains responsive even with traces of up to 1TB. In our
-experiments, \pytracer enabled the systematic evaluation of 40 examples from the
-SciPy and scikit-learn libraries. 
+visualization interface remains responsive even with traces of up to 1TB.  
 
-In future work, we plan to extend the post-processing analysis to aggregate
+In the future, we plan to extend the post-processing analysis to aggregate
 traces when the execution flow path diverges by leveraging techniques used in
 code coverage analysis. Moreover, we would like to extend \pytracer to
-instrument elementary arithmetic operations which can be helpful to more
-profound analyses. Finally, although \pytracer supports multiple noise models,
-we only tested it with Monte Carlo Arithmetic. Therefore, we would like to
-compare different models against MCA. \pytracer is available at
+instrument elementary arithmetic operations. \remove{Finally, although \pytracer supports multiple noise models,
+we only tested it with Monte-Carlo arithmetic. Therefore, we would like to
+compare different models against MCA.} \pytracer is available at
 \href{https://github.com/big-data-lab-team/pytracer}{github://big-data-lab-team/pytracer}
 under MIT License.
 
