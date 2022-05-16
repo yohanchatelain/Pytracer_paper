@@ -413,7 +413,7 @@
 % \ifANNOTATED
 \definecolor{ao(english)}{rgb}{0.0, 0.5, 0.0}
 \DeclareRobustCommand{\add}[1]{\textcolor{ao(english)}{#1}}%\sethlcolor{lightgreen}\hl{#1}}
-\DeclareRobustCommand{\remove}[1]{\textcolor{lightred}{\sout{#1}}}
+\DeclareRobustCommand{\remove}[1]{}
 \DeclareRobustCommand{\addCite}[1]{\textcolor{lightgreen}{\mbox{#1}}}
 \newcommand{\TG}[1]{\color{red}\textsc{From Tristan}: #1\xspace\color{black}}
 % \else
@@ -732,6 +732,13 @@ traced variable. At step 3, a Plotly dashboard provides interactive
 visualizations highlighting unstable code sections.
 }
 
+\add{
+The remainder of this section assumes some knowledge of Python concepts
+such as classes, functions, modules, decorators, callables, and iterators.
+We refer to~\cite{beazley2013python} for a detailed presentation of these
+concepts.
+}
+
 \begin{figure*}
     \centering
     \includegraphics[width=0.75\linewidth]{figure/workflow.pdf}
@@ -765,10 +772,6 @@ contrast with \remove{decorator-based approaches} \add{a decorator-based
     approach~\mbox{\cite{hunt2019decorators}}}. In addition, this technique is
 scalable and applicable in read-only environments such as Singularity containers
 or HPC clusters.
-
-
-
-
 
 \subsubsection{Intercepting module import}
 
@@ -818,7 +821,7 @@ For each function to instrument, \pytracer's \texttt{loader} class creates a
 wrapper function, dynamically compiles it with the \texttt{compile} builtin
 function, and substitutes it for the original module function.  Although simple,
 this technique does not apply to callable class instances, i.e., class instances
-that have a \texttt{\_\_call\_\_} attribute and are not of type
+\add{that can be called directly with the () operator, because they,} are not of type
 \texttt{FunctionType}. Indeed, applying the wrapper technique would 1) modify
 the type of the class instance to \texttt{FunctionType}, which could cause
 syntax and semantic errors, and 2) mask class attributes, leading to
@@ -1136,10 +1139,10 @@ We used Python-3.8.5, NumPy-1.19.1, SciPy-1.5.4, and scikit-learn-0.23.2.
         % to sigbits (for instance shades of blue), to make the column more
         % easily readable.} \\
         \emph{trace}: outcome of \pytracer tracing, \emph{parse}: outcome of
-        \pytracer trace parsing and aggregation, \emph{result}: precision for
-        main outputs in significant bits. \valid: successful run, \remove{\warn: error
-            from invalid noise injection,} \cross: numerical error or divergent
-        traces. \textit{nan} stands for (\texttt{Not-A-Number}). Example names
+        \pytracer trace parsing and aggregation, \emph{result}: \add{result} precision
+         in number of significant bits. \valid: successful run, \remove{\warn: error
+            from invalid noise injection,} \cross: numerical error \add{(tracing)} or 
+            \add{different control flow paths (parsing).} \textit{nan} stands for (\texttt{Not-A-Number}). Example names
         are linked to their source code.}
     \label{tab:pytracer_results_summary}
 \end{table*}
@@ -1147,12 +1150,14 @@ We used Python-3.8.5, NumPy-1.19.1, SciPy-1.5.4, and scikit-learn-0.23.2.
 
 \subsection{\pytracer is applicable to reference scientific computating libraries}
 
-Table~\ref{tab:pytracer_results_summary} summarizes \pytracer's outcome on SciPy
-and scikit-learn examples. Columns \textit{trace} and \textit{parse} report on
-the tracing and aggregation steps with two possible outcomes: 1) green for
-success, meaning that the execution ended well and no issues were raised by the
-application, and 2) red for numerical error in the application, meaning that the
-execution raised a Python error before the end. \remove{, and 3)
+Table~\ref{tab:pytracer_results_summary} summarizes \pytracer's outcome on
+SciPy and scikit-learn examples. Columns \textit{trace} and \textit{parse}
+report on the tracing and aggregation steps with two possible outcomes:
+\add{green \valid\xspace for success and red \cross\xspace for error. Tracing errors 
+occur in the application as a result of 
+numerical perturbations, whereas parsing errors occur in \pytracer when traces result from different 
+control flow paths. 
+} \remove{, and 3)
     orange for errors due to the Fuzzy noise injection that are
     not considered numerical errors, meaning that the execu-
     tion raised a Python error but due to a perturbation that
@@ -1170,10 +1175,14 @@ in the libraries, which we discuss hereafter.
     perturbations that should not have been introduced.}
 
 Column \textit{sigbits} in Table~\ref{tab:pytracer_results_summary} summarizes
-the precision for the main outputs of SciPy and scikit-learn examples. We
-measured the precision in significant bits on the final primary example output
+the \add{result} precision for the main outputs of SciPy and scikit-learn examples. We
+measured the \add{result} precision in significant bits on the final primary example output
 by taking the element-wise mean for non-scalar values and, if the example
-produces many outputs, the average value among them. The numerical
+produces many outputs, the average value among them. \add{Significant bits are computed on the final program output 
+and can therefore be computed even when parsing fails.} \add{We use the term ``result precision"
+to denote a statistical variability measured in number of significant bits, in 
+contrast with the other meanings of the word precision used in expressions
+``virtual precision" or ``single/double precision'' in this paper.} The numerical
 quality across all examples varied from 0 to 52, with an average of 44
 significant bits. We note that only one example failed due to a
 numerical error (\texttt{face\_recognition}
@@ -1217,12 +1226,14 @@ numerical error (\texttt{face\_recognition}
 Figures~\ref{fig:fft1D_inputs} and~\ref{fig:fft1D_outputs} \add{show the
     visualization of the \texttt{fft\_1D} input and output values. Results are
     complex values encoded in double precision. PyTracer allows visualizing the
-    numerical precision of real (blue points) and imaginary (orange points) parts.}
+    \add{result} precision of real (blue points) and imaginary (orange points) parts.}
 \add{The} top row in Figures~\ref{fig:fft1D_inputs} and~\ref{fig:fft1D_outputs}
-show the input mean value while the bottom row shows the standard deviation. The
+show the input mean value while the bottom row shows the standard deviation. \add{Even though we 
+used Random Rounding (RR), function inputs are perturbed since they result from multiple intermediate 
+computations perturbed with RR.} The
 points with low magnitude in Figure~\ref{fig:fft1D_inputs} correspond to inputs
 near 0 when the input of $\sin$ or $\exp$ is close to $k\pi$, $k \in
-    \mathbb{Z}$. Indeed, since MCA introduces a slight noise, the result is not
+    \mathbb{Z}$. Indeed, since MCA introduces noise, the result is not
 exactly 0. We can see in Figure~\ref{fig:fft1D_inputs} that the maximal noise
 introduced by MCA on the inputs is in the order of $10^{-14}$, two orders of
 magnitude higher than the $ulp \simeq 10^-16$ for double precision. This slight
@@ -1236,7 +1247,7 @@ Figure~\ref{fig:spline2d_rr} \add{shows the results of the spline evaluation wit
     \texttt{bisplev} from the \texttt{spline\_2D} example. It computes the 2D spline
     interpolation for function $z=(x+y)e^{-6(x^2+y^2)}$, with $(x,y) \in
         [-1,1]\times[-1,1]$. The result is a 2D-array that is natively supported by
-    PyTracer. We observe a significant loss of precision in some regions, which follows
+    PyTracer. We observe a significant loss of \add{result} precision in some regions, which follows
     an interesting pattern that could be further investigated.}
 
 
@@ -1311,15 +1322,15 @@ have the same accuracy~\cite{nakatsukasa2013stable}, the Divide \& Conquer
 does not converge with MCA.
 
 Replacing \texttt{gesdd} for \texttt{gesvd} solved the SVD convergence issue.
-\pytracer allows to quickly visualize the new precision of the result.
-Figure~\ref{fig:face_recognition_svd} shows the precision of the eigenvalues
-computed displayed in decreasing order with \texttt{gesvd} \add{in single precision}, 
-which varies between 15 and 20
+\pytracer allows to quickly visualize the new \add{result} precision.
+Figure~\ref{fig:face_recognition_svd} shows the \add{result} precision of the eigenvalues
+computed with \texttt{gesvd} \add{in single precision}. \add{The result precision}
+varies between 15 and 20
 significant bits out of the 24 available in single precision. The classifier
 metrics (precision, recall, F1-score, and support) are identical to the IEEE
 execution for all MCA samples. \add{We can note that even with the \texttt{gesvd} method,
-    the precision of the singular values and eigenvectors is not uniform. 
-    Indeed, we can see that the precision of the lowest singular values and eigenvectors decreases 
+    the \add{result} precision of the singular values and eigenvectors is not uniform. 
+    Indeed, we can see that the \add{result} precision of the lowest singular values and eigenvectors decreases 
     until reaching 0 significant bits.}
 
 The second example compares a Bayesian Ridge Regression (BRR) to the Ordinary
@@ -1332,13 +1343,13 @@ cause for this error. \add{Indeed, the BayesianRidge model first computes an SVD
     criterion. However, PyTracer shows an issue in the singular values computed.}
 \add{We can see in Figure}~\ref{fig:BRR_svd} \add{that the last singular values is
     \texttt{NaN} due to numerical errors in the SVD, although the remaining
-    singular values exhibit high numerical precision (between 44 and 50 bits).
+    singular values exhibit high \add{result} precision (between 44 and 50 bits).
     Surprinsingly, this \texttt{NaN} value does not raise an exception and is silently
     propagated. Indeed, the stopping criterion is never verified and the 
     optimization stops after reaching the maximal number of iterations.
     Figure}~\ref{fig:BRR_svd_fixed} \add{shows that uses
     the \texttt{gesvd} instead of the \texttt{gesdd} method removes the \texttt{NaN} value
-    although the last singular values stills have a low precision (below 0).
+    although the last singular values stills have a low \add{result} precision (below 0).
     Following Equation}~\ref{eq:sig-digits}, \add{a number of significant digits below 0 means that the
     variability ($\sigma$) is higher than the average value ($\mu$)}.
 
@@ -1350,7 +1361,7 @@ cause for this error. \add{Indeed, the BayesianRidge model first computes an SVD
     Figure}~\ref{fig:OLS_svd} \add{shows that one singular value is a \texttt{NaN} value,
     which corrupted the calculation of the coefficients. When using the \texttt{gesvd} method, 
     the \texttt{NaN} value disapears 
-    (Fig.}~\ref{fig:OLS_svd_fixed}\add{), resulting in a precision of
+    (Fig.}~\ref{fig:OLS_svd_fixed}\add{), resulting in a \add{result} precision of
     42 bits in average in the coefficients. We can see that having
     access to all the values computed by the application with PyTracer allows
     the user to efficiently identify numerical issues.}
@@ -1362,7 +1373,7 @@ Request has recently been submitted to let the user select the SVD method and
 avoid this kind of issue. Thus, \pytracer can detect instabilities that affect
 fundamental scientific computing components such as the LAPACK library. \add{The
     unified view of all traces allows the user to quickly navigate through the
-    numerical precision of different variables.}
+    \add{result} precision of different variables.}
 % The Pytracer findings can therefore be extended to many application domains. %
 % \tristan{conclusion needs to be discussed. Note to self: generaliser un peu la
 % conclusion: pytracer permet de se rendre compte de problemes de stabilite dont
@@ -1391,7 +1402,7 @@ fundamental scientific computing components such as the LAPACK library. \add{The
         \texttt{face\_recognition} example using the \texttt{gesvd} SVD method
         and RR. Figures~\ref{fig:randomized_svd_U},~\ref{fig:randomized_svd_S},
         and~\ref{fig:randomized_svd_V} show respectively the values $U$,
-        $\Sigma$ and $V$. Numerical precision is lower for smaller singular
+        $\Sigma$ and $V$. \add{Result} precision is lower for smaller singular
         values and this loss of precision translates to singular vectors. It
         would be interesting to investigate the use of numerical precision for
         dimensionality reduction. }
@@ -1420,12 +1431,12 @@ fundamental scientific computing components such as the LAPACK library. \add{The
         \caption{OLS (\texttt{gesvd})}
         \label{fig:OLS_svd_fixed}
     \end{subfigure}
-    \caption{\add{Numerical precision of the singular values of the SVD from the
+    \caption{\add{Result} precision of the singular values of the SVD from the
             Bayesian Ridge model fitting (left) and from the Ordinary Least Square model
             fitting (right) in the Bayesian Ridge Regression example. Red stars
             represent \texttt{NaN} values. 
             Switching from Divide \& Conquer (\texttt{gesdd}) to QR (\texttt{gesvd}) factorization improves numerical precision.
-            PyTracer helps visualizing improvements.}}
+            PyTracer helps visualizing improvements.}
 \end{figure}
 
 \subsection{\pytracer instrumentation limitations}
@@ -1466,9 +1477,9 @@ time in the initialization step. Since this step is a constant factor of the
 number of functions instrumented, we also measured the instrumentation cost
 itself (\textit{Slowdown (Instrumentation)}) calculated by subtracting the
 initialization time to \textit{Slowdown}. We then obtain an average slowdown of
-$3.5\times$. Finally, the \remove{Fuzzy instrumentation} \add{using MCA
-    operations (through Fuzzy) instead of the native ones} increases the average
-slowdown to $37\times$ for RR\remove{and $43\times$ for Full MCA}.
+$3.5\times$. Finally, \remove{the Fuzzy instrumentation} \add{using MCA
+    operations (through Fuzzy) instead of the native ones} increased the average
+slowdown to $37\times$\remove{for RR and $43\times$ for Full MCA}.
 
 % \pytracer's tracing overhead consists of (1) module instrumentation time
 % (initialization overhead), and (2) data write time during the execution
@@ -1723,7 +1734,7 @@ Python data.
 }
 
 
-Finally, the wide range of results precision observed in our experiments
+Finally, the wide range of result precision observed in our experiments
 suggests that such
 analyses would benefit from being conducted systematically. We showed that
 well-known scientific libraries are prone to numerical errors even though they
@@ -1805,7 +1816,7 @@ floating-point operations with their stochastic arithmetic counterparts.
 FPDebug~\cite{benz2012dynamic} uses DBI to detect numerical inaccuracies by
 using shadow computations with higher precision.
 Herbgrin\remove{g}\add{d}~\cite{sanchez2017finding} is a Valgrind-based tool to
-detect numerical instabilities. It uses a shadow memory to detect precision
+detect numerical instabilities. It uses a shadow memory to detect  precision
 losses by comparison with results obtained \remove{at} \add{in} higher
 precision. It is combined with symbolic computation to backtrack the root of the
 error. We can note that all methods based on a high-precision oracle suppose
@@ -1863,7 +1874,7 @@ with an average instrumentation slowdown of $3.5\times$. Moreover, \pytracer's
 visualization interface remains responsive even with traces of up to 1TB.  
 
 In the future, we plan to extend the post-processing analysis to aggregate
-traces when the execution flow path diverges by leveraging techniques used in
+traces \add{obtained with different control flow paths,} by leveraging techniques used in
 code coverage analysis. Moreover, we would like to extend \pytracer to
 instrument elementary arithmetic operations. \remove{Finally, although \pytracer supports multiple noise models,
 we only tested it with Monte-Carlo arithmetic. Therefore, we would like to
