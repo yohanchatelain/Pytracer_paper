@@ -599,7 +599,7 @@
         instability in Python applications. \pytracer transparently instruments
         Python code to produce numerical traces and visualize them interactively
         in a Plotly dashboard. We designed \pytracer to be agnostic to numerical
-        noise model , allowing for tool evaluation through Monte-Carlo
+        noise model, allowing for \add{numerical profiling} through Monte-Carlo
         Arithmetic, random rounding, random data perturbation, or structured
         noise for a particular application. We illustrate \pytracer's
         capabilities by testing the numerical stability of key functions in both
@@ -679,9 +679,9 @@ Python programs. \pytracer adopts a dynamic approach that evaluates numerical
 stability using program execution traces, and is applicable to large programs
 without manual intervention. The transparent nature of \pytracer is particularly
 valuable in contrast to theoretical approaches based on condition numbers or
-backward error analysis~\addCite{\cite{higham2002accuracy}}, which require
+backward error analysis~\cite{higham2002accuracy}, which require
 detailed modeling of the program and its numerical implementation. Similarly,
-static code analysis techniques~\addCite{\cite{goubault2006static}} hardly scale
+static code analysis techniques~\cite{goubault2006static} hardly scale
 to large code bases, particularly in dynamically-typed languages such as Python.
 
 \pytracer estimates the variability of floating-point variables by
@@ -690,20 +690,20 @@ which requires (\add{a}\remove{1}) generating numerically-perturbed
 executions, (\add{b}\remove{2}) tracing floating-point computations along
 program executions, and (\add{c}\remove{3}) visualizing stability
 evaluations. \add{PyTracer addresses (a) by relying on
-Fuzzy~\addCite{\cite{kiar2020comparing}}, a pre-existing collection of scientific
+Fuzzy~\cite{kiar2020comparing}, an existing collection of scientific
 computing libraries instrumented with Monte-Carlo arithmetic through the
 Verificarlo tool~\cite{verificarlo}, (b) by dynamically instrumenting
 Python functions, modules, and classes through meta-programming, and (c) by
 visualizing stability measures throughout program executions with an
 interactive Plotly dashboard. \mbox{\pytracer} is available at
-\mbox{\href{https://github.com/big-data-lab-team/pytracer.git}{github.com/big-data-lab-team/pytracer.git}}
+\mbox{\href{https://github.com/big-data-lab-team/pytracer}{github.com/big-data-lab-team/pytracer}}
 under MIT License.} \remove{\mbox{\pytracer} addresses these requirements
 with (1) a Fuzzy Python interpreter instrumented with Monte-Carlo
 arithmetic, (2) a dynamic instrumentation of Python functions, modules, and
 classes through meta-programming, (3) an interactive Plotly dashboard to
 visualize stability measures throughout program executions. }
 
-This manuscript presents the design of \pytracer and demonstrates its potential
+This manuscript presents the design of \pytracer and \add{highlights} its potential
 in various use cases. Through stability evaluations of the SciPy and
 scikit-learn libraries, we demonstrate \pytracer as a practical solution to
 review the numerical stability of extensive code bases. 
@@ -764,7 +764,7 @@ application can transparently use it.
 By default, \pytracer instruments all the attributes in a given module except
 the special ones of the form \texttt{\_\_*\_\_}, which is common for reserved
 Python methods. However, some attributes are not writable. In this case,
-\pytracer \remove{preservers} \add{preserves} the original attributes and warns
+\pytracer \add{preserves} the original attributes and warns
 the user. The user can also restrict the list of traced attributes through an
 inclusion/exclusion mechanism. The main advantage of this instrumentation
 approach is the lack of required modification in the application source code, in
@@ -821,7 +821,7 @@ For each function to instrument, \pytracer's \texttt{loader} class creates a
 wrapper function, dynamically compiles it with the \texttt{compile} builtin
 function, and substitutes it for the original module function.  Although simple,
 this technique does not apply to callable class instances, i.e., class instances
-\add{that can be called directly with the () operator, because they,} are not of type
+\add{that can be called directly with the () operator, because they} are not of type
 \texttt{FunctionType}. Indeed, applying the wrapper technique would 1) modify
 the type of the class instance to \texttt{FunctionType}, which could cause
 syntax and semantic errors, and 2) mask class attributes, leading to
@@ -830,9 +830,9 @@ syntax and semantic errors, and 2) mask class attributes, leading to
 overcome this issue. When the \texttt{\_\_call\_\_} attribute is not writable,
 Pytracer does not instrument the class and returns a warning. 
 \add{
-    This limitation is expected to have a minor impact since non-writable
+    This limitation is expected to have a minor impact in practice since non-writable
     classes are usually called from pure Python classes that can be
-    instrumented. PyTracer reports information about the stability of
+    instrumented. Therefore, \pytracer reports information about the stability of
     non-writable classes through the instrumentation of the pure Python
     classes that use them.
 }
@@ -896,14 +896,14 @@ inputs of the functions consuming these iterators.
 multiple executions perturbed with numerical noise. While \pytracer's
 instrumentation, trace aggregation, and visualization work with various types of
 numerical noise, we experimented primarily with Monte-Carlo Arithmetic (MCA) as
-it is an accurate model for floating-point errors~\addCite{\cite{verificarlo}}.
+it is an accurate model for floating-point errors~\cite{verificarlo}.
 
 \subsubsection{Noise injection}
 \label{sec:fuzzy}
 
 Three  main  approaches  exist  to  detect  numerical  instabilities:
-stochastic  arithmetic,  uncertainty  or  sensitivity analysis [23], and random
-seed analysis [11].  \add{PyTracer is agnostic to the noise model used and can therefore
+stochastic  arithmetic,  uncertainty  or  sensitivity analysis \TG{[23] fix ref}, and random
+seed analysis \TG{fix ref [11]}.  \add{PyTracer is agnostic to the noise model used and can therefore
 be used for all these methods}.  For our use cases, we focus on stochastic
 arithmetic since it does not make any assumption about the noise model, in
 contrast to sensitivity analysis\add{.}
@@ -1064,7 +1064,7 @@ perturbed by the sole use of Fuzzy Python. We chose to activate MCA in these lib
 to provide an overall picture of numerical uncertainty in the tested examples. 
 Depending on the use-case of interest, one might choose to use MCA only in 
 a subset of these libraries or even just in the Python interpreter.} \add{We
-    used MCA in Random Rounding (RR) mode}. We used the default virtual
+    used MCA in Random Rounding (RR) mode, with} the default virtual
 precision in Verificarlo, namely 24 bits for single-precision floating-point
 values and 53 bits for double-precision values, which simulates machine error.
 We used Python-3.8.5, NumPy-1.19.1, SciPy-1.5.4, and scikit-learn-0.23.2.
@@ -1172,18 +1172,11 @@ SciPy and scikit-learn examples. Columns \textit{trace} and \textit{parse}
 report on the tracing and aggregation steps with two possible outcomes:
 \add{green \valid\xspace for success and red \cross\xspace for error. Tracing errors 
 occur in the application as a result of 
-numerical perturbations, whereas parsing errors occur in \pytracer when traces result from different 
-control flow paths. 
-} \remove{, and 3)
-    orange for errors due to the Fuzzy noise injection that are
-    not considered numerical errors, meaning that the execu-
-    tion raised a Python error but due to a perturbation that
-    should not have been introduced (i.e. a floating-point value
-    representing an integer).}
+numerical perturbations, whereas parsing errors occur when traces result from different 
+control flow paths.} 
 Overall, the tracing and parsing of SciPy and scikit-learn examples in Random
 Rounding mode was entirely successful for 32/40 examples\remove{ and showed an average
-    precision loss of 8 bits}. The remaining examples failed due to numerical errors
-in the libraries, which we discuss hereafter. 
+    precision loss of 8 bits}. 
 \remove{The instrumentation with Full MCA is
     more invasive and reduced the number of successful exe-
     cutions to 12/40. Among the 28/40 failed executions, one
@@ -1195,9 +1188,9 @@ Column \textit{sigbits} in Table~\ref{tab:pytracer_results_summary} summarizes
 the \add{result} precision for the main outputs of SciPy and scikit-learn examples. We
 measured the \add{result} precision in significant bits on the final primary example output
 by taking the element-wise mean for non-scalar values and, if the example
-produces many outputs, the average value among them. \add{Significant bits are computed on the final program output 
-and can therefore be computed even when parsing fails.} \add{We use the term ``result precision"
-to denote a statistical variability measured in number of significant bits, in 
+produce\add{d multiple} outputs, the average value among them. \add{Significant bits were computed on the final program output 
+and could therefore be computed even when parsing failed.} \add{We use the term ``result precision"
+to denote the statistical variability measured in number of significant bits, in 
 contrast with the other meanings of the word precision used in expressions
 ``virtual precision" or ``single/double precision'' in this paper.} The numerical
 quality across all examples varied from 0 to 52, with an average of 44
@@ -1205,54 +1198,27 @@ significant bits. We note that only one example failed due to a
 numerical error (\texttt{face\_recognition}
 \remove{for RR and \texttt{Bayesian Ridge Regression} for full MCA}).
 
-\noindent \remove{\textbf{3.2 Effect of MCA modes}}
-
-\remove{
-    Random Rounding perturbs only the result of a floating-point operation while
-    Full MCA perturbs both the inputs and the result. Therefore, Full MCA may
-    trigger catastrophic cancellations while Random Rounding only introduces
-    round-off errors which generally have a lesser impact. Moreover, Random Rounding
-    preserves exact operations --- operations where the result can be exactly
-    represented at the virtual precision --- while Full MCA does not.}
-
-\remove{\pytracer can only aggregate traces obtained from the same control flow path. In
-    particular, program branches triggered by an unstable floating-point comparison
-    lead to different control flows and result in parsing errors. For example,
-    comparing a residual error or the distance between two points to a strict
-    threshold in an iterative scheme generally results in unstable branches. Full
-    MCA even perturbs exact values such as integers represented with floating-point
-    values, leading to many execution failures. For instance, the \texttt{fft1}
-    example from SciPy raised an \texttt{ValueError: operands could not be broadcast
-        together with shapes (601,) (600,)} error due to an array shape mismatch. A
-    closer inspection showed that one of the arrays involved in the error was
-    created with the NumPy function \texttt{linspace} that itself calls function
-    \texttt{arange} (Listing~\ref{fig:pyarray_range_code}). Lines 3174-3178 show
-    that the function stores the array size in a floating-point value that will be
-    perturbed by Full MCA, as shown in Table~\ref{tab:mca_result_linspace},
-    resulting in array sizes that fluctuate between N and N+1. It is worth noting
-    that 78\% of execution issues encountered in Full MCA mode instrumentation are
-    due to this type of ``typing" errors.  
-    Those code regions should not be perturbed by MCA since the injected noise does
-    not make sense.}
 
 \subsection{\pytracer supports the profiling of compound data types}
 
-\add{PyTracer supports native floating point formats as well as compound data types,
-    such as complex floating point values, N-dimensional arrays and arbitrary Python
-    classes.}
-Figures~\ref{fig:fft1D_inputs} and~\ref{fig:fft1D_outputs} \add{show the
-    visualization of the \texttt{fft\_1D} input and output values. Results are
-    complex values encoded in double precision. PyTracer allows visualizing the
-    \add{result} precision of real (blue points) and imaginary (orange points) parts.}
-\add{The} top row in Figures~\ref{fig:fft1D_inputs} and~\ref{fig:fft1D_outputs}
-show the input mean value while the bottom row shows the standard deviation. \add{Even though we 
-used Random Rounding (RR), function inputs are perturbed since they result from multiple intermediate 
-computations perturbed with RR.} The
-points with low magnitude in Figure~\ref{fig:fft1D_inputs} correspond to inputs
-near 0 when the input of $\sin$ or $\exp$ is close to $k\pi$, $k \in
+\add{PyTracer supports native floating point formats as well as compound
+    data types, such as complex floating point values, N-dimensional arrays
+    and arbitrary Python classes.} Figures~\ref{fig:fft1D_inputs}
+    and~\ref{fig:fft1D_outputs} \add{show the visualization of the
+    \texttt{fft\_1D} input and output values. Results are complex values
+    encoded in double precision. PyTracer allows visualizing the
+    \add{result} precision of real (blue points) and imaginary (orange
+    points) parts.} \add{The} top row in Figures~\ref{fig:fft1D_inputs}
+    and~\ref{fig:fft1D_outputs} show the input mean value while the bottom
+    row shows the standard deviation. \add{Even though Random Rounding
+    (RR) was used, function inputs were perturbed since they result from
+    multiple intermediate computations perturbed with RR.} The points with
+    low magnitude in Figure~\ref{fig:fft1D_inputs} correspond to inputs
+    near 0 when the input of $\sin$ or $\exp$ is close to $k\pi$, $k \in
     \mathbb{Z}$. Indeed, since MCA introduces noise, the result is not
-exactly 0. We can see in Figure~\ref{fig:fft1D_inputs} that the maximal noise
-introduced by MCA on the inputs is in the order of $10^{-14}$, two orders of
+    exactly 0. We can see in Figure~\ref{fig:fft1D_inputs} that the maximal
+    noise introduced by MCA on the inputs is in the order of $10^{-14}$,
+    two orders of
 magnitude higher than the $ulp \simeq 10^-16$ for double precision. This slight
 noise introduced can be interpreted as white noise on the input signal. We can
 see on the bottom row of Figure~\ref{fig:fft1D_outputs} that the frequency noise
@@ -1330,7 +1296,7 @@ non-convergence of the SVD performed in the PCA.
 The PCA uses the Randomized SVD~\cite{halko2011finding} method
 that first computes a low-rank approximation of the input matrix using a
 stochastic algorithm and then uses this approximation as input for the SVD. 
-\add{When walking through the code with PyTracer, we see that}
+\add{When walking through the code with PyTracer, we observed that}
 the \texttt{randomized\_svd} scikit-learn function uses the Divide \& Conquer SVD
 method \texttt{gesdd}. The LAPACK library has two main methods for computing the SVD:
 \texttt{gesdd} and \texttt{gesvd}. The former uses a Divide \& Conquer approach,
@@ -1354,7 +1320,7 @@ The second example compares a Bayesian Ridge Regression (BRR) to the Ordinary
 Least Squares (OLS) estimator on a synthetic dataset and for one-dimensional
 regression using polynomial feature expansion. Although the example does not
 raise a runtime error, the regression coefficients computed from the fitting are
-non-significant. \pytracer traces reveal that the SVD solver used is once again the root
+not significant. \pytracer traces reveal that the SVD solver used is once again the root
 cause for this error. \add{Indeed, the BayesianRidge model first computes an SVD
     before iteratively updating the coefficients until reaching the convergence
     criterion. However, PyTracer shows an issue in the singular values computed.}
@@ -1371,7 +1337,7 @@ cause for this error. \add{Indeed, the BayesianRidge model first computes an SVD
     variability ($\sigma$) is higher than the average value ($\mu$)}.
 
 
-\add{Similarly, for OLS, PyTracer tracers show that the
+\add{Similarly, for OLS, PyTracer traces show that the
     regression coefficients fitted are \texttt{NaN} values. By looking at the callgraph, we can
     see that the scipy calls the \texttt{lstsq} method from the
     \texttt{scipy.linalg} package which uses the \texttt{gesdd} LAPACK function.
@@ -1384,9 +1350,9 @@ cause for this error. \add{Indeed, the BayesianRidge model first computes an SVD
     the user to efficiently identify numerical issues.}
 
 In conclusion, \pytracer and the MCA model were helpful to detect the
-instability of the \texttt{gesdd} method mentioned in several GitHub issues,
+instability of the \texttt{gesdd} method mentioned in several GitHub issues \TG{(such as ...)},
 including the LAPACK repository. Furthermore, it is worth mentioning that a Pull
-Request has recently been submitted to let the user select the SVD method and
+Request has recently been submitted \TG{in the ... repo} to let the user select the SVD method and
 avoid this kind of issue. Thus, \pytracer can detect instabilities that affect
 fundamental scientific computing components such as the LAPACK library. \add{The
     unified view of all traces allows the user to quickly navigate through the
@@ -1513,21 +1479,6 @@ slowdown to $37\times$\remove{for RR and $43\times$ for Full MCA}.
     \label{fig:performance_tracing}
 \end{figure}
 
-% \begin{figure}
-%     \centering
-%     \includegraphics[width=\linewidth]{figure/parsing_time.pdf}
-%     \caption{\pytracer time to aggregate traces.}
-%     \label{fig:performance_parsing_time}
-% \end{figure}
-
-% \begin{figure}
-%     \centering
-%     \includegraphics[width=\linewidth]{figure/parsing.pdf}
-%     \caption{\pytracer trace and aggregation files size.
-%     The figure presents the size measured for the trace and the aggregation size files.}
-%     \label{fig:performance_parsing_size}
-% \end{figure}
-
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figure/performance_parsing.pdf}
@@ -1536,99 +1487,6 @@ slowdown to $37\times$\remove{for RR and $43\times$ for Full MCA}.
     }
     \label{fig:performance_parsing}
 \end{figure}
-
-% \begin{table}
-% \centering
-% \begin{subfigure}[t]{.75\linewidth}
-%     \centering
-%     \begin{tabular}{|l|c|c|c|c|}
-%     \hline 
-%     Application & Original & Pytracer only & RR & MCA \\
-%     \hline 
-%     Loading & 0.456 & 8.152 & - & - \\
-%     \hline
-%     discrete\_cosine\_transform & 0.280 & 8.176 & 10.203 & - \\ 
-%     fft\_1D & 0.650 & 9.075 & 11.345 & - \\
-%     fft\_2D & 0.311 & 9.500 & 11.929  & 16.433   \\
-%     \hline
-%     interpolation\_1D & 0.377 & 8.803  & 11.954  & -   \\
-%     multivariate\_data &0.626 & 8.648 &  12.711  & - \\
-%     bspline & 0.109  & 9.050 & 13.396  & 16.830   \\
-%     spline\_1D & 0.111 & 8.618 & 10.960   & - \\
-%     spline\_2D & 0.655 & 8.649 & 19.424  & - \\
-%     \hline
-%     broyden\_fletcher\_goldfarb\_shanno &0.475 & 8.292 & 11.033 & 13.685 \\
-%     global\_optimization &1.257 & 55.916  & 93.322  & - \\
-%     slsqp & 0.469 & 8.192 & 10.795 & 12.439  \\
-%     least\_square\_minimization & 0.505 & 10.151  & 13.888 & -  \\
-%     nelder\_mead\_simplex & 0.471 & 8.418  & 11.382  & 12.792  \\
-%     newton\_conjugate\_gradient & 0.487 & 8.548  & 11.956  & 14.281 \\
-%     root\_findings & 0.462 & 8.198  & 10.787   & - \\
-%     root\_finding\_large & 0.801 & 11.525 & 41.493   &  82.701  \\
-%     root\_finding\_large\_preconditioned & 0.702 & 10.580 & 33.199   & 57.579  \\
-%     trust\_region\_exact & 0.482 & 8.170 & 10.400  & 12.524 \\
-%     trust\_region\_truncated\_generalized\_lanczos & 0.459 & 8.457 & 11.216 & 13.245  \\
-%     trust\_region\_newton\_conjugate\_gradient & 0.479 & 8.538 & 11.179 & 13.488 \\
-%     \hline
-%     Adaboost &1.388 &14.553 &  20.999 & - \\
-%     Bayesian Ridge Regression & 1.086 & 10.344 & 90.299 & -  \\
-%     Online classifier comparison & 15.964 & 72.691 & 2104.114 & -  \\
-%     K-Means Clustering & 1.621 & 17.614  & 34.005 & 52.902   \\
-%     Covariance estimation & 1.357 & 11.755 & 23.964  & -   \\
-%     Decision Tree Regression & 1.185 & 11.194 & 15.760 & 15.918  \\
-%     Digits Classification & 1.672 & 12.725 & 40.634 & - \\
-%     Face Recognition & 32.159  & 74.356 & - & - \\
-%     L1 Penalty & 1.568 & 12.591 & 65.547 & 128.220 \\
-%     Lasso and elastic net & 1.057 & 9.903 & 17.078 & -  \\
-%     Separating hyperplan & 1.376 & 11.532  & 22.333 & 25.036 \\
-%     MNIST classification & 19.650 & 37.838 & 402.389  & - \\
-%     Multitask Lasso & 1.090 &10.196 & 15.025  & - \\
-%     Orthogonal matching & 1.161 & 12.129 & 21.779   & 31.135 \\
-%     PCA decomposition & 1.239 & 10.642 & 15.520 & 17.952    \\
-%     Robust Linear Regression & 1.370 & 11.144  & 14.280  & - \\
-%     Segmentation toy &1.679 & 22.385 & 87.811  & - \\
-%     SVM & 1.403 & 11.737 & 23.203 & 24.126   \\
-%     Tomography & 11.108 & 40.177  & 1376.134 & -  \\
-%     Weighted samples & 1.358 & 11.768 & 21.255 & 20.541   \\
-%     \hline
-%     \end{tabular}
-% \end{subfigure}
-%     \caption{\pytracer tracing overhead in seconds. \tristan{what is the unit in this table?}}
-%     \label{tab:pytracer_overhead}
-% \end{table}
-
-
-% \begin{table}[]
-%     \centering
-%     \begin{tabular}{c|c|c|c|c}
-%          Pytracer & Verificarlo Instrumentation & Backend & Time (hours:minutes:seconds) & Overhead \\
-%          \hline 
-%          No & No & - & 00:30:51 & 1 \\
-%          No & Yes & IEEE & 01:32:56 & 3 \\
-%          No & Yes & RR & 16:52:08 & 32 \\
-%          Yes & No & - & 03:11:07 & 6  \\
-%          Yes & Yes & IEEE & 11:14:33 & 22 \\
-%          Yes & Yes & RR & 25:05:54 & 48 \\
-%     \end{tabular}
-%     \caption{Overheads of \pytracer on PyAFQ experiment with and without fuzzy.}
-%     \label{tab:pytracer_overhead}
-% \end{table}
-
-% \begin{table}[]
-%     \centering
-%     \begin{tabular}{c|c|c|c|c}
-%          Pytracer & Verificarlo Instrumentation & Backend & Time (hours:minutes:seconds) & Overhead \\
-%          \hline 
-%          No & No & - & 15 & 1 \\
-%          No & Yes & IEEE & 49 & 3 \\
-%          No & Yes & RR &  & 441 & 29 \\
-%          Yes & No & - & 03:11:07 & 6  \\
-%          Yes & Yes & IEEE & 11:14:33 & 22 \\
-%          Yes & Yes & RR & 25:05:54 & 48 \\
-%     \end{tabular}
-%     \caption{Caption}
-%     \label{tab:pytracer_overhead}
-% \end{table}
 
 Figure~\ref{fig:performance_parsing} shows the postprocessing time and trace
 sizes produced by \pytracer. The linear correlation between the log of the size
@@ -1640,17 +1498,6 @@ In conclusion, while \pytracer's overhead is substantial, it remains tractable
 for real-life examples.
 
 \section{Discussion}
-
-% Numpy   2509 (2403 not tests) (1848) functions, 1196 (1154) (817) classes (pure Python)
-% Scipy   4031 (2187) (506) functions, 1532 (472) (109) classes (pure Python)
-% Sklearn 4807 (1010) (81) functions, 546 (417) (41) classes (pure Python)
-
-% \pytracer is a tool for visualizing the numerical quality of function inputs
-% and outputs along the execution of a Python program. It generates numerical
-% traces and post-processes them to measure numerical discrepancies between
-% executions. \pytracer does not require any particular noise model to estimate
-% uncertainties. We tested it with MCA through the fuzzy ecosystem on two
-% broadly used Python libraries.
 
 Through our analysis of SciPy and scikit-learn, we demonstrated \pytracer's
 scalability, automaticity, and applicability to a wide range of Python programs.
@@ -1879,9 +1726,7 @@ of multi-threaded applications.} Moreover, we would like to
 extend \pytracer to instrument elementary arithmetic operations \add{(+,-,*,/), to allow for more detailed analyses}.
 \remove{Finally, although \pytracer supports multiple noise models, we only
 tested it with Monte-Carlo arithmetic. Therefore, we would like to compare
-different models against MCA.} \pytracer is available at
-\href{https://github.com/big-data-lab-team/pytracer}{github://big-data-lab-team/pytracer}
-under MIT License.
+different models against MCA.}
 
 
 
