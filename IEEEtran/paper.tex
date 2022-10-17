@@ -410,18 +410,18 @@
 \ANNOTATEDfalse
 }
 
-% \ifANNOTATED
+\ifANNOTATED
 \definecolor{ao(english)}{rgb}{0.0, 0.5, 0.0}
 \DeclareRobustCommand{\add}[1]{\textcolor{ao(english)}{#1}}%\sethlcolor{lightgreen}\hl{#1}}
 \DeclareRobustCommand{\remove}[1]{}
 \DeclareRobustCommand{\addCite}[1]{\textcolor{lightgreen}{\mbox{#1}}}
 \newcommand{\TG}[1]{\color{red}\textsc{From Tristan}: #1\xspace\color{black}}
-% \else
-% \DeclareRobustCommand{\add}[1]{#1}
-% \DeclareRobustCommand{\remove}[1]{}
-% \DeclareRobustCommand{\addCite}[1]{#1}
-% \newcommand{\TG}[1]{}
-% \fi
+\else
+\DeclareRobustCommand{\add}[1]{#1}
+\DeclareRobustCommand{\remove}[1]{}
+\DeclareRobustCommand{\addCite}[1]{#1}
+\newcommand{\TG}[1]{}
+\fi
 
 \setlength{\arrayrulewidth}{0.1pt}
 
@@ -689,13 +689,13 @@ combining program traces obtained with different numerical perturbations,
 which requires (\add{a}\remove{1}) generating numerically-perturbed
 executions, (\add{b}\remove{2}) tracing floating-point computations along with
 program executions, and (\add{c}\remove{3}) visualizing stability
-evaluations. \add{PyTracer addresses (a) by relying on
+evaluations. \add{PyTracer addresses this work (a) by relying on
     Fuzzy~\cite{kiar2020comparing}, an existing collection of scientific
     computing libraries instrumented with Monte-Carlo arithmetic through the
     Verificarlo tool~\cite{verificarlo}, (b) by dynamically instrumenting
     Python functions, modules, and classes through meta-programming, and (c) by
     visualizing stability measures throughout program executions with an
-    interactive Plotly dashboard. \mbox{\pytracer} is available
+    interactive Plotly dashboard. \mbox{\pytracer} is available at
     \mbox{\href{https://github.com/big-data-lab-team/pytracer}{github.com/big-data-lab-team/pytracer}}
     under MIT License.} \remove{\mbox{\pytracer} addresses these requirements
     with (1) a Fuzzy Python interpreter instrumented with Monte-Carlo
@@ -722,13 +722,13 @@ review the numerical stability of extensive code bases.
               values, and visualize them in a GUI.
     \end{enumerate}
     \pytracer adopts the workflow shown in Figure~\ref{fig:workflow}.
-    In step 1, \pytracer uses monkey patching to replace the functions called
+    In Step 1, \pytracer uses monkey patching to replace the functions called
     by the application with a wrapper that saves their arguments and returned
-    values in a trace file. In step 2, it executes the application multiple
+    values in a trace file. In Step 2, it executes the application multiple
     times with Monte-Carlo Arithmetic as implemented in the
     Fuzzy~\cite{kiar2020comparing} environment. It then
     aggregates the resulting trace files to compute summary statistics on
-    traced variables. In step 3, a Plotly dashboard provides interactive
+    traced variables. In Step 3, a Plotly dashboard provides interactive
     visualizations highlighting unstable code sections.
 }
 
@@ -902,8 +902,8 @@ it is an accurate model for floating-point errors~\cite{verificarlo}.
 \label{sec:fuzzy}
 
 Three  main  approaches  exist  to  detect  numerical  instabilities:
-stochastic  arithmetic,  uncertainty  or  sensitivity analysis \TG{[23] fix ref}, and random
-seed analysis \TG{fix ref [11]}.  \add{PyTracer is agnostic to the noise model used and can therefore
+stochastic  arithmetic,  uncertainty  or  sensitivity analysis~\cite{helton2006survey}, and random
+seed analysis~\cite{hellekalek1998good}. \add{PyTracer is agnostic to the noise model used and can therefore
     be used for all these methods}.  For our use cases, we focus on stochastic
 arithmetic since it does not make any assumption about the noise model, in
 contrast to sensitivity analysis\add{.}
@@ -924,7 +924,8 @@ precision and $\xi \in (-\frac{1}{2},\frac{1}{2})$ is a random uniform variable.
 Virtual precision allows for the simulation of reduced working precision.
 \add{In our experiments, we used MCA in Random Rounding (RR) mode, which
     simulates roundoff errors by applying function $inexact$ only to the
-    output returned by a function. The Precision Bounding (PB) mode can
+    output returned by a function. The Precision Bounding (PB) mode that applies
+    the $inexact$ function on inputs can
     identify other types of instabilities, in particular catastrophic
     cancellations, however, it is more difficult to apply to large code bases
     as it often leads to execution errors that require human intervention.}
@@ -961,9 +962,10 @@ organization at
     can give good estimates, the issue is to capture ``rare events" that could make the
     computation strongly diverge from the mean. Determining the number of
     MCA samples to use for a given instrumented code is still an open research question. 
-    Recent theoretical works}~\cite{sohier2021confidence}
-\add{on the estimation of significant digits allow computing an associated
-    confidence interval depending on the sample size and the underlying distribution.}
+%%     Recent theoretical works}~\cite{sohier2021confidence}
+%% \add{on the estimation of significant digits allow computing an associated
+%%   confidence interval depending on the sample size and the underlying distribution.
+}
 
 \subsubsection{Trace format}
 
@@ -1230,7 +1232,9 @@ Figure~\ref{fig:spline2d_rr} \add{shows the results of the spline evaluation wit
     interpolation for function $z=(x+y)e^{-6(x^2+y^2)}$, with $(x,y) \in
         [-1,1]\times[-1,1]$. The result is a 2D array that is natively supported by
     PyTracer. We observe a significant loss of \add{result} precision in some regions, which follows
-    an interesting pattern that could be further investigated.}
+    an interesting pattern that could be further investigated.
+    This example shows that \pytracer workds on 2D inputs and the importance of
+    visualizing complex data and not only reporting the values.}
 
 
 \begin{figure}
@@ -1303,8 +1307,8 @@ while the latter uses a QR decomposition. While both methods are expected to
 have the same accuracy~\cite{nakatsukasa2013stable}, the Divide \& Conquer
 does not converge with MCA.
 
-Replacing \texttt{gesdd} for \texttt{gesvd} solved the SVD convergence issue.
-\pytracer allows to quickly visualize the new \add{result} precision.
+Replacing \texttt{gesdd} with\texttt{gesvd} solved the SVD convergence issue.
+\pytracer allows us to quickly visualize the new \add{result} precision.
 Figure~\ref{fig:face_recognition_svd} shows the \add{result} precision of the eigenvalues
 computed with \texttt{gesvd} \add{in single precision}. \add{The result precision}
 varies between 15 and 20
@@ -1349,9 +1353,12 @@ cause for this error. \add{Indeed, the BayesianRidge model first computes an SVD
     the user to efficiently identify numerical issues.}
 
 In conclusion, \pytracer and the MCA model were helpful to detect the
-instability of the \texttt{gesdd} method mentioned in several GitHub issues \TG{(such as ...)},
+instability of the \texttt{gesdd} method mentioned in several GitHub issues such as
+\href{https://github.com/google/TensorNetwork/pull/962}{github.com/google/TensorNetwork/pull/962} or
+\href{https://github.com/scipy/scipy/issues/15024}{github.com/scipy/scipy/issues/15024}
 including the LAPACK repository. Furthermore, it is worth mentioning that a Pull
-Request has recently been submitted \TG{in the ... repo} to let the user select the SVD method and
+Request at \href{https://github.com/scikit-learn/scikit-learn/pull/20617}{github.com/scikit-learn/scikit-learn/pull/20617}
+has recently been submitted in the scikit-learn repository to let the user select the SVD method and
 avoid this kind of issue. Thus, \pytracer can detect instabilities that affect
 fundamental scientific computing components such as the LAPACK library. \add{The
     unified view of all traces allows the user to quickly navigate through the
@@ -1528,7 +1535,7 @@ since developers may not systematically instrument unstable functions.
 \add{\pytracer can be used with different types of numerical perturbations,
     including random seeds, data noise, or stochastic arithmetic. The
     use of Verificarlo to implement stochastic arithmetic through the Fuzzy
-    environment enables to study of the impact of numerical perturbations
+    environment enables us to study the impact of numerical perturbations
     introduced in non-Python dependencies while preserving the high-level view
     of Python variables and functions. For instance, the SciPy environment
     wraps many computation kernels written in C, such as BLAS or LAPACK, which
@@ -1618,7 +1625,7 @@ to propagate numerical errors. MCAlib~\cite{frechtling2015mcalib} is a C library
 that implements the Monte Carlo Arithmetic (MCA)~\cite{parker1997monte} using
 the MPFR~\cite{fousse2007mpfr} library. \add{ADAPT \mbox{~\cite{menon2018adapt}} uses
     Automatic Differentiation to compute a sensitivity profile for each variable in a
-    program}. Finally, the work in~\cite{tang2016software} proposed a
+    program}. Finally, the work in~\cite{tang2016software} proposes a
 source-to-source framework for executing targeted code in infinite and fixed
 precision with and without stochastic arithmetic. The main drawback of the
 source-to-source approach is its lack of scalability since rewriting large
@@ -1639,7 +1646,7 @@ across executions. pLiner~\cite{guo2020pliner} is a root-cause analyzer based on
 the Clang compiler that detects floating-point operations responsible for result
 variability using a source-to-source transformation at the Abstract Syntax Tree
 (AST) level to rewrite parts of code with higher precision.
-PFPSanitizer~\cite{chowdhary2020debugging,chowdhary2021parallel} \add{and
+FPSanitizer~\cite{chowdhary2020debugging,chowdhary2021parallel} \add{and
     NSan~\mbox{\cite{courbet2021nsan}} are compiler-based approaches}
 that use shadow execution to detect numerical issues using higher
 precision.
