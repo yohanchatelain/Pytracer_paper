@@ -807,8 +807,6 @@ As a result, the application will transparently call the instrumented module.
 
 \subsubsection{Instrumenting module functions}
 
-\remove{Listings~\mbox{\ref{fig:wrapper_creation}} and~\mbox{\ref{fig:generic_wrapper}} show
-    \mbox{\pytracer}'s function instrumentation mechanism.}
 For each function to be instrumented, \pytracer's \texttt{loader} class creates a
 wrapper function, dynamically compiles it with the \texttt{compile} builtin
 function, and substitutes it for the original module function.  Although simple,
@@ -1076,6 +1074,7 @@ We used Python-3.8.5, NumPy-1.19.1, SciPy-1.5.4, and scikit-learn-0.23.2.
             
             
             
+            
                                                                                 & \interOneDRf                                                              & \valid                                                   & \valid & 51                 \\
             \multicolumn{1}{|c|}{}                                              & \multicolumn{1}{c|}{}                                                     & \multiRf                                                 & \valid & \valid   & \s{51}  \\
             \multicolumn{1}{|c|}{}                                              & \multicolumn{1}{c|}{}                                                     & \bsplineRf                                               & \valid & \valid   & 10      \\
@@ -1084,6 +1083,7 @@ We used Python-3.8.5, NumPy-1.19.1, SciPy-1.5.4, and scikit-learn-0.23.2.
             \cline{2-6}
             \multicolumn{1}{|c|}{}                                              & \multicolumn{1}{c|}{ \multirow{12}{2em}{ \rotatebox{90}{Optimization} } }
 
+            
             
             
             
@@ -1416,16 +1416,16 @@ Figure~\ref{fig:performance_tracing} summarizes \pytracer's tracing overhead for
 SciPy and scikit-learn examples. \textit{Slowdown} represents the slowdown of
 \pytracer without fuzzy measured as the ratio between the actual execution time
 (without \pytracer) and the execution time using \pytracer. The \textit{Slowdown
-    RR} \remove{and \textit{Slowdown MCA}} shows the slowdown within the Fuzzy environment.
+    RR} shows the slowdown within the Fuzzy environment.
 Without Fuzzy, \pytracer introduces an average slowdown of $17\times$ for
 the examples running less than 8 seconds because \pytracer spends most of its
 time in the initialization step. Since this step is a constant factor of the
 number of functions instrumented, we also measured the instrumentation cost
 itself (\textit{Slowdown (Instrumentation)}) calculated by subtracting the
 initialization time to \textit{Slowdown}. We then obtain an average slowdown of
-$3.5\times$. Finally, \remove{the Fuzzy instrumentation} using MCA
+$3.5\times$. Finally, using MCA
 operations (through Fuzzy) instead of the native ones increased the average
-slowdown to $37\times$\remove{for RR and $43\times$ for Full MCA}.
+slowdown to $37\times$.
 
 % \pytracer's tracing overhead consists of (1) module instrumentation time
 % (initialization overhead), and (2) data write time during the execution
@@ -1472,7 +1472,7 @@ slowdown to $37\times$\remove{for RR and $43\times$ for Full MCA}.
 Figure~\ref{fig:performance_parsing} shows the postprocessing time and trace
 sizes produced by \pytracer. The linear correlation between the log of the size
 and the log of the time shows a significant correlation (p-value $\leq 10^{-8}$
-\remove{for RR and p-value $\leq 10^{-3}$ for MCA}).
+).
 % \tristan{Mention linear correlation with p-value here.}
 
 In conclusion, while \pytracer's overhead is substantial, it remains tractable
@@ -1548,16 +1548,6 @@ dashboard can be extended to support other data formats to visualize. At this
 stage, \pytracer currently supports n-dimensional NumPy arrays as well as native
 Python data. 
 
-\remove{
-    As we showed in Section~\ref{sec:impact_mca_modes}, using Full MCA mode leads to
-    runtime errors that have a considerable impact on the proper functioning of the
-    execution, which is unfortunate since these errors do not reflect actual
-    numerical errors but are related to perturbations that should not occur.
-    Conversely, RR mode is far more conservative since it preserves exact operations
-    and is easier to use even though it does not simulate all perturbations.
-    Therefore, from our experiments, we recommend the use of RR over Full MCA. More
-    research is required to address the issues encountered with Full MCA. 
-}
 
 
 Finally, the wide range of result precision observed in our experiments
