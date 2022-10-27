@@ -1484,10 +1484,8 @@ This overhead can be reduced by excluding intensively used functions such as
 \texttt{numpy.array} from the instrumentation.
 Figure~\ref{fig:performance_tracing} summarizes \pytracer's tracing overhead for
 SciPy and scikit-learn examples. \textit{Instrumentation and initialization} represents the slowdown of
-\pytracer without fuzzy \add{that corresponds to PyTracer used
-    only for instrumenting Python programs to catch values of function inputs
-    and outputs, but without instrumentation with MCA arithmetic.}
-It is measured as the ratio between the actual execution time
+\pytracer without fuzzy, \add{measured by applying PyTracer to Python programs without Monte-Carlo Arithmetic.}
+The slowdown is measured as the ratio between the actual execution time
 (without \pytracer) and the execution time using \pytracer. 
 The \textit{Total with RR MCA} shows the slowdown within the Fuzzy environment.
 Without Fuzzy, \pytracer introduces an average slowdown of $17\times$ for
@@ -1499,9 +1497,7 @@ initialization time to \textit{Instrumentation}. We then obtain an average slowd
 $3.5\times$. Finally, using MCA
 operations (through Fuzzy) instead of the native ones increased the average
 slowdown to $37\times$.
-Figure~\ref{fig:performance_parsing} shows the postprocessing time and trace
-sizes produced by \pytracer. \add{The p-value $\leq 10^{-8}$ shows a significant
-    correlation between the log of the size and the log of the time.}
+\add{As shown in Figure~\ref{fig:performance_parsing}, the log aggregation time is linearly correlated with the log trace size (\todo{$R^2$=}, p-value $\leq 10^{-8}$, \todo{Add test name}).}
 
 % \pytracer's tracing overhead consists of (1) module instrumentation time
 % (initialization overhead), and (2) data write time during the execution
