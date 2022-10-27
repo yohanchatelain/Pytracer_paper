@@ -906,7 +906,7 @@ number $x$ with a stochastic counterpart computed as:
     inexact(x) =  x + \beta^{e_x - t}\xi
 \]
 where $\beta$ is the number base, $e_x$ is the magnitude of $x$, $t$ the virtual
-precision and $\xi \in (-\frac{1}{2},\frac{1}{2})$ is a random uniform variable.
+precision and $\xi\! \in\! (-\frac{1}{2},\frac{1}{2})$ is a random uniform variable.
 Virtual precision allows for the simulation of reduced working precision.
 In our experiments, we used MCA in Random Rounding (RR) mode, which
 simulates roundoff errors by applying function $inexact$ only to the
@@ -1211,7 +1211,8 @@ We used Python-3.8.5, NumPy-1.19.1, SciPy-1.5.4, and scikit-learn-0.23.2.
         \emph{trace}: outcome of \pytracer tracing, \emph{parse}: outcome of
         \pytracer trace parsing and aggregation, \emph{result}: result precision
         in number of significant bits. \valid: successful run, \cross: numerical error (tracing) or 
-        different control flow paths (parsing). \textit{nan} stands for (\texttt{Not-A-Number}). 
+        different control flow paths (parsing). \textit{nan} stands for (\texttt{Not-A-Number})
+        \add{meaning that the output result comes from an invalid arithmetic operation}. 
         Example names are linked to their source code.}
     \label{tab:pytracer_results_summary}
 \end{table*}
@@ -1225,9 +1226,9 @@ the tracing and aggregation steps with two possible outcomes: green
 \valid\xspace for success and red \cross\xspace for error. Tracing errors occur
 in the application as a result of numerical perturbations, whereas parsing
 errors occur when traces result from different control flow paths (CFP). 
-\add{Hence, an application that consistently fails at the same instruction will
-    produce traces with equivalent CFPs which can be parsed by \pytracer as the 
-    Face Recognition shows.}
+\add{Therefore, an application that consistently fails at the same function call will
+  produce traces with equivalent Control Flow Paths which can be parsed by \pytracer.
+  In our experiments, this was the case for the Face Recognition shows.}
 
 Overall, the
 tracing and parsing of SciPy and scikit-learn examples in Random Rounding mode
@@ -1283,7 +1284,7 @@ interpolation for function $z=(x+y)e^{-6(x^2+y^2)}$, with $(x,y) \in
 PyTracer. We observe a significant loss of result precision in some regions, which follows
 an interesting pattern that could be further investigated.
 \add{This example shows that \pytracer works on 2D inputs and the importance of
-    visualizing complex data and not only reporting the values.}
+    visualizing complex data types in addition to summary statistics.}
 
 
 \begin{figure}
@@ -1497,7 +1498,7 @@ initialization time to \textit{Instrumentation}. We then obtain an average slowd
 $3.5\times$. Finally, using MCA
 operations (through Fuzzy) instead of the native ones increased the average
 slowdown to $37\times$.
-\add{As shown in Figure~\ref{fig:performance_parsing}, the log aggregation time is linearly correlated with the log trace size (\todo{$R^2$=}, p-value $\leq 10^{-8}$, \todo{Add test name}).}
+\add{As shown in Figure~\ref{fig:performance_parsing}, the log aggregation time is linearly correlated with the log trace size (F-score=68, p-value $\leq 10^{-8}$, obtained with the F-test for linear regression).}
 
 % \pytracer's tracing overhead consists of (1) module instrumentation time
 % (initialization overhead), and (2) data write time during the execution
