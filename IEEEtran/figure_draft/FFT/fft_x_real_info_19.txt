@@ -1,0 +1,17 @@
+Function=fft
+
+Arg=x
+
+shape=600x1
+
+Frobenius norm=1.1e+01
+
+Inf norm=1.5
+
+2-norm=1.1e+01
+
+Cond=1.00e+00
+
+Min=-1.41e+00
+
+Max=1.47e+00

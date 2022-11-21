@@ -1,53 +1,41 @@
 
-%% bare_jrnl_compsoc.tex
-%% V1.4b
-%% 2015/08/26
-%% by Michael Shell
-%% See:
-%% http://www.michaelshell.org/
-%% for current contact information.
+%% bare_jrnl_compsoc.tex % V1.4b % 2015/08/26 % by Michael Shell % See: %
+%http://www.michaelshell.org/ % for current contact information.
 %%
-%% This is a skeleton file demonstrating the use of IEEEtran.cls
-%% (requires IEEEtran.cls version 1.8b or later) with an IEEE
-%% Computer Society journal paper.
+%% This is a skeleton file demonstrating the use of IEEEtran.cls % (requires
+%IEEEtran.cls version 1.8b or later) with an IEEE % Computer Society journal
+%paper.
 %%
-%% Support sites:
-%% http://www.michaelshell.org/tex/ieeetran/
-%% http://www.ctan.org/pkg/ieeetran
-%% and
-%% http://www.ieee.org/
+%% Support sites: % http://www.michaelshell.org/tex/ieeetran/ %
+%http://www.ctan.org/pkg/ieeetran % and % http://www.ieee.org/
 
 %%*************************************************************************
-%% Legal Notice:
-%% This code is offered as-is without any warranty either expressed or
-%% implied; without even the implied warranty of MERCHANTABILITY or
-%% FITNESS FOR A PARTICULAR PURPOSE! 
-%% User assumes all risk.
-%% In no event shall the IEEE or any contributor to this code be liable for
-%% any damages or losses, including, but not limited to, incidental,
-%% consequential, or any other damages, resulting from the use or misuse
-%% of any information contained here.
+%% Legal Notice: % This code is offered as-is without any warranty either
+%expressed or % implied; without even the implied warranty of MERCHANTABILITY or
+%% FITNESS FOR A PARTICULAR PURPOSE! % User assumes all risk. % In no event
+%shall the IEEE or any contributor to this code be liable for % any damages or
+%losses, including, but not limited to, incidental, % consequential, or any
+%other damages, resulting from the use or misuse % of any information contained
+%here.
 %%
-%% All comments are the opinions of their respective authors and are not
-%% necessarily endorsed by the IEEE.
+%% All comments are the opinions of their respective authors and are not %
+%necessarily endorsed by the IEEE.
 %%
-%% This work is distributed under the LaTeX Project Public License (LPPL)
-%% ( http://www.latex-project.org/ ) version 1.3, and may be freely used,
-%% distributed and modified. A copy of the LPPL, version 1.3, is included
-%% in the base LaTeX documentation of all distributions of LaTeX released
-%% 2003/12/01 or later.
-%% Retain all contribution notices and credits.
-%% ** Modified files should be clearly indicated as such, including  **
-%% ** renaming them and changing author support contact information. **
+%% This work is distributed under the LaTeX Project Public License (LPPL) % (
+%http://www.latex-project.org/ ) version 1.3, and may be freely used, %
+%distributed and modified. A copy of the LPPL, version 1.3, is included % in the
+%base LaTeX documentation of all distributions of LaTeX released % 2003/12/01 or
+%later. % Retain all contribution notices and credits. % ** Modified files
+%should be clearly indicated as such, including  ** % ** renaming them and
+%changing author support contact information. **
 %%*************************************************************************
 
 
 % *** Authors should verify (and, if needed, correct) their LaTeX system  ***
 % *** with the testflow diagnostic prior to trusting their LaTeX platform ***
 % *** with production work. The IEEE's font choices and paper sizes can   ***
-% *** trigger bugs that do not appear when using other class files.       ***                          ***
-% The testflow support page is at:
-% http://www.michaelshell.org/tex/testflow/
+% *** trigger bugs that do not appear when using other class files.       ***
+% *** The testflow support page is at: http://www.michaelshell.org/tex/testflow/
 
 
 \documentclass[10pt,journal,compsoc]{IEEEtran}
@@ -67,42 +55,33 @@
 \usepackage{xspace}
 \usepackage{makecell}
 \usepackage{ulem} % provides sout
-\usepackage[frozencache=true,cachedir=minted-cache]{minted} 
-\usepackage[htt]{hyphenat}      
+\usepackage[frozencache=true,cachedir=minted-cache]{minted}
+\usepackage[htt]{hyphenat}
 \usepackage{subcaption}
 \usepackage{graphicx,import}
 \usepackage{booktabs}
 \usepackage{soul}
 %\usepackage{cancel}
 %
-% If IEEEtran.cls has not been installed into the LaTeX system files,
-% manually specify the path to it like:
+% If IEEEtran.cls has not been installed into the LaTeX system files, manually
+% specify the path to it like:
 % \documentclass[10pt,journal,compsoc]{../sty/IEEEtran}
 
 
 
 
 
-% Some very useful LaTeX packages include:
-% (uncomment the ones you want to load)
+% Some very useful LaTeX packages include: (uncomment the ones you want to load)
 
 
 % *** MISC UTILITY PACKAGES ***
 %
-%\usepackage{ifpdf}
-% Heiko Oberdiek's ifpdf.sty is very useful if you need conditional
-% compilation based on whether the output is pdf or dvi.
-% usage:
-% \ifpdf
-%   % pdf code
-% \else
-%   % dvi code
-% \fi
-% The latest version of ifpdf.sty can be obtained from:
-% http://www.ctan.org/pkg/ifpdf
-% Also, note that IEEEtran.cls V1.7 and later provides a builtin
-% \ifCLASSINFOpdf conditional that works the same way.
-% When switching from latex to pdflatex and vice-versa, the compiler may
+%\usepackage{ifpdf} Heiko Oberdiek's ifpdf.sty is very useful if you need
+% conditional compilation based on whether the output is pdf or dvi. usage:
+% \ifpdf % pdf code \else % dvi code \fi The latest version of ifpdf.sty can be
+% obtained from: http://www.ctan.org/pkg/ifpdf Also, note that IEEEtran.cls V1.7
+% and later provides a builtin \ifCLASSINFOpdf conditional that works the same
+% way. When switching from latex to pdflatex and vice-versa, the compiler may
 % have to be run twice to clear warning/error messages.
 
 
@@ -113,36 +92,33 @@
 % *** CITATION PACKAGES ***
 %
 \ifCLASSOPTIONcompsoc
-  % IEEE Computer Society needs nocompress option
-  % requires cite.sty v4.0 or later (November 2003)
+  % IEEE Computer Society needs nocompress option requires cite.sty v4.0 or
+  % later (November 2003)
   \usepackage[nocompress]{cite}
 \else
   % normal IEEE
   \usepackage{cite}
 \fi
-% cite.sty was written by Donald Arseneau
-% V1.6 and later of IEEEtran pre-defines the format of the cite.sty package
-% \cite{} output to follow that of the IEEE. Loading the cite package will
-% result in citation numbers being automatically sorted and properly
-% "compressed/ranged". e.g., [1], [9], [2], [7], [5], [6] without using
-% cite.sty will become [1], [2], [5]--[7], [9] using cite.sty. cite.sty's
-% \cite will automatically add leading space, if needed. Use cite.sty's
-% noadjust option (cite.sty V3.8 and later) if you want to turn this off
-% such as if a citation ever needs to be enclosed in parenthesis.
-% cite.sty is already installed on most LaTeX systems. Be sure and use
-% version 5.0 (2009-03-20) and later if using hyperref.sty.
-% The latest version can be obtained at:
-% http://www.ctan.org/pkg/cite
-% The documentation is contained in the cite.sty file itself.
+% cite.sty was written by Donald Arseneau V1.6 and later of IEEEtran pre-defines
+% the format of the cite.sty package \cite{} output to follow that of the IEEE.
+% Loading the cite package will result in citation numbers being automatically
+% sorted and properly "compressed/ranged". e.g., [1], [9], [2], [7], [5], [6]
+% without using cite.sty will become [1], [2], [5]--[7], [9] using cite.sty.
+% cite.sty's \cite will automatically add leading space, if needed. Use
+% cite.sty's noadjust option (cite.sty V3.8 and later) if you want to turn this
+% off such as if a citation ever needs to be enclosed in parenthesis. cite.sty
+% is already installed on most LaTeX systems. Be sure and use version 5.0
+% (2009-03-20) and later if using hyperref.sty. The latest version can be
+% obtained at: http://www.ctan.org/pkg/cite The documentation is contained in
+% the cite.sty file itself.
 %
 % Note that some packages require special options to format as the Computer
 % Society requires. In particular, Computer Society  papers do not use
-% compressed citation ranges as is done in typical IEEE papers
-% (e.g., [1]-[4]). Instead, they list every citation separately in order
-% (e.g., [1], [2], [3], [4]). To get the latter we need to load the cite
-% package with the nocompress option which is supported by cite.sty v4.0
-% and later. Note also the use of a CLASSOPTION conditional provided by
-% IEEEtran.cls V1.7 and later.
+% compressed citation ranges as is done in typical IEEE papers (e.g., [1]-[4]).
+% Instead, they list every citation separately in order (e.g., [1], [2], [3],
+% [4]). To get the latter we need to load the cite package with the nocompress
+% option which is supported by cite.sty v4.0 and later. Note also the use of a
+% CLASSOPTION conditional provided by IEEEtran.cls V1.7 and later.
 
 
 
@@ -151,39 +127,31 @@
 % *** GRAPHICS RELATED PACKAGES ***
 %
 \ifCLASSINFOpdf
-  % \usepackage[pdftex]{graphicx}
-  % declare the path(s) where your graphic files are
-  % \graphicspath{{../pdf/}{../jpeg/}}
-  % and their extensions so you won't have to specify these with
-  % every instance of \includegraphics
+  % \usepackage[pdftex]{graphicx} declare the path(s) where your graphic files
+  % are \graphicspath{{../pdf/}{../jpeg/}} and their extensions so you won't
+  % have to specify these with every instance of \includegraphics
   % \DeclareGraphicsExtensions{.pdf,.jpeg,.png}
 \else
-  % or other class option (dvipsone, dvipdf, if not using dvips). graphicx
-  % will default to the driver specified in the system graphics.cfg if no
-  % driver is specified.
-  % \usepackage[dvips]{graphicx}
-  % declare the path(s) where your graphic files are
-  % \graphicspath{{../eps/}}
-  % and their extensions so you won't have to specify these with
-  % every instance of \includegraphics
+  % or other class option (dvipsone, dvipdf, if not using dvips). graphicx will
+  % default to the driver specified in the system graphics.cfg if no driver is
+  % specified. \usepackage[dvips]{graphicx} declare the path(s) where your
+  % graphic files are \graphicspath{{../eps/}} and their extensions so you won't
+  % have to specify these with every instance of \includegraphics
   % \DeclareGraphicsExtensions{.eps}
 \fi
-% graphicx was written by David Carlisle and Sebastian Rahtz. It is
-% required if you want graphics, photos, etc. graphicx.sty is already
-% installed on most LaTeX systems. The latest version and documentation
-% can be obtained at: 
-% http://www.ctan.org/pkg/graphicx
-% Another good source of documentation is "Using Imported Graphics in
-% LaTeX2e" by Keith Reckdahl which can be found at:
+% graphicx was written by David Carlisle and Sebastian Rahtz. It is required if
+% you want graphics, photos, etc. graphicx.sty is already installed on most
+% LaTeX systems. The latest version and documentation can be obtained at:
+% http://www.ctan.org/pkg/graphicx Another good source of documentation is
+% "Using Imported Graphics in LaTeX2e" by Keith Reckdahl which can be found at:
 % http://www.ctan.org/pkg/epslatex
 %
-% latex, and pdflatex in dvi mode, support graphics in encapsulated
-% postscript (.eps) format. pdflatex in pdf mode supports graphics
-% in .pdf, .jpeg, .png and .mps (metapost) formats. Users should ensure
-% that all non-photo figures use a vector format (.eps, .pdf, .mps) and
-% not a bitmapped formats (.jpeg, .png). The IEEE frowns on bitmapped formats
-% which can result in "jaggedy"/blurry rendering of lines and letters as
-% well as large increases in file sizes.
+% latex, and pdflatex in dvi mode, support graphics in encapsulated postscript
+% (.eps) format. pdflatex in pdf mode supports graphics in .pdf, .jpeg, .png and
+% .mps (metapost) formats. Users should ensure that all non-photo figures use a
+% vector format (.eps, .pdf, .mps) and not a bitmapped formats (.jpeg, .png).
+% The IEEE frowns on bitmapped formats which can result in "jaggedy"/blurry
+% rendering of lines and letters as well as large increases in file sizes.
 %
 % You can find documentation about the pdfTeX application at:
 % http://www.tug.org/applications/pdftex
@@ -195,16 +163,14 @@
 
 % *** MATH PACKAGES ***
 %
-%\usepackage{amsmath}
-% A popular package from the American Mathematical Society that provides
-% many useful and powerful commands for dealing with mathematics.
+%\usepackage{amsmath} A popular package from the American Mathematical Society
+% that provides many useful and powerful commands for dealing with mathematics.
 %
-% Note that the amsmath package sets \interdisplaylinepenalty to 10000
-% thus preventing page breaks from occurring within multiline equations. Use:
-%\interdisplaylinepenalty=2500
-% after loading amsmath to restore such page breaks as IEEEtran.cls normally
-% does. amsmath.sty is already installed on most LaTeX systems. The latest
-% version and documentation can be obtained at:
+% Note that the amsmath package sets \interdisplaylinepenalty to 10000 thus
+% preventing page breaks from occurring within multiline equations. Use:
+% \interdisplaylinepenalty=2500 after loading amsmath to restore such page
+% breaks as IEEEtran.cls normally does. amsmath.sty is already installed on most
+% LaTeX systems. The latest version and documentation can be obtained at:
 % http://www.ctan.org/pkg/amsmath
 
 
@@ -213,36 +179,31 @@
 
 % *** SPECIALIZED LIST PACKAGES ***
 %
-%\usepackage{algorithmic}
-% algorithmic.sty was written by Peter Williams and Rogerio Brito.
-% This package provides an algorithmic environment fo describing algorithms.
-% You can use the algorithmic environment in-text or within a figure
+%\usepackage{algorithmic} algorithmic.sty was written by Peter Williams and
+% Rogerio Brito. This package provides an algorithmic environment fo describing
+% algorithms. You can use the algorithmic environment in-text or within a figure
 % environment to provide for a floating algorithm. Do NOT use the algorithm
 % floating environment provided by algorithm.sty (by the same authors) or
 % algorithm2e.sty (by Christophe Fiorio) as the IEEE does not use dedicated
-% algorithm float types and packages that provide these will not provide
-% correct IEEE style captions. The latest version and documentation of
-% algorithmic.sty can be obtained at:
-% http://www.ctan.org/pkg/algorithms
-% Also of interest may be the (relatively newer and more customizable)
-% algorithmicx.sty package by Szasz Janos:
-% http://www.ctan.org/pkg/algorithmicx
+% algorithm float types and packages that provide these will not provide correct
+% IEEE style captions. The latest version and documentation of algorithmic.sty
+% can be obtained at: http://www.ctan.org/pkg/algorithms Also of interest may be
+% the (relatively newer and more customizable) algorithmicx.sty package by Szasz
+% Janos: http://www.ctan.org/pkg/algorithmicx
 
 
 
 
 % *** ALIGNMENT PACKAGES ***
 %
-%\usepackage{array}
-% Frank Mittelbach's and David Carlisle's array.sty patches and improves
-% the standard LaTeX2e array and tabular environments to provide better
-% appearance and additional user controls. As the default LaTeX2e table
-% generation code is lacking to the point of almost being broken with
-% respect to the quality of the end results, all users are strongly
-% advised to use an enhanced (at the very least that provided by array.sty)
-% set of table tools. array.sty is already installed on most systems. The
-% latest version and documentation can be obtained at:
-% http://www.ctan.org/pkg/array
+%\usepackage{array} Frank Mittelbach's and David Carlisle's array.sty patches
+% and improves the standard LaTeX2e array and tabular environments to provide
+% better appearance and additional user controls. As the default LaTeX2e table
+% generation code is lacking to the point of almost being broken with respect to
+% the quality of the end results, all users are strongly advised to use an
+% enhanced (at the very least that provided by array.sty) set of table tools.
+% array.sty is already installed on most systems. The latest version and
+% documentation can be obtained at: http://www.ctan.org/pkg/array
 
 
 % IEEEtran contains the IEEEeqnarray family of commands that can be used to
@@ -252,25 +213,20 @@
 
 
 
-% *** SUBFIGURE PACKAGES ***
-%\ifCLASSOPTIONcompsoc
-%  \usepackage[caption=false,font=footnotesize,labelfont=sf,textfont=sf]{subfig}
-%\else
-%  \usepackage[caption=false,font=footnotesize]{subfig}
-%\fi
-% subfig.sty, written by Steven Douglas Cochran, is the modern replacement
-% for subfigure.sty, the latter of which is no longer maintained and is
-% incompatible with some LaTeX packages including fixltx2e. However,
-% subfig.sty requires and automatically loads Axel Sommerfeldt's caption.sty
-% which will override IEEEtran.cls' handling of captions and this will result
-% in non-IEEE style figure/table captions. To prevent this problem, be sure
-% and invoke subfig.sty's "caption=false" package option (available since
-% subfig.sty version 1.3, 2005/06/28) as this is will preserve IEEEtran.cls
-% handling of captions.
-% Note that the Computer Society format requires a sans serif font rather
-% than the serif font used in traditional IEEE formatting and thus the need
-% to invoke different subfig.sty package options depending on whether
-% compsoc mode has been enabled.
+% *** SUBFIGURE PACKAGES *** \ifCLASSOPTIONcompsoc
+%\usepackage[caption=false,font=footnotesize,labelfont=sf,textfont=sf]{subfig}
+%\else \usepackage[caption=false,font=footnotesize]{subfig} \fi subfig.sty,
+%written by Steven Douglas Cochran, is the modern replacement for subfigure.sty,
+%the latter of which is no longer maintained and is incompatible with some LaTeX
+%packages including fixltx2e. However, subfig.sty requires and automatically
+%loads Axel Sommerfeldt's caption.sty which will override IEEEtran.cls' handling
+%of captions and this will result in non-IEEE style figure/table captions. To
+%prevent this problem, be sure and invoke subfig.sty's "caption=false" package
+%option (available since subfig.sty version 1.3, 2005/06/28) as this is will
+%preserve IEEEtran.cls handling of captions. Note that the Computer Society
+%format requires a sans serif font rather than the serif font used in
+%traditional IEEE formatting and thus the need to invoke different subfig.sty
+%package options depending on whether compsoc mode has been enabled.
 %
 % The latest version and documentation of subfig.sty can be obtained at:
 % http://www.ctan.org/pkg/subfig
@@ -280,110 +236,94 @@
 
 % *** FLOAT PACKAGES ***
 %
-%\usepackage{fixltx2e}
-% fixltx2e, the successor to the earlier fix2col.sty, was written by
-% Frank Mittelbach and David Carlisle. This package corrects a few problems
-% in the LaTeX2e kernel, the most notable of which is that in current
+%\usepackage{fixltx2e} fixltx2e, the successor to the earlier fix2col.sty, was
+% written by Frank Mittelbach and David Carlisle. This package corrects a few
+% problems in the LaTeX2e kernel, the most notable of which is that in current
 % LaTeX2e releases, the ordering of single and double column floats is not
-% guaranteed to be preserved. Thus, an unpatched LaTeX2e can allow a
-% single column figure to be placed prior to an earlier double column
-% figure.
-% Be aware that LaTeX2e kernels dated 2015 and later have fixltx2e.sty's
-% corrections already built into the system in which case a warning will
-% be issued if an attempt is made to load fixltx2e.sty as it is no longer
-% needed.
-% The latest version and documentation can be found at:
-% http://www.ctan.org/pkg/fixltx2e
+% guaranteed to be preserved. Thus, an unpatched LaTeX2e can allow a single
+% column figure to be placed prior to an earlier double column figure. Be aware
+% that LaTeX2e kernels dated 2015 and later have fixltx2e.sty's corrections
+% already built into the system in which case a warning will be issued if an
+% attempt is made to load fixltx2e.sty as it is no longer needed. The latest
+% version and documentation can be found at: http://www.ctan.org/pkg/fixltx2e
 
 
-%\usepackage{stfloats}
-% stfloats.sty was written by Sigitas Tolusis. This package gives LaTeX2e
-% the ability to do double column floats at the bottom of the page as well
-% as the top. (e.g., "\begin{figure*}[!b]" is not normally possible in
-% LaTeX2e). It also provides a command:
-%\fnbelowfloat
-% to enable the placement of footnotes below bottom floats (the standard
-% LaTeX2e kernel puts them above bottom floats). This is an invasive package
-% which rewrites many portions of the LaTeX2e float routines. It may not work
-% with other packages that modify the LaTeX2e float routines. The latest
-% version and documentation can be obtained at:
-% http://www.ctan.org/pkg/stfloats
-% Do not use the stfloats baselinefloat ability as the IEEE does not allow
-% \baselineskip to stretch. Authors submitting work to the IEEE should note
-% that the IEEE rarely uses double column equations and that authors should try
-% to avoid such use. Do not be tempted to use the cuted.sty or midfloat.sty
-% packages (also by Sigitas Tolusis) as the IEEE does not format its papers in
-% such ways.
-% Do not attempt to use stfloats with fixltx2e as they are incompatible.
-% Instead, use Morten Hogholm'a dblfloatfix which combines the features
-% of both fixltx2e and stfloats:
+%\usepackage{stfloats} stfloats.sty was written by Sigitas Tolusis. This package
+% gives LaTeX2e the ability to do double column floats at the bottom of the page
+% as well as the top. (e.g., "\begin{figure*}[!b]" is not normally possible in
+% LaTeX2e). It also provides a command: \fnbelowfloat to enable the placement of
+% footnotes below bottom floats (the standard LaTeX2e kernel puts them above
+% bottom floats). This is an invasive package which rewrites many portions of
+% the LaTeX2e float routines. It may not work with other packages that modify
+% the LaTeX2e float routines. The latest version and documentation can be
+% obtained at: http://www.ctan.org/pkg/stfloats Do not use the stfloats
+% baselinefloat ability as the IEEE does not allow \baselineskip to stretch.
+% Authors submitting work to the IEEE should note that the IEEE rarely uses
+% double column equations and that authors should try to avoid such use. Do not
+% be tempted to use the cuted.sty or midfloat.sty packages (also by Sigitas
+% Tolusis) as the IEEE does not format its papers in such ways. Do not attempt
+% to use stfloats with fixltx2e as they are incompatible. Instead, use Morten
+% Hogholm'a dblfloatfix which combines the features of both fixltx2e and
+% stfloats:
 %
-% \usepackage{dblfloatfix}
-% The latest version can be found at:
+% \usepackage{dblfloatfix} The latest version can be found at:
 % http://www.ctan.org/pkg/dblfloatfix
 
 
 
 
-%\ifCLASSOPTIONcaptionsoff
-%  \usepackage[nomarkers]{endfloat}
-% \let\MYoriglatexcaption\caption
-% \renewcommand{\caption}[2][\relax]{\MYoriglatexcaption[#2]{#2}}
-%\fi
-% endfloat.sty was written by James Darrell McCauley, Jeff Goldberg and 
-% Axel Sommerfeldt. This package may be useful when used in conjunction with 
-% IEEEtran.cls'  captionsoff option. Some IEEE journals/societies require that
-% submissions have lists of figures/tables at the end of the paper and that
-% figures/tables without any captions are placed on a page by themselves at
-% the end of the document. If needed, the draftcls IEEEtran class option or
-% \CLASSINPUTbaselinestretch interface can be used to increase the line
-% spacing as well. Be sure and use the nomarkers option of endfloat to
-% prevent endfloat from "marking" where the figures would have been placed
-% in the text. The two hack lines of code above are a slight modification of
-% that suggested by in the endfloat docs (section 8.4.1) to ensure that
-% the full captions always appear in the list of figures/tables - even if
-% the user used the short optional argument of \caption[]{}.
-% IEEE papers do not typically make use of \caption[]'s optional argument,
-% so this should not be an issue. A similar trick can be used to disable
-% captions of packages such as subfig.sty that lack options to turn off
-% the subcaptions:
-% For subfig.sty:
-% \let\MYorigsubfloat\subfloat
-% \renewcommand{\subfloat}[2][\relax]{\MYorigsubfloat[]{#2}}
-% However, the above trick will not work if both optional arguments of
-% the \subfloat command are used. Furthermore, there needs to be a
-% description of each subfigure *somewhere* and endfloat does not add
-% subfigure captions to its list of figures. Thus, the best approach is to
-% avoid the use of subfigure captions (many IEEE journals avoid them anyway)
-% and instead reference/explain all the subfigures within the main caption.
-% The latest version of endfloat.sty and its documentation can obtained at:
-% http://www.ctan.org/pkg/endfloat
+%\ifCLASSOPTIONcaptionsoff \usepackage[nomarkers]{endfloat}
+%  \let\MYoriglatexcaption\caption
+%  \renewcommand{\caption}[2][\relax]{\MYoriglatexcaption[#2]{#2}} \fi
+%  endfloat.sty was written by James Darrell McCauley, Jeff Goldberg and Axel
+%  Sommerfeldt. This package may be useful when used in conjunction with
+%  IEEEtran.cls'  captionsoff option. Some IEEE journals/societies require that
+%  submissions have lists of figures/tables at the end of the paper and that
+%  figures/tables without any captions are placed on a page by themselves at the
+%  end of the document. If needed, the draftcls IEEEtran class option or
+%  \CLASSINPUTbaselinestretch interface can be used to increase the line spacing
+%  as well. Be sure and use the nomarkers option of endfloat to prevent endfloat
+%  from "marking" where the figures would have been placed in the text. The two
+%  hack lines of code above are a slight modification of that suggested by in
+%  the endfloat docs (section 8.4.1) to ensure that the full captions always
+%  appear in the list of figures/tables - even if the user used the short
+%  optional argument of \caption[]{}. IEEE papers do not typically make use of
+%  \caption[]'s optional argument, so this should not be an issue. A similar
+%  trick can be used to disable captions of packages such as subfig.sty that
+%  lack options to turn off the subcaptions: For subfig.sty:
+%  \let\MYorigsubfloat\subfloat
+%  \renewcommand{\subfloat}[2][\relax]{\MYorigsubfloat[]{#2}} However, the above
+%  trick will not work if both optional arguments of the \subfloat command are
+%  used. Furthermore, there needs to be a description of each subfigure
+%  *somewhere* and endfloat does not add subfigure captions to its list of
+%  figures. Thus, the best approach is to avoid the use of subfigure captions
+%  (many IEEE journals avoid them anyway) and instead reference/explain all the
+%  subfigures within the main caption. The latest version of endfloat.sty and
+%  its documentation can obtained at: http://www.ctan.org/pkg/endfloat
 %
-% The IEEEtran \ifCLASSOPTIONcaptionsoff conditional can also be used
-% later in the document, say, to conditionally put the References on a 
-% page by themselves.
+% The IEEEtran \ifCLASSOPTIONcaptionsoff conditional can also be used later in
+% the document, say, to conditionally put the References on a page by
+% themselves.
 
 
 
 
 % *** PDF, URL AND HYPERLINK PACKAGES ***
 %
-%\usepackage{url}
-% url.sty was written by Donald Arseneau. It provides better support for
-% handling and breaking URLs. url.sty is already installed on most LaTeX
-% systems. The latest version and documentation can be obtained at:
-% http://www.ctan.org/pkg/url
-% Basically, \url{my_url_here}.
+%\usepackage{url} url.sty was written by Donald Arseneau. It provides better
+% support for handling and breaking URLs. url.sty is already installed on most
+% LaTeX systems. The latest version and documentation can be obtained at:
+% http://www.ctan.org/pkg/url Basically, \url{my_url_here}.
 
 
 
 
 
-% *** Do not adjust lengths that control margins, column widths, etc. ***
-% *** Do not use packages that alter fonts (such as pslatex).         ***
-% There should be no need to do such things with IEEEtran.cls V1.6 and later.
-% (Unless specifically asked to do so by the journal or conference you plan
-% to submit to, of course. )
+% *** Do not adjust lengths that control margins, column widths, etc. *** *** Do
+% not use packages that alter fonts (such as pslatex).         *** There should
+% be no need to do such things with IEEEtran.cls V1.6 and later. (Unless
+% specifically asked to do so by the journal or conference you plan to submit
+% to, of course. )
 
 
 % correct bad hyphenation here
@@ -393,8 +333,7 @@
 \newcommand{\valid}[0]{\cellcolor{green!75!black}\ding{51}}
 \newcommand{\warn}[0]{\cellcolor{orange!75}?}
 \newcommand{\na}[0]{\cellcolor{gray!25}}
-\newcommand{\s}[1]{\cellcolor{cyan!25}#1}
-\newcommand{\scross}[0]{\ding{53}~}
+\newcommand{\s}[1]{\cellcolor{cyan!25}#1} \newcommand{\scross}[0]{\ding{53}~}
 \newcommand{\svalid}[0]{\ding{51}~}
 \newcommand{\swarn}[0]{?~}
 \newcommand{\pytracer}[0]{PyTracer\xspace}
@@ -403,12 +342,8 @@
 \definecolor{lightgreen}{rgb}{0.8,1.0,0.8}
 
 \usepackage{ifthen}
-\newif\ifANNOTATED
-\ifthenelse{\equal{\detokenize{annotated}}{\jobname}}{
-\ANNOTATEDtrue
-}{
-\ANNOTATEDfalse
-}
+\newif\ifANNOTATED \ifthenelse{\equal{\detokenize{annotated}}{\jobname}}{
+\ANNOTATEDtrue }{ \ANNOTATEDfalse }
 
 \ifANNOTATED
 \definecolor{ao(english)}{rgb}{0.0, 0.5, 0.0}
@@ -417,8 +352,7 @@
 \DeclareRobustCommand{\addCite}[1]{\textcolor{lightgreen}{\mbox{#1}}}
 \newcommand{\TG}[1]{\color{red}\textsc{From Tristan}: #1\xspace\color{black}}
 \else
-\DeclareRobustCommand{\add}[1]{#1}
-\DeclareRobustCommand{\remove}[1]{}
+\DeclareRobustCommand{\add}[1]{#1} \DeclareRobustCommand{\remove}[1]{}
 \DeclareRobustCommand{\addCite}[1]{#1}
 \newcommand{\TG}[1]{}
 \fi
@@ -429,52 +363,32 @@
 
 \makeatletter
 \newcommand{\thickhline}{%
-    \noalign {\ifnum 0=`}\fi \hrule height 1pt
-    \futurelet \reserved@a \@xhline
-}
-\newcolumntype{"}{@{\hskip\tabcolsep\vrule width 1pt\hskip\tabcolsep}}
+    \noalign {\ifnum 0=`}\fi \hrule height 1pt \futurelet \reserved@a \@xhline }
+    \newcolumntype{"}{@{\hskip\tabcolsep\vrule width 1pt\hskip\tabcolsep}}
 \makeatother
 
 
-\lstdefinestyle{customPython}{
-  belowcaptionskip=1\baselineskip,
-  breaklines=true,
-  xleftmargin=\parindent,
-  language=Python,
-  showstringspaces=false,
-  basicstyle=\scriptsize\ttfamily,
-  keywordstyle=\bfseries\color[rgb]{0.580, 0.000, 0.827},
+\lstdefinestyle{customPython}{ belowcaptionskip=1\baselineskip, breaklines=true,
+  xleftmargin=\parindent, language=Python, showstringspaces=false,
+  basicstyle=\scriptsize\ttfamily, keywordstyle=\bfseries\color[rgb]{0.580,
+  0.000, 0.827},
   %{purple!40!lightgray},
   commentstyle=\itshape\color{green!40!black},
-  identifierstyle=\bfseries\color{cyan!75!black},
-  stringstyle=\color{orange},
-  deletekeywords={double,float},
-  classoffset=1, % starting new class
-  otherkeywords={double,float},
-  morekeywords={double,float},
-  keywordstyle=\bfseries\color{green!55!black},
-  classoffset=0
-}
+  identifierstyle=\bfseries\color{cyan!75!black}, stringstyle=\color{orange},
+  deletekeywords={double,float}, classoffset=1, % starting new class
+  otherkeywords={double,float}, morekeywords={double,float},
+  keywordstyle=\bfseries\color{green!55!black}, classoffset=0 }
 
-\lstdefinestyle{customC}{
-  belowcaptionskip=1\baselineskip,
-  breaklines=true,
-  xleftmargin=\parindent,
-  language=C,
-  showstringspaces=false,
-  basicstyle=\scriptsize\ttfamily,
-  keywordstyle=\bfseries\color[rgb]{0.580, 0.000, 0.827},
+\lstdefinestyle{customC}{ belowcaptionskip=1\baselineskip, breaklines=true,
+  xleftmargin=\parindent, language=C, showstringspaces=false,
+  basicstyle=\scriptsize\ttfamily, keywordstyle=\bfseries\color[rgb]{0.580,
+  0.000, 0.827},
   %{purple!40!lightgray},
   commentstyle=\itshape\color{green!40!black},
-  identifierstyle=\bfseries\color{cyan!75!black},
-  stringstyle=\color{orange},
-  deletekeywords={double,float},
-  classoffset=1, % starting new class
-  otherkeywords={double,float},
-  morekeywords={double,float},
-  keywordstyle=\bfseries\color{green!55!black},
-  classoffset=0
-}
+  identifierstyle=\bfseries\color{cyan!75!black}, stringstyle=\color{orange},
+  deletekeywords={double,float}, classoffset=1, % starting new class
+  otherkeywords={double,float}, morekeywords={double,float},
+  keywordstyle=\bfseries\color{green!55!black}, classoffset=0 }
 
 \begin{document}
 
@@ -485,110 +399,105 @@
 \makeatother
 
 %
-% paper title
-% Titles are generally capitalized except for words such as a, an, and, as,
-% at, but, by, for, in, nor, of, on, or, the, to and up, which are usually
-% not capitalized unless they are the first or last word of the title.
-% Linebreaks \\ can be used within to get better formatting as desired.
-% Do not put math or special symbols in the title.
+% paper title Titles are generally capitalized except for words such as a, an,
+% and, as, at, but, by, for, in, nor, of, on, or, the, to and up, which are
+% usually not capitalized unless they are the first or last word of the title.
+% Linebreaks \\ can be used within to get better formatting as desired. Do not
+% put math or special symbols in the title.
 \title{PyTracer: Automatically Profiling Numerical Instabilities in Python}
 %
 %
-% author names and IEEE memberships
-% note positions of commas and nonbreaking spaces ( ~ ) LaTeX will not break
-% a structure at a ~ so this keeps an author's name from being broken across
-% two lines.
-% use \thanks{} to gain access to the first footnote area
-% a separate \thanks must be used for each paragraph as LaTeX2e's \thanks
-% was not built to handle multiple paragraphs
+% author names and IEEE memberships note positions of commas and nonbreaking
+% spaces ( ~ ) LaTeX will not break a structure at a ~ so this keeps an author's
+% name from being broken across two lines. use \thanks{} to gain access to the
+% first footnote area a separate \thanks must be used for each paragraph as
+% LaTeX2e's \thanks was not built to handle multiple paragraphs
 %
 %
-%\IEEEcompsocitemizethanks is a special \thanks that produces the bulleted
-% lists the Computer Society journals use for "first footnote" author
-% affiliations. Use \IEEEcompsocthanksitem which works much like \item
-% for each affiliation group. When not in compsoc mode,
-% \IEEEcompsocitemizethanks becomes like \thanks and
-% \IEEEcompsocthanksitem becomes a line break with idention. This
+%\IEEEcompsocitemizethanks is a special \thanks that produces the bulleted lists
+% the Computer Society journals use for "first footnote" author affiliations.
+% Use \IEEEcompsocthanksitem which works much like \item for each affiliation
+% group. When not in compsoc mode, \IEEEcompsocitemizethanks becomes like
+% \thanks and \IEEEcompsocthanksitem becomes a line break with idention. This
 % facilitates dual compilation, although admittedly the differences in the
 % desired content of \author between the different types of papers makes a
-% one-size-fits-all approach a daunting prospect. For instance, compsoc 
-% journal papers have the author affiliations above the "Manuscript
-% received ..."  text while in non-compsoc journals this is reversed. Sigh.
+% one-size-fits-all approach a daunting prospect. For instance, compsoc journal
+% papers have the author affiliations above the "Manuscript received ..."  text
+% while in non-compsoc journals this is reversed. Sigh.
 
-\author{Yohan Chatelain$^1$, Nigel Yong Sao Young$^1$,  Gregory Kiar$^2$,  Tristan Glatard$^1$\\
-    $^1$Department of Computer Science and Software Engineering, Concordia University, Montreal, Canada\\
-    $^2$Center for the Developing Brain, Child Mind Institute, New York, NY, USA}
-%% \author{Michael~Shell,~\IEEEmembership{Member,~IEEE,}
-%%         John~Doe,~\IEEEmembership{Fellow,~OSA,}
-%%         and~Jane~Doe,~\IEEEmembership{Life~Fellow,~IEEE}% <-this % stops a space
-%% \IEEEcompsocitemizethanks{\IEEEcompsocthanksitem M. Shell was with the Department
-%% of Electrical and Computer Engineering, Georgia Institute of Technology, Atlanta,
-%% GA, 30332.\protect\\
-%% % note need leading \protect in front of \\ to get a newline within \thanks as
-%% % \\ is fragile and will error, could use \hfil\break instead.
-%% E-mail: see http://www.michaelshell.org/contact.html
-%% \IEEEcompsocthanksitem J. Doe and J. Doe are with Anonymous University.}% <-this % stops an unwanted space
-%% \thanks{Manuscript received April 19, 2005; revised August 26, 2015.}}
+\author{Yohan Chatelain$^1$, Nigel Yong Sao Young$^1$,  Gregory Kiar$^2$,
+    Tristan Glatard$^1$\\
+    $^1$Department of Computer Science and Software Engineering, Concordia
+    University, Montreal, Canada\\
+    $^2$Center for the Developing Brain, Child Mind Institute, New York, NY,
+    USA}
+%% \author{Michael~Shell,~\IEEEmembership{Member,~IEEE,} %
+%John~Doe,~\IEEEmembership{Fellow,~OSA,} %
+%and~Jane~Doe,~\IEEEmembership{Life~Fellow,~IEEE}% <-this % stops a space %
+%\IEEEcompsocitemizethanks{\IEEEcompsocthanksitem M. Shell was with the
+%Department % of Electrical and Computer Engineering, Georgia Institute of
+%Technology, Atlanta, % GA, 30332.\protect\\
+%% % note need leading \protect in front of \\ to get a newline within \thanks
+%as % % \\ is fragile and will error, could use \hfil\break instead. % E-mail:
+%see http://www.michaelshell.org/contact.html % \IEEEcompsocthanksitem J. Doe
+%and J. Doe are with Anonymous University.}% <-this % stops an unwanted space %
+%\thanks{Manuscript received April 19, 2005; revised August 26, 2015.}}
 
-% note the % following the last \IEEEmembership and also \thanks - 
-% these prevent an unwanted space from occurring between the last author name
-% and the end of the author line. i.e., if you had this:
-% 
+% note the % following the last \IEEEmembership and also \thanks - these prevent
+% an unwanted space from occurring between the last author name and the end of
+% the author line. i.e., if you had this:
+%
 % \author{....lastname \thanks{...} \thanks{...} }
 %                     ^------------^------------^----Do not want these spaces!
 %
 % a space would be appended to the last name and could cause every name on that
 % line to be shifted left slightly. This is one of those "LaTeX things". For
-% instance, "\textbf{A} \textbf{B}" will typeset as "A B" not "AB". To get
-% "AB" then you have to do: "\textbf{A}\textbf{B}"
-% \thanks is no different in this regard, so shield the last } of each \thanks
-% that ends a line with a % and do not let a space in before the next \thanks.
-% Spaces after \IEEEmembership other than the last one are OK (and needed) as
-% you are supposed to have spaces between the names. For what it is worth,
-% this is a minor point as most people would not even notice if the said evil
-% space somehow managed to creep in.
+% instance, "\textbf{A} \textbf{B}" will typeset as "A B" not "AB". To get "AB"
+% then you have to do: "\textbf{A}\textbf{B}" \thanks is no different in this
+% regard, so shield the last } of each \thanks that ends a line with a % and do
+% not let a space in before the next \thanks. Spaces after \IEEEmembership other
+% than the last one are OK (and needed) as you are supposed to have spaces
+% between the names. For what it is worth, this is a minor point as most people
+% would not even notice if the said evil space somehow managed to creep in.
 
 
 
 % The paper headers
 \markboth{Journal of \LaTeX\ Class Files,~Vol.~14, No.~8, August~2015}%
-{Shell \MakeLowercase{\textit{et al.}}: Bare Demo of IEEEtran.cls for Computer Society Journals}
+{Shell \MakeLowercase{\textit{et al.}}: Bare Demo of IEEEtran.cls for Computer
+    Society Journals}
 % The only time the second header will appear is for the odd numbered pages
 % after the title page when using the twoside option.
-% 
-% *** Note that you probably will NOT want to include the author's ***
-% *** name in the headers of peer review papers.                   ***
-% You can use \ifCLASSOPTIONpeerreview for conditional compilation here if
-% you desire.
+%
+% *** Note that you probably will NOT want to include the author's *** *** name
+% in the headers of peer review papers.                   *** You can use
+% \ifCLASSOPTIONpeerreview for conditional compilation here if you desire.
 
 
 
 % The publisher's ID mark at the bottom of the page is less important with
-% Computer Society journal papers as those publications place the marks
-% outside of the main text columns and, therefore, unlike regular IEEE
-% journals, the available text space is not reduced by their presence.
-% If you want to put a publisher's ID mark on the page you can do it like
-% this:
-%\IEEEpubid{0000--0000/00\$00.00~\copyright~2015 IEEE}
-% or like this to get the Computer Society new two part style.
-%\IEEEpubid{\makebox[\columnwidth]{\hfill 0000--0000/00/\$00.00~\copyright~2015 IEEE}%
-%\hspace{\columnsep}\makebox[\columnwidth]{Published by the IEEE Computer Society\hfill}}
-% Remember, if you use this you must call \IEEEpubidadjcol in the second
-% column for its text to clear the IEEEpubid mark (Computer Society jorunal
-% papers don't need this extra clearance.)
+% Computer Society journal papers as those publications place the marks outside
+% of the main text columns and, therefore, unlike regular IEEE journals, the
+% available text space is not reduced by their presence. If you want to put a
+% publisher's ID mark on the page you can do it like this:
+% \IEEEpubid{0000--0000/00\$00.00~\copyright~2015 IEEE} or like this to get the
+% Computer Society new two part style. \IEEEpubid{\makebox[\columnwidth]{\hfill
+% 0000--0000/00/\$00.00~\copyright~2015 IEEE}%
+% \hspace{\columnsep}\makebox[\columnwidth]{Published by the IEEE Computer
+% Society\hfill}} Remember, if you use this you must call \IEEEpubidadjcol in
+% the second column for its text to clear the IEEEpubid mark (Computer Society
+% jorunal papers don't need this extra clearance.)
 
 
 
-% use for special paper notices
-%\IEEEspecialpapernotice{(Invited Paper)}
+% use for special paper notices \IEEEspecialpapernotice{(Invited Paper)}
 
 
 
 % for Computer Society papers, we must declare the abstract and index terms
-% PRIOR to the title within the \IEEEtitleabstractindextext IEEEtran
-% command as these need to go into the title area created by \maketitle.
-% As a general rule, do not put math, special symbols or citations
-% in the abstract or keywords.
+% PRIOR to the title within the \IEEEtitleabstractindextext IEEEtran command as
+% these need to go into the title area created by \maketitle. As a general rule,
+% do not put math, special symbols or citations in the abstract or keywords.
 \IEEEtitleabstractindextext{%
     \begin{abstract}
         Numerical stability is a crucial requirement of reliable scientific
@@ -622,26 +531,23 @@
 
 
 % To allow for easy dual compilation without having to reenter the
-% abstract/keywords data, the \IEEEtitleabstractindextext text will
-% not be used in maketitle, but will appear (i.e., to be "transported")
-% here as \IEEEdisplaynontitleabstractindextext when the compsoc 
-% or transmag modes are not selected <OR> if conference mode is selected 
-% - because all conference papers position the abstract like regular
-% papers do.
+% abstract/keywords data, the \IEEEtitleabstractindextext text will not be used
+% in maketitle, but will appear (i.e., to be "transported") here as
+% \IEEEdisplaynontitleabstractindextext when the compsoc or transmag modes are
+% not selected <OR> if conference mode is selected
+% - because all conference papers position the abstract like regular papers do.
 \IEEEdisplaynontitleabstractindextext
-% \IEEEdisplaynontitleabstractindextext has no effect when using
-% compsoc or transmag under a non-conference mode.
+% \IEEEdisplaynontitleabstractindextext has no effect when using compsoc or
+% transmag under a non-conference mode.
 
 
 
-% For peer review papers, you can put extra information on the cover
-% page as needed:
-% \ifCLASSOPTIONpeerreview
-% \begin{center} \bfseries EDICS Category: 3-BBND \end{center}
-% \fi
+% For peer review papers, you can put extra information on the cover page as
+% needed: \ifCLASSOPTIONpeerreview \begin{center} \bfseries EDICS Category:
+% 3-BBND \end{center} \fi
 %
-% For peerreview papers, this IEEEtran command inserts a page break and
-% creates the second title. It will be ignored for other modes.
+% For peerreview papers, this IEEEtran command inserts a page break and creates
+% the second title. It will be ignored for other modes.
 \IEEEpeerreviewmaketitle
 
 
@@ -649,10 +555,10 @@
 \IEEEraisesectionheading{\section{Introduction}\label{sec:introduction}}
 % Computer Society journal (but not conference!) papers do something unusual
 % with the very first section heading (almost always called "Introduction").
-% They place it ABOVE the main text! IEEEtran.cls does not automatically do
-% this for you, but you can achieve this effect with the provided
-% \IEEEraisesectionheading{} command. Note the need to keep any \label that
-% is to refer to the section immediately after \section in the above as
+% They place it ABOVE the main text! IEEEtran.cls does not automatically do this
+% for you, but you can achieve this effect with the provided
+% \IEEEraisesectionheading{} command. Note the need to keep any \label that is
+% to refer to the section immediately after \section in the above as
 % \IEEEraisesectionheading puts \section within a raised box.
 
 \IEEEPARstart{T}{he} scientific Python ecosystem has become a central component
@@ -663,12 +569,12 @@ SciPy~\cite{virtanen2020scipy}, scikit-learn~\cite{pedregosa2011scikit} or
 PyTorch~\cite{paszke2019pytorch} are used in hundreds of publications each year,
 and serve as a reference set of high-quality open-source core scientific
 libraries. Researchers have built numerous domain-specific software tools from
-this ecosystem, leveraging Python's simplicity and flexibility. 
+this ecosystem, leveraging Python's simplicity and flexibility.
 
 Numerical stability is a crucial requirement of reliable scientific data
 processing. In unstable analyses, small numerical perturbations introduced by
-data noise, software and hardware updates, or parallelization have the potential to
-introduce substantial deviations in final results, leading to potentially
+data noise, software and hardware updates, or parallelization have the potential
+to introduce substantial deviations in final results, leading to potentially
 different scientific conclusions, ultimately threatening the reliability of
 computational analyses. To prevent this, numerical stability analyses need to be
 conducted systematically, however, no practical tool currently exists to conduct
@@ -676,94 +582,82 @@ such analyses for Python programs.
 
 We present PyTracer, a numerical stability profiling and visualization tool for
 Python programs. \pytracer adopts a dynamic approach that evaluates numerical
-stability using program execution traces and applies to large programs
-without manual intervention. The transparent nature of \pytracer is particularly
+stability using program execution traces and applies to large programs without
+manual intervention. The transparent nature of \pytracer is particularly
 valuable in contrast to theoretical approaches based on condition numbers or
-backward error analysis~\cite{higham2002accuracy}, which require
-detailed modeling of the program and its numerical implementation. Similarly,
-static code analysis techniques~\cite{goubault2006static} hardly scale
-to large codebases, particularly in dynamically-typed languages such as Python.
+backward error analysis~\cite{higham2002accuracy}, which require detailed
+modeling of the program and its numerical implementation. Similarly, static code
+analysis techniques~\cite{goubault2006static} hardly scale to large codebases,
+particularly in dynamically-typed languages such as Python.
 
-\pytracer estimates the variability of floating-point variables by
-combining program traces obtained with different numerical perturbations,
-which requires (a) generating numerically-perturbed
-executions, (b) tracing floating-point computations along with
-program executions, and (c) visualizing stability
-evaluations. PyTracer addresses \add{this work} (a) by relying on
-Fuzzy~\cite{kiar2020comparing}, an existing collection of scientific
-computing libraries instrumented with Monte-Carlo arithmetic through the
-Verificarlo tool~\cite{verificarlo}, (b) by dynamically instrumenting
-Python functions, modules, and classes through meta-programming, and (c) by
-visualizing stability measures throughout program executions with an
-interactive Plotly dashboard. \mbox{\pytracer} is available \add{at}
+\pytracer estimates the variability of floating-point variables by combining
+program traces obtained with different numerical perturbations, which requires
+(a) generating numerically-perturbed executions, (b) tracing floating-point
+computations along with program executions, and (c) visualizing stability
+evaluations. PyTracer addresses this work (a) by relying on
+Fuzzy~\cite{kiar2020comparing}, an existing collection of scientific computing
+libraries instrumented with Monte-Carlo arithmetic through the Verificarlo
+tool~\cite{verificarlo}, (b) by dynamically instrumenting Python functions,
+modules, and classes through meta-programming, and (c) by visualizing stability
+measures throughout program executions with an interactive Plotly dashboard.
+\mbox{\pytracer} is available at
 \mbox{\href{https://github.com/big-data-lab-team/pytracer}{github.com/big-data-lab-team/pytracer}}
 (MIT License).
 
-This manuscript presents the design of \pytracer and highlights its potential
-in various use cases. Through stability evaluations of the SciPy and
-scikit-learn libraries, we demonstrate \pytracer as a practical solution to
-review the numerical stability of extensive code bases. 
+This manuscript presents the design of \pytracer and highlights its potential in
+various use cases. Through stability evaluations of the SciPy and scikit-learn
+libraries, we demonstrate \pytracer as a practical solution to review the
+numerical stability of extensive code bases.
 
 \section{\pytracer design}
 
 To detect numerical instabilities, \pytracer works in three main steps:
 \begin{enumerate}
     \item Instruments Python programs and their module dependencies
-          automatically, to save the input and output values of functions in a trace
-          file.
+          automatically, to save the input and output values of functions in a
+          trace file.
     \item Executes the instrumented program several times using Monte-Carlo
           Arithmetic to inject perturbations in function outputs.
     \item Aggregates all trace files to compute statistics about the traced
           values, and visualize them in a GUI.
 \end{enumerate}
-\pytracer adopts the workflow shown in Figure~\ref{fig:workflow}.
-In \add{S}tep 1, \pytracer uses monkey patching to replace the functions called
-by the application with a wrapper that saves their arguments and returned
-values in a trace file. In \add{S}tep 2, it executes the application multiple
-times with Monte-Carlo Arithmetic as implemented in the
-Fuzzy~\cite{kiar2020comparing} environment. It then
-aggregates the resulting trace files to compute summary statistics on
-traced variables. In \add{S}tep 3, a Plotly dashboard provides interactive
-visualizations highlighting unstable code sections.
+\pytracer adopts the workflow shown in Figure~\ref{fig:workflow}. In Step
+1, \pytracer uses monkey patching to replace the functions called by the
+application with a wrapper that saves their arguments and returned values in a
+trace file. In Step 2, it executes the application multiple times with
+Monte-Carlo Arithmetic as implemented in the Fuzzy~\cite{kiar2020comparing}
+environment. It then aggregates the resulting trace files to compute summary
+statistics on traced variables. In Step 3, a Plotly dashboard provides
+interactive visualizations highlighting unstable code sections.
 
-The remainder of this section assumes some knowledge of Python concepts
-such as classes, functions, modules, decorators, callables, and iterators.
-We refer to~\cite{beazley2013python} for a detailed presentation of these
-concepts.
+The remainder of this section assumes some knowledge of Python concepts such as
+classes, functions, modules, decorators, callables, and iterators. We refer
+to~\cite{beazley2013python} for a detailed presentation of these concepts.
 
 \begin{figure*}
     \centering
     \includegraphics[width=0.75\linewidth]{figure/workflow.pdf}
     \caption{Pytracer workflow
-        % \gkmod{}{Note: replace "Execution" with "Multiple Independent
-        % Executions", and maybe move it to be between the gears and the pkl
-        % files.}
     }
     \label{fig:workflow}
 \end{figure*}
 
 \subsection{Python code instrumentation}
 
-%\tristan{``Instrumentation" should appear in Figure 1}
-
-
 \pytracer dynamically instruments Python modules without requiring source code
 modifications in the application. To do so, it creates a new, instrumented
 version of each module that preserves its original attributes so that the
 application can transparently use it.
-% \gkmod{}{Note: this form of monkey patching is basically global and
-% transparent decorating, right?} \Yohan{Yes}
 By default, \pytracer instruments all the attributes in a given module except
 the special ones of the form \texttt{\_\_*\_\_}, which is common for reserved
 Python methods. However, some attributes are not writable. In this case,
-\pytracer preserves the original attributes and warns
-the user. The user can also restrict the list of traced attributes through an
-inclusion/exclusion mechanism. The main advantage of this instrumentation
-approach is the lack of required modification in the application source code, in
-contrast with  a decorator-based approach~\mbox{\cite{hunt2019decorators}}. 
-In addition, this technique is
-scalable and applicable in read-only environments such as Singularity containers
-or HPC clusters.
+\pytracer preserves the original attributes and warns the user. The user can
+also restrict the list of traced attributes through an inclusion/exclusion
+mechanism. The main advantage of this instrumentation approach is the lack of
+required modification in the application source code, in contrast with  a
+decorator-based approach~\mbox{\cite{hunt2019decorators}}. In addition, this
+technique is scalable and applicable in read-only environments such as
+Singularity containers or HPC clusters.
 
 \subsubsection{Intercepting module import}
 
@@ -784,9 +678,9 @@ the pip package manager --- or on a distant server. \texttt{Finders} do not load
 modules. Instead, they return a specification (\texttt{spec} object) that
 includes information on where to find and how to load modules. \texttt{Loaders}
 create module objects, initialize them, and fill import-related attributes such
-as \texttt{\_\_spec\_\_}; then execute modules and populate
-their namespace. Finally, modules are bound to their import name in the
-\texttt{sys.modules} dictionary.
+as \texttt{\_\_spec\_\_}; then execute modules and populate their namespace.
+Finally, modules are bound to their import name in the \texttt{sys.modules}
+dictionary.
 
 
 Python supports custom \texttt{finder} classes registered in the
@@ -797,8 +691,8 @@ list until it finds the module. \pytracer adds a custom \texttt{finder} class at
 the head of \texttt{sys.meta\_path} that intercepts the module import and
 creates the module with a custom \texttt{loader} class.
 
-\pytracer's \texttt{loader} class first loads the original module and then copies
-it as a new instance of the \texttt{ModuleType} class. It then calls the
+\pytracer's \texttt{loader} class first loads the original module and then
+copies it as a new instance of the \texttt{ModuleType} class. It then calls the
 appropriate instrumentation function for each attribute depending on its type
 (function, class, or instances) and replaces the original module in the
 \texttt{sys.modules} map with the instrumented version. Finally, it updates all
@@ -807,8 +701,8 @@ As a result, the application will transparently call the instrumented module.
 
 \subsubsection{Instrumenting module functions}
 
-For each function to be instrumented, \pytracer's \texttt{loader} class creates a
-wrapper function, dynamically compiles it with the \texttt{compile} builtin
+For each function to be instrumented, \pytracer's \texttt{loader} class creates
+a wrapper function, dynamically compiles it with the \texttt{compile} builtin
 function, and substitutes it for the original module function.  Although simple,
 this technique does not apply to callable class instances, i.e., class instances
 that can be called directly with the () operator, because they are not of type
@@ -818,12 +712,11 @@ syntax and semantic errors, and 2) mask class attributes, leading to
 \texttt{AttributeError} exceptions. \pytracer overrides the
 \texttt{\_\_call\_\_} attribute with the wrapper function when possible to
 overcome this issue. When the \texttt{\_\_call\_\_} attribute is not writable,
-Pytracer does not instrument the class and returns a warning. 
-This limitation is expected to have a minor impact in practice since non-writable
-classes are usually called from pure Python classes that can be
-instrumented. Therefore, \pytracer reports information about the stability of
-non-writable classes through the instrumentation of the pure Python
-classes that use them.
+Pytracer does not instrument the class and returns a warning. This limitation is
+expected to have a minor impact in practice since non-writable classes are
+usually called from pure Python classes that can be instrumented. Therefore,
+\pytracer reports information about the stability of non-writable classes
+through the instrumentation of the pure Python classes that use them.
 
 \subsubsection{Instrumenting classes}
 
@@ -832,7 +725,7 @@ previously. This instrumentation preserves class types, which avoids type
 mismatches in the instrumented application. However, classes that describe
 particular base types and NumPy's universal functions (class \texttt{ufunc})
 contain read-only attributes that cannot be instrumented. By default, \pytracer
-returns a warning when it encounters such classes. 
+returns a warning when it encounters such classes.
 
 \subsubsection{Instrumenting class instances}
 
@@ -864,17 +757,15 @@ finite memory. However, it implies that no complete mapping of the container
 returned by an iterator exists in memory since the application computes each
 element on the fly. Hence, iterators are not serializable which implies that
 \pytracer cannot save them to output traces. A workaround would be to convert
-iterators into explicit containers but this would increase the memory
-footprint significantly. \pytracer, therefore, does not instrument
-iterators.
+iterators into explicit containers but this would increase the memory footprint
+significantly. \pytracer, therefore, does not instrument iterators.
 
-We do not expect this limitation to have a critical impact on the
-applicability of \pytracer. 
-Iterators generally involve simple computations that are unlikely to be
-unstable. Besides, we encountered only a few iterators in our
-experiments and none of them involved floating-point values. Should
-instabilities occur in iterators, \pytracer would detect them through the
-inputs of the functions consuming these iterators. 
+We do not expect this limitation to have a critical impact on the applicability
+of \pytracer. Iterators generally involve simple computations that are unlikely
+to be unstable. Besides, we encountered only a few iterators in our experiments
+and none of them involved floating-point values. Should instabilities occur in
+iterators, \pytracer would detect them through the inputs of the functions
+consuming these iterators.
 
 \subsection{Detecting numerical instabilities}
 
@@ -887,16 +778,16 @@ it is an accurate model for floating-point errors~\cite{verificarlo}.
 \subsubsection{Noise injection}
 \label{sec:fuzzy}
 
-Three  main  approaches  exist  to  detect  numerical  instabilities:
-stochastic  arithmetic,  uncertainty  or  sensitivity analysis~\cite{helton2006survey}, and random
-seed analysis~\cite{hellekalek1998good}. PyTracer is agnostic to the noise model used and can therefore
-be used for all these methods.  For our use cases, we focus on stochastic
-arithmetic since it does not make any assumption about the noise model, in
-contrast to sensitivity analysis.
+Three  main  approaches  exist  to  detect  numerical  instabilities: stochastic
+arithmetic,  uncertainty  or  sensitivity analysis~\cite{helton2006survey}, and
+random seed analysis~\cite{hellekalek1998good}. PyTracer is agnostic to the
+noise model used and can therefore be used for all these methods.  For our use
+cases, we focus on stochastic arithmetic since it does not make any assumption
+about the noise model, in contrast to sensitivity analysis.
 
 Stochastic arithmetic leverages randomness to estimate numerical instabilities
 coming from the use of floating-point representations. The main idea is to treat
-round-off errors as random variables and characterize them statistically. Monte 
+round-off errors as random variables and characterize them statistically. Monte
 Carlo Arithmetic (MCA)~\cite{parker1997monte} uses this principle by introducing
 two improvements: (i) a virtual precision parameter, allowing for simulating
 reduced working precision, and (ii) different perturbation modes to introduce
@@ -906,15 +797,15 @@ number $x$ with a stochastic counterpart computed as:
     inexact(x) =  x + \beta^{e_x - t}\xi
 \]
 where $\beta$ is the number base, $e_x$ is the magnitude of $x$, $t$ the virtual
-precision and $\xi\! \in\! (-\frac{1}{2},\frac{1}{2})$ is a random uniform variable.
-Virtual precision allows for the simulation of reduced working precision.
-In our experiments, we used MCA in Random Rounding (RR) mode, which
-simulates roundoff errors by applying function $inexact$ only to the
-output returned by a function. The Precision Bounding (PB) mode 
-\add{that applies the $inexact$ function on inputs}
+precision and $\xi\! \in\! (-\frac{1}{2},\frac{1}{2})$ is a random uniform
+variable. Virtual precision allows for the simulation of reduced working
+precision. In our experiments, we used MCA in Random Rounding (RR) mode, which
+simulates roundoff errors by applying function $inexact$ only to the output
+returned by a function. The Precision Bounding (PB) mode
+that applies the $inexact$ function on inputs
 can identify other types of instabilities, in particular catastrophic
-cancellations, however, it is more difficult to apply to large code bases
-as it often leads to execution errors that require human intervention.
+cancellations, however, it is more difficult to apply to large code bases as it
+often leads to execution errors that require human intervention.
 
 Stochastic arithmetic quantifies numerical error using the number of significant
 digits $s$ estimated among the sampled values. A common formula to determine
@@ -924,8 +815,6 @@ this number from MCA samples is presented in~\cite{parker1997monte}:
 \end{equation}
 where $\mu$ and $\sigma$ are the sample mean and standard deviation of a
 variable sampled with MCA. This can be seen as the ratio of signal over noise.
-\remove{Sohier et al.~\cite{sohier2021confidence} recently provided a generalization of
-    this formula to include confidence intervals.}
 
 We enabled MCA in Python programs via Verificarlo~\cite{verificarlo} a
 clang-based compiler~\cite{lattner2008llvm} that replaces floating-point
@@ -943,20 +832,19 @@ organization at
 
 Monte Carlo Arithmetic samples the floating-point variability of a given
 program, and hence the more MCA repetitions we have, the more accurate the
-distribution will be. In theory, an infinite number of MCA repetitions
-should give the exact distribution. While in practice low sample sizes (3 to 30)
-can give good estimates, the issue is to capture ``rare events" 
-making the computation to strongly diverge from the mean. 
-Determining the number of MCA samples to use is still an open research question. 
-Recent theoretical works~\cite{sohier2021confidence} on the estimation of 
-significant digits allow computing an associated confidence
-interval depending on the sample size and the underlying
-distribution.
+distribution will be. In theory, an infinite number of MCA repetitions should
+give the exact distribution. While in practice low sample sizes (3 to 30) can
+give good estimates, the issue is to capture ``rare events" making the
+computation to strongly diverge from the mean. Determining the number of MCA
+samples to use is still an open research question. Recent theoretical
+works~\cite{sohier2021confidence} on the estimation of significant digits allow
+computing an associated confidence interval depending on the sample size and the
+underlying distribution.
 
 \subsubsection{Trace format}
 
-\pytracer stores trace in the pickle format, a binary format to serialize
-Python objects. The main advantages of the pickle format compared to other
+\pytracer stores trace in the pickle format, a binary format to serialize Python
+objects. The main advantages of the pickle format compared to other
 serialization approaches such as marshal or JSON are its ability to serialize
 most Python objects and its native compression.  In addition, pickle writes
 Python objects sequentially, which preserves the temporal ordering required by
@@ -966,8 +854,7 @@ Traces store numerical values at the granularity of function calls. When the
 application invokes a function, \pytracer saves a call input object containing
 contextual information (function's name, module's function, stacktrace) and the
 values of the function arguments. When the function returns, \pytracer saves a
-similar call output object containing the returned value. 
-
+similar call output object containing the returned value.
 
 \subsubsection{Trace aggregation}
 
@@ -977,10 +864,10 @@ Equation~\ref{eq:sig-digits}) of all saved values. \pytracer saves these summary
 statistics in an HDF5 file, a hierarchical format that facilitates visual
 browsing since only required information is loaded when requested by the user.
 This operation critically relies on the ordering of call input and output
-objects in the traces. It assumes that the application is
-single-threaded and that the control flow does not depend on a random state.
-Therefore, \mbox{\pytracer} cannot merge traces resulting from different
-control flow paths and will stop the parsing when encountering such a situation.
+objects in the traces. It assumes that the application is single-threaded and
+that the control flow does not depend on a random state. Therefore,
+\mbox{\pytracer} cannot merge traces resulting from different control flow paths
+and will stop the parsing when encountering such a situation.
 
 \begin{figure*}
     \centering
@@ -988,7 +875,6 @@ control flow paths and will stop the parsing when encountering such a situation.
     \caption{Pytracer visualization layout.}
     \label{fig:visu-layout}
 \end{figure*}
-
 
 To aggregate traces, \pytracer successively unpickles call objects in each
 trace, checks that the call objects refer to the same function and stacktrace,
@@ -1006,16 +892,16 @@ customizable development interface allowing to offload heavy computations to a
 server if necessary. Figure~\ref{fig:visu-layout} presents the general layout of
 the \pytracer visualizer, divided into five sub-components:
 \begin{enumerate}
-    \item Timeline view: displays the values of each input and output
-          for a given function at a given invocation. By default, \pytracer
-          shows the number of significant digits computed across the traces. The
-          mean and standard deviation across perturbed samples are also
-          available. The visualizer uses an upper triangle for inputs and a
-          lower triangle for outputs. \pytracer internally represents all values
-          as NumPy arrays. In the case of non-scalar values or types that cannot
-          be trivially cast into NumPy arrays, \pytracer splits the value into
-          several variables. Hence, \pytracer will transform a class containing
-          $n$ floating-point parameters into $n$ variables. Each variable is
+    \item Timeline view: displays the values of each input and output for a
+          given function at a given invocation. By default, \pytracer shows the
+          number of significant digits computed across the traces. The mean and
+          standard deviation across perturbed samples are also available. The
+          visualizer uses an upper triangle for inputs and a lower triangle for
+          outputs. \pytracer internally represents all values as NumPy arrays.
+          In the case of non-scalar values or types that cannot be trivially
+          cast into NumPy arrays, \pytracer splits the value into several
+          variables. Hence, \pytracer will transform a class containing $n$
+          floating-point parameters into $n$ variables. Each variable is
           prefixed with the original value and postfixed with the name of the
           parameter. Finally, non-scalar values (vectors or matrices) are
           represented by their average and can be inspected with the Zoom view
@@ -1025,16 +911,16 @@ the \pytracer visualizer, divided into five sub-components:
           represented with a bar. The time overlaps reflect the caller/callee
           relation. For example, in the figure, \texttt{function1} calls
           \texttt{function2} which itself calls \texttt{function4} and
-          \texttt{function5}. This view provides insights into the calling context
-          for each function that may influence numerical stability.
-    \item  Source code view: displays a local snapshot of the source
-          code file of the variable hovered in the timeline view.
-    \item Zoom view: provides details about non-scalar values. For
-          example, a matrix may have instabilities around its diagonal but not
-          in other regions. The visualizer also provides additional metrics such
-          as array shape, infinite norm, or condition number.
-    \item  Functions list view: allows the user to select the
-          functions plotted in the timeline view.
+          \texttt{function5}. This view provides insights into the calling
+          context for each function that may influence numerical stability.
+    \item  Source code view: displays a local snapshot of the source code file
+          of the variable hovered in the timeline view.
+    \item Zoom view: provides details about non-scalar values. For example, a
+          matrix may have instabilities around its diagonal but not in other
+          regions. The visualizer also provides additional metrics such as array
+          shape, infinite norm, or condition number.
+    \item  Functions list view: allows the user to select the functions plotted
+          in the timeline view.
 \end{enumerate}
 
 \section{Results}
@@ -1045,17 +931,17 @@ Python, and  scikit-learn~\cite{pedregosa2011scikit}, a reference
 machine-learning framework that implements a wide range of state-of-the-art
 algorithms. For each library, we executed the software examples provided in
 their respective GitHub repositories. We traced each example five times, having
-activated MCA through Fuzzy in the Python interpreter as well as BLAS, LAPACK, NumPy,
-SciPy, and scikit-learn. These libraries are written in large parts in a
-compiled language other than Python (such as C or Cython) and their execution is not 
-perturbed by the sole use of Fuzzy Python. We chose to activate MCA in these libraries 
-to provide an overall picture of numerical uncertainty in the tested examples. 
-Depending on the use case of interest, one might choose to use MCA only in 
-a subset of these libraries or even just in the Python interpreter. We
-used MCA in Random Rounding (RR) mode, with the default virtual
-precision in Verificarlo, namely 24 bits for single-precision floating-point
-values and 53 bits for double-precision values, which simulates machine error.
-We used Python-3.8.5, NumPy-1.19.1, SciPy-1.5.4, and scikit-learn-0.23.2.
+activated MCA through Fuzzy in the Python interpreter as well as BLAS, LAPACK,
+NumPy, SciPy, and scikit-learn. These libraries are written in large parts in a
+compiled language other than Python (such as C or Cython) and their execution is
+not perturbed by the sole use of Fuzzy Python. We chose to activate MCA in these
+libraries to provide an overall picture of numerical uncertainty in the tested
+examples. Depending on the use case of interest, one might choose to use MCA
+only in a subset of these libraries or even just in the Python interpreter. We
+used MCA in Random Rounding (RR) mode, with the default virtual precision in
+Verificarlo, namely 24 bits for single-precision floating-point values and 53
+bits for double-precision values, which simulates machine error. We used
+Python-3.8.5, NumPy-1.19.1, SciPy-1.5.4, and scikit-learn-0.23.2.
 
 \begin{table*}[]
     \centering
@@ -1064,16 +950,29 @@ We used Python-3.8.5, NumPy-1.19.1, SciPy-1.5.4, and scikit-learn-0.23.2.
         \centering
         \begin{tabular}{|lll|c|c|c|}
             \hline
-            \multicolumn{3}{|c}{ \multirow{2}{*}{Application} }                 & \multicolumn{3}{|c|}{Random Rounding (RR)}                                                                                                                         \\
+            \multicolumn{3}{|c}{ \multirow{2}{*}{Application} }
+             & \multicolumn{3}{|c|}{Random Rounding (RR)}
+
+            
+            
+            
+            
+            
+            
+            \\
             \cline{4-6}
-                                                                                &                                                                           &                                                          & trace  & parse    & sigbits \\
+             & 
+             & 
+             & 
+            trace
+             & 
+            parse
+             & 
+            sigbits
+            \\
             \hline
-            \multicolumn{1}{|c|}{ \multirow{20}{2em}{ \rotatebox{90}{SciPy} } } & 
-            \multicolumn{1}{c|}{ \multirow{3}{2em}{ \rotatebox{90}{FFT} }}      & \discreteCosineRF                                                         & \valid                                                   & \valid & \s{52}             \\ 
-            \multicolumn{1}{|c|}{}                                              & \multicolumn{1}{c|}{}                                                     & \fftOneDRf                                               & \valid & \valid   & 41      \\
-            \multicolumn{1}{|c|}{}                                              & \multicolumn{1}{c|}{}                                                     & \fftTwoDRf                                               & \valid & \valid   & \s{52}  \\
-            \cline{2-6}
-            \multicolumn{1}{|c|}{}                                              & \multicolumn{1}{c|}{  \multirow{5}{*}{ \rotatebox{90}{Interpolation} } }
+            \multicolumn{1}{|c|}{ \multirow{20}{2em}{ \rotatebox{90}{SciPy} } }
+             & \multicolumn{1}{c|}{ \multirow{3}{2em}{ \rotatebox{90}{FFT} }}
 
             
             
@@ -1081,41 +980,11 @@ We used Python-3.8.5, NumPy-1.19.1, SciPy-1.5.4, and scikit-learn-0.23.2.
             
             
             
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-                                                                                & \interOneDRf                                                              & \valid                                                   & \valid & 51                 \\
-            \multicolumn{1}{|c|}{}                                              & \multicolumn{1}{c|}{}                                                     & \multiRf                                                 & \valid & \valid   & \s{51}  \\
-            \multicolumn{1}{|c|}{}                                              & \multicolumn{1}{c|}{}                                                     & \bsplineRf                                               & \valid & \valid   & 10      \\
-            \multicolumn{1}{|c|}{}                                              & \multicolumn{1}{c|}{}                                                     & \splineOneDRf                                            & \valid & \cross   & \s{52}  \\
-            \multicolumn{1}{|c|}{}                                              & \multicolumn{1}{c|}{}                                                     & \splineTwoDRf                                            & \valid & \valid   & 10      \\
-            \cline{2-6}
-            \multicolumn{1}{|c|}{}                                              & \multicolumn{1}{c|}{ \multirow{12}{2em}{ \rotatebox{90}{Optimization} } }
+             & \discreteCosineRF
+             & \valid                                                         & \valid
+             & \s{52}                                                                  \\
+            \multicolumn{1}{|c|}{}
+             & \multicolumn{1}{c|}{}
 
             
             
@@ -1123,6 +992,30 @@ We used Python-3.8.5, NumPy-1.19.1, SciPy-1.5.4, and scikit-learn-0.23.2.
             
             
             
+             & \fftOneDRf                                                     & \valid
+             & \valid                                                         & 41     \\
+            \multicolumn{1}{|c|}{}
+             & \multicolumn{1}{c|}{}
+
+            
+            
+            
+            
+            
+            
+             & \fftTwoDRf                                                     & \valid
+             & \valid                                                         & \s{52} \\
+            \cline{2-6}
+            \multicolumn{1}{|c|}{}
+             & \multicolumn{1}{c|}{  \multirow{5}{*}{
+
+                    
+                    
+                    
+                    
+                    
+                    
+                    \rotatebox{90}{Interpolation} } }
             
             
             
@@ -1151,72 +1044,434 @@ We used Python-3.8.5, NumPy-1.19.1, SciPy-1.5.4, and scikit-learn-0.23.2.
             
             
             
-                                                                                & \bfgsRf                                                                   & \valid                                                   & \valid & \s{48}             \\
+            
+            
+            
+            
+            
+            
+            
+            
+             & 
+            \interOneDRf
+             & 
+            \valid
+             & 
+            \valid
+             & 
+            51
+            \\
+            \multicolumn{1}{|c|}{}
+             & \multicolumn{1}{c|}{}
+
+            
+            
+            
+            
+            
+            
+             & \multiRf                                                       & \valid
+             & \valid                                                         & \s{51} \\
+            \multicolumn{1}{|c|}{}
+             & \multicolumn{1}{c|}{}
+
+            
+            
+            
+            
+            
+            
+             & \bsplineRf                                                     & \valid
+             & \valid                                                         & 10     \\
+            \multicolumn{1}{|c|}{}
+             & \multicolumn{1}{c|}{}
+
+            
+            
+            
+            
+            
+            
+             & \splineOneDRf                                                  & \valid
+             & \cross                                                         & \s{52} \\
+            \multicolumn{1}{|c|}{}
+             & \multicolumn{1}{c|}{}
+
+            
+            
+            
+            
+            
+            
+             & \splineTwoDRf                                                  & \valid
+             & \valid                                                         & 10     \\
+            \cline{2-6}
+            \multicolumn{1}{|c|}{}
+             & \multicolumn{1}{c|}{ \multirow{12}{2em}{
+
+                    
+                    
+                    
+                    
+                    
+                    
+                    \rotatebox{90}{Optimization} } }
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+             & 
+            \bfgsRf
+             & 
+            \valid
+             & 
+            \valid
+             & 
+            \s{48}
+            \\
             \cline{3-6}
-            \multicolumn{1}{|c|}{}                                              & \multicolumn{1}{c|}{}                                                     & \globalRf                                                & \valid & \cross   & 17      \\
-            \multicolumn{1}{|c|}{}                                              & \multicolumn{1}{c|}{}                                                     & | SHGO\footnote{Simplicial Homology Global Optimization} & \na    & \na      & \s{25}  \\
-            \multicolumn{1}{|c|}{}                                              & \multicolumn{1}{c|}{}                                                     & | Dual Annealing                                         & \na    & \na      & 4       \\
-            \multicolumn{1}{|c|}{}                                              & \multicolumn{1}{c|}{}                                                     & | Differential Evolution                                 & \na    & \na      & \s{0}   \\
-            \multicolumn{1}{|c|}{}                                              & \multicolumn{1}{c|}{}                                                     & | Basin Hopping                                          & \na    & \na      & 40      \\
-            \multicolumn{1}{|c|}{}                                              & \multicolumn{1}{c|}{}                                                     & | SHGO Sobol                                             & \na    & \na      & \s{45}  \\
+            \multicolumn{1}{|c|}{}
+             & \multicolumn{1}{c|}{}
+
+            
+            
+            
+            
+            
+            
+             & \globalRf                                                      & \valid
+             & \cross                                                         & 17     \\
+            \multicolumn{1}{|c|}{}
+             & \multicolumn{1}{c|}{}
+
+            
+            
+            
+            
+            
+            
+             & | SHGO\footnote{Simplicial Homology Global Optimization}       & \na
+             & \na                                                            & \s{25} \\
+            \multicolumn{1}{|c|}{}
+             & \multicolumn{1}{c|}{}
+
+            
+            
+            
+            
+            
+            
+             & | Dual Annealing                                               & \na
+             & \na                                                            & 4      \\
+            \multicolumn{1}{|c|}{}
+             & \multicolumn{1}{c|}{}
+
+            
+            
+            
+            
+            
+            
+             & | Differential Evolution                                       & \na
+             & \na                                                            & \s{0}  \\
+            \multicolumn{1}{|c|}{}
+             & \multicolumn{1}{c|}{}
+
+            
+            
+            
+            
+            
+            
+             & | Basin Hopping                                                & \na
+             & \na                                                            & 40     \\
+            \multicolumn{1}{|c|}{}
+             & \multicolumn{1}{c|}{}
+
+            
+            
+            
+            
+            
+            
+             & | SHGO Sobol                                                   & \na
+             & \na                                                            & \s{45} \\
             \cline{3-6}
-            \multicolumn{1}{|c|}{}                                              & \multicolumn{1}{c|}{}                                                     & \slsqpRf                                                 & \valid & \valid   & 45      \\
-            \multicolumn{1}{|c|}{}                                              & \multicolumn{1}{c|}{}                                                     & \lsmRf                                                   & \valid & \valid   & \s{48}  \\
-            \multicolumn{1}{|c|}{}                                              & \multicolumn{1}{c|}{}                                                     & \nelderRf                                                & \valid & \valid   & 44      \\
-            \multicolumn{1}{|c|}{}                                              & \multicolumn{1}{c|}{}                                                     & \ncgRf                                                   & \valid & \valid   & \s{48}  \\
-            \multicolumn{1}{|c|}{}                                              & \multicolumn{1}{c|}{}                                                     & \rootRf                                                  & \valid & \cross   & 52      \\
-            \multicolumn{1}{|c|}{}                                              & \multicolumn{1}{c|}{}                                                     & \rootLargRf                                              & \valid & \cross   & \s{29}  \\
-            \multicolumn{1}{|c|}{}                                              & \multicolumn{1}{c|}{}                                                     & \rootLargePredRf                                         & \valid & \cross   & 42      \\
-            \multicolumn{1}{|c|}{}                                              & \multicolumn{1}{c|}{}                                                     & \trustExactRf                                            & \valid & \valid   & \s{48}  \\
-            \multicolumn{1}{|c|}{}                                              & \multicolumn{1}{c|}{}                                                     & \trustTruncRf                                            & \valid & \valid   & 48      \\
-            \multicolumn{1}{|c|}{}                                              & \multicolumn{1}{c|}{}                                                     & \trustNCGRf                                              & \valid & \valid   & \s{52}  \\
+            \multicolumn{1}{|c|}{}
+             & \multicolumn{1}{c|}{}
+
+            
+            
+            
+            
+            
+            
+             & \slsqpRf                                                       & \valid
+             & \valid                                                         & 45     \\
+            \multicolumn{1}{|c|}{}
+             & \multicolumn{1}{c|}{}
+
+            
+            
+            
+            
+            
+            
+             & \lsmRf                                                         & \valid
+             & \valid                                                         & \s{48} \\
+            \multicolumn{1}{|c|}{}
+             & \multicolumn{1}{c|}{}
+
+            
+            
+            
+            
+            
+            
+             & \nelderRf                                                      & \valid
+             & \valid                                                         & 44     \\
+            \multicolumn{1}{|c|}{}
+             & \multicolumn{1}{c|}{}
+
+            
+            
+            
+            
+            
+            
+             & \ncgRf                                                         & \valid
+             & \valid                                                         & \s{48} \\
+            \multicolumn{1}{|c|}{}
+             & \multicolumn{1}{c|}{}
+
+            
+            
+            
+            
+            
+            
+             & \rootRf                                                        & \valid
+             & \cross                                                         & 52     \\
+            \multicolumn{1}{|c|}{}
+             & \multicolumn{1}{c|}{}
+
+            
+            
+            
+            
+            
+            
+             & \rootLargRf                                                    & \valid
+             & \cross                                                         & \s{29} \\
+            \multicolumn{1}{|c|}{}
+             & \multicolumn{1}{c|}{}
+
+            
+            
+            
+            
+            
+            
+             & \rootLargePredRf                                               & \valid
+             & \cross                                                         & 42     \\
+            \multicolumn{1}{|c|}{}
+             & \multicolumn{1}{c|}{}
+
+            
+            
+            
+            
+            
+            
+             & \trustExactRf                                                  & \valid
+             & \valid                                                         & \s{48} \\
+            \multicolumn{1}{|c|}{}
+             & \multicolumn{1}{c|}{}
+
+            
+            
+            
+            
+            
+            
+             & \trustTruncRf                                                  & \valid
+             & \valid                                                         & 48     \\
+            \multicolumn{1}{|c|}{}
+             & \multicolumn{1}{c|}{}
+
+            
+            
+            
+            
+            
+            
+             & \trustNCGRf                                                    & \valid
+             & \valid                                                         & \s{52} \\
             \hline
-            \multicolumn{2}{|c|}{ \multirow{20}{2em}{ \rotatebox{90}{Scikit-learn} } }
-                                                                                & \AdaboostRf                                                               & \valid                                                   & \valid & 48                 \\
+            \multicolumn{2}{|c|}{ \multirow{20}{2em}{
+                    \rotatebox{90}{Scikit-learn}
+                }
+            }
+             & 
+            \AdaboostRf
+             & 
+            \valid
+             & 
+            \valid
+             & 
+            48
+            \\
             \cline{3-6}
-            \multicolumn{2}{|c|}{}                                              & \brrRf                                                                    & \valid                                                   & \valid & \s{25}             \\
-            \multicolumn{2}{|c|}{}                                              & | $1^{st}$ dataset                                                        & \na                                                      & \na    & 25                 \\
-            \multicolumn{2}{|c|}{}                                              & | $2^{nd}$ dataset                                                        & \na                                                      & \na    & \s{nan}            \\
+            \multicolumn{2}{|c|}{}
+             & \brrRf
+             & \valid                                                         & \valid
+             & \s{25}                                                                  \\
+            \multicolumn{2}{|c|}{}
+             & | $1^{st}$ dataset
+             & \na                                                            & \na
+             & 25                                                                      \\
+            \multicolumn{2}{|c|}{}
+             & | $2^{nd}$ dataset
+             & \na                                                            & \na
+             & \s{nan}                                                                 \\
             \cline{3-6}
-            \multicolumn{2}{|c|}{}                                              & \onlineClassifierComparisonRf                                             & \valid                                                   & \valid & 20                 \\
-            \multicolumn{2}{|c|}{}                                              & \kmeansRf                                                                 & \valid                                                   & \valid & \s{52}             \\
-            \multicolumn{2}{|c|}{}                                              & \covarianceRf                                                             & \valid                                                   & \cross & 48                 \\
-            \multicolumn{2}{|c|}{}                                              & \decisionRf                                                               & \valid                                                   & \valid & \s{50}             \\
-            \multicolumn{2}{|c|}{}                                              & \digitsRf                                                                 & \valid                                                   & \valid & 52                 \\
-            \multicolumn{2}{|c|}{}                                              & \faceRf                                                                   & \cross                                                   & \valid & \s{-}              \\
-            \multicolumn{2}{|c|}{}                                              & \penaltyRf                                                                & \valid                                                   & \valid & 52                 \\
-            \multicolumn{2}{|c|}{}                                              & \lassoRf                                                                  & \valid                                                   & \valid & \s{48}             \\
-            \multicolumn{2}{|c|}{}                                              & \hyperplaneRf                                                             & \valid                                                   & \valid & 3                  \\
-            \multicolumn{2}{|c|}{}                                              & \mnistRf                                                                  & \valid                                                   & \valid & \s{43}             \\
-            \multicolumn{2}{|c|}{}                                              & \multitaskRf                                                              & \valid                                                   & \valid & 50                 \\
-            \multicolumn{2}{|c|}{}                                              & \ompRf                                                                    & \valid                                                   & \valid & \s{52}             \\
-            \multicolumn{2}{|c|}{}                                              & \pcaRf                                                                    & \valid                                                   & \valid & 48                 \\
+            \multicolumn{2}{|c|}{}
+             & \onlineClassifierComparisonRf
+             & \valid                                                         & \valid
+             & 20                                                                      \\
+            \multicolumn{2}{|c|}{}
+             & \kmeansRf
+             & \valid                                                         & \valid
+             & \s{52}                                                                  \\
+            \multicolumn{2}{|c|}{}
+             & \covarianceRf
+             & \valid                                                         & \cross
+             & 48                                                                      \\
+            \multicolumn{2}{|c|}{}
+             & \decisionRf
+             & \valid                                                         & \valid
+             & \s{50}                                                                  \\
+            \multicolumn{2}{|c|}{}
+             & \digitsRf
+             & \valid                                                         & \valid
+             & 52                                                                      \\
+            \multicolumn{2}{|c|}{}
+             & \faceRf
+             & \cross                                                         & \valid
+             & \s{-}                                                                   \\
+            \multicolumn{2}{|c|}{}
+             & \penaltyRf
+             & \valid                                                         & \valid
+             & 52                                                                      \\
+            \multicolumn{2}{|c|}{}
+             & \lassoRf
+             & \valid                                                         & \valid
+             & \s{48}                                                                  \\
+            \multicolumn{2}{|c|}{}
+             & \hyperplaneRf
+             & \valid                                                         & \valid
+             & 3                                                                       \\
+            \multicolumn{2}{|c|}{}
+             & \mnistRf
+             & \valid                                                         & \valid
+             & \s{43}                                                                  \\
+            \multicolumn{2}{|c|}{}
+             & \multitaskRf
+             & \valid                                                         & \valid
+             & 50                                                                      \\
+            \multicolumn{2}{|c|}{}
+             & \ompRf
+             & \valid                                                         & \valid
+             & \s{52}                                                                  \\
+            \multicolumn{2}{|c|}{}
+             & \pcaRf
+             & \valid                                                         & \valid
+             & 48                                                                      \\
             \cline{3-6}
-            \multicolumn{2}{|c|}{}                                              & \robustRf                                                                 & \valid                                                   & \valid & \s{50}             \\
-            \multicolumn{2}{|c|}{}                                              & | Linear                                                                  & \na                                                      & \na    & 48                 \\
-            \multicolumn{2}{|c|}{}                                              & | RANSAC                                                                  & \na                                                      & \na    & \s{50}             \\
+            \multicolumn{2}{|c|}{}
+             & \robustRf
+             & \valid                                                         & \valid
+             & \s{50}                                                                  \\
+            \multicolumn{2}{|c|}{}
+             & | Linear
+             & \na                                                            & \na
+             & 48                                                                      \\
+            \multicolumn{2}{|c|}{}
+             & | RANSAC
+             & \na                                                            & \na
+             & \s{50}                                                                  \\
             \cline{3-6}
-            \multicolumn{2}{|c|}{}                                              & \toyRf                                                                    & \valid                                                   & \valid & 35                 \\
+            \multicolumn{2}{|c|}{}
+             & \toyRf
+             & \valid                                                         & \valid
+             & 35                                                                      \\
             \cline{3-6}
-            \multicolumn{2}{|c|}{}                                              & \svmRf                                                                    & \valid                                                   & \valid & \s{43.5}           \\
-            \multicolumn{2}{|c|}{}                                              & | Non-weighted                                                            & \na                                                      & \na    & 43                 \\
-            \multicolumn{2}{|c|}{}                                              & | Weighted                                                                & \na                                                      & \na    & \s{44}             \\
+            \multicolumn{2}{|c|}{}
+             & \svmRf
+             & \valid                                                         & \valid
+             & \s{43.5}                                                                \\
+            \multicolumn{2}{|c|}{}
+             & | Non-weighted
+             & \na                                                            & \na
+             & 43                                                                      \\
+            \multicolumn{2}{|c|}{}
+             & | Weighted
+             & \na                                                            & \na
+             & \s{44}                                                                  \\
             \cline{3-6}
-            \multicolumn{2}{|c|}{}                                              & \tomographyRf                                                             & \valid                                                   & \cross & -                  \\
-            \multicolumn{2}{|c|}{}                                              & \weightedRf                                                               & \valid                                                   & \valid & \s{44}             \\
+            \multicolumn{2}{|c|}{}
+             & \tomographyRf
+             & \valid                                                         & \cross
+             & -                                                                       \\
+            \multicolumn{2}{|c|}{}
+             & \weightedRf
+             & \valid                                                         & \valid
+             & \s{44}                                                                  \\
             \hline
         \end{tabular}
     \end{subfigure}
     \caption{\pytracer execution summary on SciPy and Scikit-learn examples.
         \emph{trace}: outcome of \pytracer tracing, \emph{parse}: outcome of
         \pytracer trace parsing and aggregation, \emph{result}: result precision
-        in number of significant bits. \valid: successful run, \cross: numerical error (tracing) or 
-        different control flow paths (parsing). \textit{nan} stands for (\texttt{Not-A-Number})
-        \add{meaning that the output result comes from an invalid arithmetic operation}. 
-        Example names are linked to their source code.}
+        in number of significant bits. \valid: successful run, \cross: numerical
+        error (tracing) or different control flow paths (parsing). \textit{nan}
+        stands for (\texttt{Not-A-Number}) meaning that the output result
+        comes from an invalid arithmetic operation. Example names are linked to
+        their source code.}
     \label{tab:pytracer_results_summary}
 \end{table*}
-
 
 \subsection{\pytracer is applicable to reference scientific computing libraries}
 
@@ -1225,71 +1480,66 @@ and scikit-learn examples. Columns \textit{trace} and \textit{parse} report on
 the tracing and aggregation steps with two possible outcomes: green
 \valid\xspace for success and red \cross\xspace for error. Tracing errors occur
 in the application as a result of numerical perturbations, whereas parsing
-errors occur when traces result from different control flow paths (CFP). 
-\add{Therefore, an application that consistently fails at the same function call will
-  produce traces with equivalent Control Flow Paths which can be parsed by \pytracer.
-  In our experiments, this was the case for the Face Recognition shows.}
+errors occur when traces result from different control flow paths (CFP).
+Therefore, an application that consistently fails at the same function call
+will produce traces with equivalent Control Flow Paths which can be parsed by
+\pytracer. In our experiments, this was the case for the Face Recognition
+shows.
 
-Overall, the
-tracing and parsing of SciPy and scikit-learn examples in Random Rounding mode
-was entirely successful for 32/40 examples. 
+Overall, the tracing and parsing of SciPy and scikit-learn examples in Random
+Rounding mode was entirely successful for 32/40 examples.
 
 Column \textit{sigbits} in Table~\ref{tab:pytracer_results_summary} summarizes
-the result precision for the main outputs of SciPy and scikit-learn examples. 
-We use the term ``result precision"
-to denote the statistical variability measured in the number of significant bits, in 
-contrast with the other meanings of the word precision used in the expressions
-``virtual precision" or ``single/double precision'' in this paper. 
-We measured the result precision in significant bits on the final primary example output
-by taking the element-wise mean for non-scalar values and, if the example
-produced multiple outputs, the average value among them. Significant bits were computed on the final program output
-and could therefore be computed even when parsing failed. 
-The numerical
-quality across all examples varied from 0 to 52, with an average of 44
-significant bits. We note that only one example failed due to a
-numerical error (\texttt{face\_recognition}
-for RR and \texttt{Bayesian Ridge Regression} for full MCA).
-
+the result precision for the main outputs of SciPy and scikit-learn examples. We
+use the term ``result precision" to denote the statistical variability measured
+in the number of significant bits, in contrast with the other meanings of the
+word precision used in the expressions ``virtual precision" or ``single/double
+precision'' in this paper. We measured the result precision in significant bits
+on the final primary example output by taking the element-wise mean for
+non-scalar values and, if the example produced multiple outputs, the average
+value among them. Significant bits were computed on the final program output and
+could therefore be computed even when parsing failed. The numerical quality
+across all examples varied from 0 to 52, with an average of 44 significant bits.
+We note that only one example failed due to a numerical error
+(\texttt{face\_recognition} for RR and \texttt{Bayesian Ridge Regression} for
+full MCA).
 
 \subsection{\pytracer supports the profiling of compound data types}
 
-PyTracer supports native floating-point formats as well as compound
-data types, such as complex floating-point values, N-dimensional arrays,
-and arbitrary Python classes. Figures~\ref{fig:fft1D_inputs}
-and~\ref{fig:fft1D_outputs} show the visualization of the
-\texttt{fft\_1D} input and output values \add{that} are complex values
-encoded in double precision. PyTracer allows visualizing the
-result precision of real (blue points) and imaginary (orange
-points) parts. The top row in Figures~\ref{fig:fft1D_inputs}
-and~\ref{fig:fft1D_outputs} show the input \add{and output} mean value while the bottom
-row shows the standard deviation. Even though Random Rounding
-(RR) was used, function inputs were perturbed since they result from
-multiple intermediate computations perturbed with RR. The points with
-low magnitude in Figure~\ref{fig:fft1D_inputs} correspond to inputs
-near 0 when the input of $\sin$ or $\exp$ is close to $k\pi$, $k \in
-    \mathbb{Z}$. Indeed, since MCA introduces noise, the result is not
-exactly 0. We can see in Figure~\ref{fig:fft1D_inputs} that the maximal
-noise introduced by MCA on the inputs is in the order of $10^{-14}$,
-two orders of magnitude higher than the $ulp \simeq 10^-16$ for double precision. This slight
-noise introduced can be interpreted as white noise on the input signal. We can
-see on the bottom row of Figure~\ref{fig:fft1D_outputs} that the frequency noise
-is of the same order of magnitude as the input noise, which is expected. The
-two peaks at x=38 and x=562 correspond to the actual frequencies of the input
-signal.
+PyTracer supports native floating-point formats as well as compound data types,
+such as complex floating-point values, N-dimensional arrays, and arbitrary
+Python classes. Figures~\ref{fig:fft1D_inputs} and~\ref{fig:fft1D_outputs} show
+the visualization of the \texttt{fft\_1D} input and output values that are
+complex values encoded in double precision. PyTracer allows visualizing the
+result precision of real (blue points) and imaginary (orange points) parts. The
+top row in Figures~\ref{fig:fft1D_inputs} and~\ref{fig:fft1D_outputs} show the
+input and output mean value while the bottom row shows the standard
+deviation. Even though Random Rounding (RR) was used, function inputs were
+perturbed since they result from multiple intermediate computations perturbed
+with RR. The points with low magnitude in Figure~\ref{fig:fft1D_inputs}
+correspond to inputs near 0 when the input of $\sin$ or $\exp$ is close to
+$k\pi$, $k \in \mathbb{Z}$. Indeed, since MCA introduces noise, the result is
+not exactly 0. We can see in Figure~\ref{fig:fft1D_inputs} that the maximal
+noise introduced by MCA on the inputs is in the order of $10^{-14}$, two orders
+of magnitude higher than the $ulp \simeq 10^-16$ for double precision. This
+slight noise introduced can be interpreted as white noise on the input signal.
+We can see on the bottom row of Figure~\ref{fig:fft1D_outputs} that the
+frequency noise is of the same order of magnitude as the input noise, which is
+expected. The two peaks at x=38 and x=562 correspond to the actual frequencies
+of the input signal.
 
 Figure~\ref{fig:spline2d_rr} shows the results of the spline evaluation with
 \texttt{bisplev} from the \texttt{spline\_2D} example. It computes the 2D spline
 interpolation for function $z=(x+y)e^{-6(x^2+y^2)}$, with $(x,y) \in
     [-1,1]\times[-1,1]$. The result is a 2D array that is natively supported by
-PyTracer. We observe a significant loss of result precision in some regions, which follows
-an interesting pattern that could be further investigated.
-\add{This example shows that \pytracer works on 2D inputs and the importance of
-    visualizing complex data types in addition to summary statistics.}
-
+PyTracer. We observe a significant loss of result precision in some regions,
+which follows an interesting pattern that could be further investigated.
+This example shows that \pytracer works on 2D inputs and the importance of
+visualizing complex data types in addition to summary statistics.
 
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{figure/FFT/fft_x.png}
+    \includegraphics[width=\linewidth]{figure/FFT/fft_x.pdf}
     \caption{Absolute value of the mean and standard deviation values for fft 1D
         inputs within RR mode (log scale). The real part is shown in blue and
         the imaginary part in orange.}
@@ -1298,12 +1548,11 @@ an interesting pattern that could be further investigated.
 
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{figure/FFT/fft_y.png}
-    \caption{Absolute value of the mean and standard deviation values
-        for fft 1D outputs within RR mode (log scale).}
+    \includegraphics[width=\linewidth]{figure/FFT/fft_y.pdf}
+    \caption{Absolute value of the mean and standard deviation values for fft 1D
+        outputs within RR mode (log scale).}
     \label{fig:fft1D_outputs}
 \end{figure}
-
 
 \begin{figure*}
     \centering
@@ -1329,90 +1578,90 @@ an interesting pattern that could be further investigated.
         shows the mean result of the 2D-spline interpolation.
         Figures~\ref{fig:bisplev_mean_log} and~\ref{fig:bisplev_std_log} show
         respectively in the logarithmic scale the absolute mean value and the
-        standard deviation of the 5 samples run within RR mode. 
-    }
+        standard deviation of the 5 samples run within RR mode. }
     \label{fig:spline2d_rr}
 \end{figure*}
 
 \subsection{\pytracer allows visualizing numerical stability at a fine-grained level}
 
+We illustrate on two examples how PyTracer is effective for analyzing numerical
+stability in complex codes at a fine-grained level: Face recognition and
+Bayesian Ridge Regression. The face recognition example uses eigenfaces
+(eigenvectors) and Support Vector Machines (SVMs) to classify faces from the
+Labeled Faces in the Wild dataset. This example uses a Principal Component
+Analysis (PCA) to extract the eigenfaces and then trains an SVM classifier to
+predict the label associated with a face. When executing in PyTracer, this
+example crashed because the Singular Value Decomposition (SVD) did not converge.
+This example is the only one to raise an error due to the non-convergence of the
+SVD performed in the PCA. The PCA uses the Randomized
+SVD~\cite{halko2011finding} method that first computes a low-rank approximation
+of the input matrix using a stochastic algorithm and then uses this
+approximation as input for the SVD. When walking through the code with PyTracer,
+we observed that the \texttt{randomized\_svd} scikit-learn function uses the
+Divide \& Conquer SVD method \texttt{gesdd}. The LAPACK library has two main
+methods for computing the SVD: \texttt{gesdd} and \texttt{gesvd}. The former
+uses a Divide \& Conquer approach, while the latter uses a QR decomposition.
+While both methods are expected to have the same
+accuracy~\cite{nakatsukasa2013stable}, the Divide \& Conquer does not converge
+with MCA.
 
-We illustrate on two examples how PyTracer is effective for analyzing
-numerical stability in complex codes at a fine-grained level: Face recognition and Bayesian Ridge Regression.
-The face recognition example uses eigenfaces (eigenvectors) and Support Vector
-Machines (SVMs) to classify faces from the Labeled Faces in the Wild dataset.
-This example uses a Principal Component Analysis (PCA) to extract the eigenfaces
-and then trains an SVM classifier to predict the label associated with a face.
-When executing in PyTracer, this example crashed because the Singular Value Decomposition (SVD) did not converge.
-This example is the only one to raise an error due to the
-non-convergence of the SVD performed in the PCA.
-The PCA uses the Randomized SVD~\cite{halko2011finding} method
-that first computes a low-rank approximation of the input matrix using a
-stochastic algorithm and then uses this approximation as input for the SVD. 
-When walking through the code with PyTracer, we observed that
-the \texttt{randomized\_svd} scikit-learn function uses the Divide \& Conquer SVD
-method \texttt{gesdd}. The LAPACK library has two main methods for computing the SVD:
-\texttt{gesdd} and \texttt{gesvd}. The former uses a Divide \& Conquer approach,
-while the latter uses a QR decomposition. While both methods are expected to
-have the same accuracy~\cite{nakatsukasa2013stable}, the Divide \& Conquer
-does not converge with MCA.
-
-Replacing \texttt{gesdd} \add{with} \texttt{gesvd} solved the SVD convergence issue.
-\pytracer allows \add{us} to quickly visualize the new result precision.
-Figure~\ref{fig:face_recognition_svd} shows the result precision of the eigenvalues
-computed with \texttt{gesvd} in single precision. The result precision
-varies between 15 and 20
-significant bits out of the 24 available in single precision. The classifier
-metrics (precision, recall, F1-score, and support) are identical to the IEEE
-execution for all MCA samples. We can note that even with the \texttt{gesvd} method,
-the result precision of the singular values and eigenvectors is not uniform. 
-Indeed, we can see that the result precision of the lowest singular values and eigenvectors decreases 
-until reaching 0 significant bits.
+Replacing \texttt{gesdd} with \texttt{gesvd} solved the SVD convergence
+issue. \pytracer allows us to quickly visualize the new result precision.
+Figure~\ref{fig:face_recognition_svd} shows the result precision of the
+eigenvalues computed with \texttt{gesvd} in single precision. The result
+precision varies between 15 and 20 significant bits out of the 24 available in
+single precision. The classifier metrics (precision, recall, F1-score, and
+support) are identical to the IEEE execution for all MCA samples. We can note
+that even with the \texttt{gesvd} method, the result precision of the singular
+values and eigenvectors is not uniform. Indeed, we can see that the result
+precision of the lowest singular values and eigenvectors decreases until
+reaching 0 significant bits.
 
 The second example compares a Bayesian Ridge Regression (BRR) to the Ordinary
 Least Squares (OLS) estimator on a synthetic dataset and for one-dimensional
 regression using polynomial feature expansion. Although the example does not
 raise a runtime error, the regression coefficients computed from the fitting are
-not significant. \pytracer traces reveal that the SVD solver used is once again the root
-cause for this error. Indeed, the BayesianRidge model first computes an SVD
-before iteratively updating the coefficients until reaching the convergence
-criterion. However, PyTracer shows an issue in the singular values computed.
-We can see in Figure~\ref{fig:BRR_svd} that the last singular value is
-\texttt{NaN} due to numerical errors in the SVD, although the remaining
-singular values exhibit high result precision (between 44 and 50 bits).
-Surprisingly, this \texttt{NaN} value does not raise an exception and is silently
-propagated. Indeed, the stopping criterion is never verified and the 
-optimization stops after reaching the maximal number of iterations.
-Figure~\ref{fig:BRR_svd_fixed} shows that using
-the \texttt{gesvd} instead of the \texttt{gesdd} method removes the \texttt{NaN} value
-although the last singular values stills have a low result precision (below 0).
-According to Equation~\ref{eq:sig-digits}, a number of significant bits less than 0 means that the
-variability ($\sigma$) is higher than the average value ($\mu$).
+not significant. \pytracer traces reveal that the SVD solver used is once again
+the root cause for this error. Indeed, the BayesianRidge model first computes an
+SVD before iteratively updating the coefficients until reaching the convergence
+criterion. However, PyTracer shows an issue in the singular values computed. We
+can see in Figure~\ref{fig:BRR_svd} that the last singular value is \texttt{NaN}
+due to numerical errors in the SVD, although the remaining singular values
+exhibit high result precision (between 44 and 50 bits). Surprisingly, this
+\texttt{NaN} value does not raise an exception and is silently propagated.
+Indeed, the stopping criterion is never verified and the optimization stops
+after reaching the maximal number of iterations. Figure~\ref{fig:BRR_svd_fixed}
+shows that using the \texttt{gesvd} instead of the \texttt{gesdd} method removes
+the \texttt{NaN} value although the last singular values still have a low result
+precision (below 0). According to Equation~\ref{eq:sig-digits}, a number of
+significant bits less than 0 means that the variability ($\sigma$) is higher
+than the average value ($\mu$).
 
-
-Similarly, for OLS, PyTracer traces show that the
-regression coefficients fitted are \texttt{NaN} values. By looking at the callgraph, we can
-see that the scipy calls the \texttt{lstsq} method from the
-\texttt{scipy.linalg} package which uses the \texttt{gesdd} LAPACK function.
-Figure~\ref{fig:OLS_svd} shows that one singular value is a \texttt{NaN} value,
-which corrupted the calculation of the coefficients. When using the \texttt{gesvd} method, 
-the \texttt{NaN} value disappears 
-(Fig.~\ref{fig:OLS_svd_fixed}), resulting in a result precision of
-42 bits on average in the coefficients. We can see that having
-access to all the values computed by the application with PyTracer allows
-the user to efficiently identify numerical issues.
+Similarly, for OLS, PyTracer traces show that the regression coefficients fitted
+are \texttt{NaN} values. By looking at the callgraph, we can see that the scipy
+calls the \texttt{lstsq} method from the \texttt{scipy.linalg} package which
+uses the \texttt{gesdd} LAPACK function. Figure~\ref{fig:OLS_svd} shows that one
+singular value is a \texttt{NaN} value, which corrupted the calculation of the
+coefficients. When using the \texttt{gesvd} method, the \texttt{NaN} value
+disappears (Fig.~\ref{fig:OLS_svd_fixed}), resulting in a result precision of 42
+bits on average in the coefficients. We can see that having access to all the
+values computed by the application with PyTracer allows the user to efficiently
+identify numerical issues.
 
 In conclusion, \pytracer and the MCA model were helpful to detect the
-instability of the \texttt{gesdd} method mentioned in several GitHub issues such as
-\href{https://github.com/google/TensorNetwork/pull/962}{github.com/google/TensorNetwork/pull/962} or
+instability of the \texttt{gesdd} method mentioned in several GitHub issues such
+as
+\href{https://github.com/google/TensorNetwork/pull/962}{github.com/google/TensorNetwork/pull/962}
+or
 \href{https://github.com/scipy/scipy/issues/15024}{github.com/scipy/scipy/issues/15024}
 including the LAPACK repository. Furthermore, it is worth mentioning that a Pull
-Request \add{at} \href{https://github.com/scikit-learn/scikit-learn/pull/20617}{github.com/scikit-learn/scikit-learn/pull/20617}
-has recently been submitted in the scikit-learn repository to let the user select the SVD method and
-avoid this kind of issue. Thus, \pytracer can detect instabilities that affect
-fundamental scientific computing components such as the LAPACK library. The
-unified view of all traces allows the user to quickly navigate through the
-result precision of different variables.
+Request at
+\href{https://github.com/scikit-learn/scikit-learn/pull/20617}{github.com/scikit-learn/scikit-learn/pull/20617}
+has recently been submitted in the scikit-learn repository to let the user
+select the SVD method and avoid this kind of issue. Thus, \pytracer can detect
+instabilities that affect fundamental scientific computing components such as
+the LAPACK library. The unified view of all traces allows the user to quickly
+navigate through the result precision of different variables.
 
 
 
@@ -1437,9 +1686,9 @@ result precision of different variables.
         \texttt{face\_recognition} example using the \texttt{gesvd} SVD method
         and RR. Figures~\ref{fig:randomized_svd_U},~\ref{fig:randomized_svd_S},
         and~\ref{fig:randomized_svd_V} show respectively the values $U$,
-        $\Sigma$ and $V$. Result precision is lower for smaller singular
-        values and this loss of precision translates to singular vectors. It
-        would be interesting to investigate the use of numerical precision for
+        $\Sigma$ and $V$. Result precision is lower for smaller singular values
+        and this loss of precision translates to singular vectors. It would be
+        interesting to investigate the use of numerical precision for
         dimensionality reduction. }
     \label{fig:face_recognition_svd}
 \end{figure*}
@@ -1447,31 +1696,31 @@ result precision of different variables.
 \begin{figure}
     \centering
     \begin{subfigure}{0.49\linewidth}
-        \includegraphics[width=\linewidth]{figure/BRR_singular_values.png}
+        \includegraphics[width=\linewidth]{figure/BRR_singular_values.pdf}
         \caption{BRR (\texttt{gesdd})}
         \label{fig:BRR_svd}
     \end{subfigure}
     \begin{subfigure}{0.49\linewidth}
-        \includegraphics[width=\linewidth]{figure/OLS_singular_values.png}
+        \includegraphics[width=\linewidth]{figure/OLS_singular_values.pdf}
         \caption{OLS (\texttt{gesdd})}
         \label{fig:OLS_svd}
     \end{subfigure}
     \begin{subfigure}{0.49\linewidth}
-        \includegraphics[width=\linewidth]{figure/BRR_singular_values_fixed.png}
+        \includegraphics[width=\linewidth]{figure/BRR_singular_values_fixed.pdf}
         \caption{BRR (\texttt{gesvd})}
         \label{fig:BRR_svd_fixed}
     \end{subfigure}
     \begin{subfigure}{0.49\linewidth}
-        \includegraphics[width=\linewidth]{figure/OLS_singular_values_fixed.png}
+        \includegraphics[width=\linewidth]{figure/OLS_singular_values_fixed.pdf}
         \caption{OLS (\texttt{gesvd})}
         \label{fig:OLS_svd_fixed}
     \end{subfigure}
     \caption{Result precision of the singular values of the SVD from the
-        Bayesian Ridge model fitting (left) and from the Ordinary Least Square model
-        fitting (right) in the Bayesian Ridge Regression example. Red stars
-        represent \texttt{NaN} values. 
-        Switching from Divide \& Conquer (\texttt{gesdd}) to QR (\texttt{gesvd}) factorization improves numerical precision.
-        PyTracer helps visualizing improvements.}
+        Bayesian Ridge model fitting (left) and from the Ordinary Least Square
+        model fitting (right) in the Bayesian Ridge Regression example. Red
+        stars represent \texttt{NaN} values. Switching from Divide \& Conquer
+        (\texttt{gesdd}) to QR (\texttt{gesvd}) factorization improves numerical
+        precision. PyTracer helps visualizing improvements.}
 \end{figure}
 
 \subsection{Overhead remains tractable and evolves linearly with the trace size}
@@ -1484,51 +1733,34 @@ time of 8 seconds during our experiments with  NumPy, SciPy, and Scikit-learn.
 This overhead can be reduced by excluding intensively used functions such as
 \texttt{numpy.array} from the instrumentation.
 Figure~\ref{fig:performance_tracing} summarizes \pytracer's tracing overhead for
-SciPy and scikit-learn examples. \textit{Instrumentation and initialization} represents the slowdown of
-\pytracer without fuzzy, \add{measured by applying PyTracer to Python programs without Monte-Carlo Arithmetic.}
-The slowdown is measured as the ratio between the actual execution time
-(without \pytracer) and the execution time using \pytracer. 
-The \textit{Total with RR MCA} shows the slowdown within the Fuzzy environment.
-Without Fuzzy, \pytracer introduces an average slowdown of $17\times$ for
-the examples running less than 8 seconds because \pytracer spends most of its
-time in the initialization step. Since this step is a constant factor of the
-number of functions instrumented, we also measured the instrumentation cost
-itself (\textit{Instrumentation only}) calculated by subtracting the
-initialization time to \textit{Instrumentation}. We then obtain an average slowdown of
-$3.5\times$. Finally, using MCA
-operations (through Fuzzy) instead of the native ones increased the average
-slowdown to $37\times$.
-\add{As shown in Figure~\ref{fig:performance_parsing}, the log aggregation time is linearly correlated with the log trace size (F-score=68, p-value $\leq 10^{-8}$, F-test for linear regression).}
-
-% \pytracer's tracing overhead consists of (1) module instrumentation time
-% (initialization overhead), and (2) data write time during the execution
-% (runtime overhead). The initialization overhead is proportional to the number
-% of functions and classes traced. However, the initialization overhead is
-% amortized \tristan{what do you mean by amortized? I don't get this sentence}
-% when traced applications are above 8 seconds,  proportional to the number of
-% functions and classes traced. Figure~\ref{fig:performance_tracing} summaries
-% \pytracer's tracing overhead for SciPy and scikit-learn examples. We can see
-% that \pytracer introduces a slowdown of reduced toif we subtract the
-% initialization step \tristan{not sure where to get these numbers from the
-% table, to be clarified. Are these average values? Why are there two values?}.
-% Fuzzy instrumentation increases the slowdown to for RR and   for Full MCA.
-% \tristan{Figure 13 is not referred in the text. Choose between the figure and
-% the table, no need to put both.}
+SciPy and scikit-learn examples. \textit{Instrumentation and initialization}
+represents the slowdown of \pytracer without fuzzy, measured by applying
+PyTracer to Python programs without Monte-Carlo Arithmetic. The slowdown is
+measured as the ratio between the actual execution time (without \pytracer) and
+the execution time using \pytracer. The \textit{Total with RR MCA} shows the
+slowdown within the Fuzzy environment. Without Fuzzy, \pytracer introduces an
+average slowdown of $17\times$ for the examples running less than 8 seconds
+because \pytracer spends most of its time in the initialization step. Since this
+step is a constant factor of the number of functions instrumented, we also
+measured the instrumentation cost itself (\textit{Instrumentation only})
+calculated by subtracting the initialization time to \textit{Instrumentation}.
+We then obtain an average slowdown of $3.5\times$. Finally, using MCA operations
+(through Fuzzy) instead of the native ones increased the average slowdown to
+$37\times$. As shown in Figure~\ref{fig:performance_parsing}, the log
+aggregation time is linearly correlated with the log trace size (F-score=68,
+p-value $\leq 10^{-8}$, F-test for linear regression).
 
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{figure/performance.png}
-    \caption{
-        \pytracer tracing overheads. \textit{Slowdown} represents the slowdown
-        of \pytracer without Fuzzy measured as the ratio between the actual
-        execution time (without \pytracer) and the execution time using
+    \includegraphics[width=\linewidth]{figure/performance.pdf}
+    \caption{ \pytracer tracing overheads. \textit{Slowdown} represents the
+        slowdown of \pytracer without Fuzzy measured as the ratio between the
+        actual execution time (without \pytracer) and the execution time using
         \pytracer. \textit{Slowdown (Instrumentation)} show the actual
         instrumentation cost computed by subtracting the initialization step.
-        The \textit{Slowdown (RR)} is the slowdown
-        of \pytracer using the Fuzzy environment with the RR mode. The
-        last four examples measure the initialization
-        steps depending on the modules instrumented. 
-        % \tristan{there's too much text in this caption, move some of it to the text, the caption should just explain the difference between the 4 slowdowns. From the text I'm not sure what is the difference between slowdown and slowdown(RR)/slowdown(MCA).}
+        The \textit{Slowdown (RR)} is the slowdown of \pytracer using the Fuzzy
+        environment with the RR mode. The last four examples measure the
+        initialization steps depending on the modules instrumented.
     }
     \label{fig:performance_tracing}
 \end{figure}
@@ -1536,13 +1768,11 @@ slowdown to $37\times$.
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figure/performance_parsing.pdf}
+    
     \caption{\pytracer aggregation performance.
-        % \tristan{change xlabel to "Trace size (bytes) and ylabel to "Aggregation time (seconds)}
     }
     \label{fig:performance_parsing}
 \end{figure}
-
-% \tristan{Mention linear correlation with p-value here.}
 
 In conclusion, while \pytracer's overhead is substantial, it remains tractable
 for real-life examples.
@@ -1565,39 +1795,38 @@ specialized libraries such as NumPy. Therefore, \pytracer meets the numerical
 analysis needs of an ever-increasing number of applications.
 
 \pytracer allows users to pinpoint the root causes of numerical instabilities by
-working at the level of Python functions. Numerical stability evaluations are complex since
-calculations are strongly interdependent. Function-level instrumentation limits
-the size of the traces since only inputs and outputs of a function are dumped.
-Moreover, it decreases instrumentation overhead and helps the user identify
-instabilities quickly. Working at the function level is thus a suitable
-compromise between analyses conducted at the floating-point operation level and
-user debug prints. Indeed, operation-level analyses are costly and hard to
-interpret as they overwhelm users with information. In contrast, looking at
-intermediate results through print statements is lightweight but not reliable
-since developers may not systematically instrument unstable functions. 
+working at the level of Python functions. Numerical stability evaluations are
+complex since calculations are strongly interdependent. Function-level
+instrumentation limits the size of the traces since only inputs and outputs of a
+function are dumped. Moreover, it decreases instrumentation overhead and helps
+the user identify instabilities quickly. Working at the function level is thus a
+suitable compromise between analyses conducted at the floating-point operation
+level and user debug prints. Indeed, operation-level analyses are costly and
+hard to interpret as they overwhelm users with information. In contrast, looking
+at intermediate results through print statements is lightweight but not reliable
+since developers may not systematically instrument unstable functions.
 
-\pytracer can be used with different types of numerical perturbations,
-including random seeds, data noise, or stochastic arithmetic. Using 
-Verificarlo to implement stochastic arithmetic through Fuzzy
-enables \add{us} to study the impact \remove{of} numerical perturbations
-introduced in non-Python dependencies while preserving the high-level view
-of Python variables and functions. For instance, the SciPy environment
-wraps many computation kernels written in C, such as BLAS or LAPACK, which
-have a considerable impact on the stability of applications using them.
+\pytracer can be used with different types of numerical perturbations, including
+random seeds, data noise, or stochastic arithmetic. Using Verificarlo to
+implement stochastic arithmetic through Fuzzy enables us to study the
+impact numerical perturbations introduced in non-Python dependencies
+while preserving the high-level view of Python variables and functions. For
+instance, the SciPy environment wraps many computation kernels written in C,
+such as BLAS or LAPACK, which have a considerable impact on the stability of
+applications using them.
 
-Enabling Monte-Carlo arithmetic in such non-Python dependencies requires
-their recompilation with Verificarlo, which usually requires human
-intervention. The Fuzzy environment provides a pre-instrumented version of
-NumPy, BLAS, LAPACK, GNU libmath, SciPy, and Scikit-learn, which, given the
-prevalence of these libraries in scientific Python codes, should cover a
-large ground of non-Python dependencies encountered in scientific Python programs.
-
+Enabling Monte-Carlo arithmetic in such non-Python dependencies requires their
+recompilation with Verificarlo, which usually requires human intervention. The
+Fuzzy environment provides a pre-instrumented version of NumPy, BLAS, LAPACK,
+GNU libmath, SciPy, and Scikit-learn, which, given the prevalence of these
+libraries in scientific Python codes, should cover a large ground of non-Python
+dependencies encountered in scientific Python programs.
 
 Integrating \pytracer at the early stages of the development cycle would improve
 the overall numerical quality of the developed code. \pytracer's automaticity
 facilitates its usage and enables its integration in unit testing. For example,
 \pytracer could be used in regression tests to ensure that updates do not
-degrade the numerical quality. 
+degrade the numerical quality.
 
 \pytracer might also be useful for selecting hyperparameters, as is the case in
 machine learning. Indeed, it is common for data scientists to explore a range of
@@ -1606,23 +1835,19 @@ user has a practical way to quantify numerical quality and understand why
 hyperparameters produce inconsistent results instead of tweaking hyperparameters
 to make solvers converge. For instance, the Face Recognition example
 (Figure~\ref{fig:face_recognition_svd}) shows how numerical precision could
-inform the selection of the number of components in dimensionality reduction. 
+inform the selection of the number of components in dimensionality reduction.
 
-
-\pytracer's visualization provides a global view of the code and interactions between
-computations. In addition, the Plotly dashboard helps navigate through the code
-easily, without the need for ad-hoc scripts to visualize data. The
+\pytracer's visualization provides a global view of the code and interactions
+between computations. In addition, the Plotly dashboard helps navigate through
+the code easily, without the need for ad-hoc scripts to visualize data. The
 dashboard can be extended to support other data formats to visualize. At this
 stage, \pytracer currently supports n-dimensional NumPy arrays as well as native
-Python data. 
+Python data.
 
-
-
-Finally, the wide range of result precision observed in our experiments
-suggests that such
-analyses would benefit from being conducted systematically. We showed that
-well-known scientific libraries are prone to numerical errors even though they
-have been well tested for decades. The prevalence of these libraries in
+Finally, the wide range of result precision observed in our experiments suggests
+that such analyses would benefit from being conducted systematically. We showed
+that well-known scientific libraries are prone to numerical errors even though
+they have been well tested for decades. The prevalence of these libraries in
 scientific codes should thus impel users to integrate numerical analysis in
 their development workflow in addition to testing their implementation.
 
@@ -1632,15 +1857,10 @@ Several tools have been developed to assess the numerical quality and can be
 divided into static and dynamic approaches. Static approaches typically analyze
 source code, while dynamic approaches trace floating-point computations
 throughout executions. A detailed review of these approaches is presented
-in~\cite{cherubin2020tools}. 
-% \pytracer adopts the dynamic approach due to its scalability to large code
-% bases. Dynamic approaches typically trace floating-point computations, detect
-% instabilities in traces, and visualize summary statistics about instabilities.
-% This section reviews existing approaches for each of these steps.
-% \label{sec:soa} \paragraph{Numerical tracing techniques}
-Numerous tools exist to trace floating-point computations for C, C++, or
-FORTRAN programs due to the prevalence of these languages in High-Performance
-Computing (HPC). The main tracing techniques are \textit{source-to-source},
+in~\cite{cherubin2020tools}.
+Numerous tools exist to trace floating-point computations for C, C++, or FORTRAN
+programs due to the prevalence of these languages in High-Performance Computing
+(HPC). The main tracing techniques are \textit{source-to-source},
 \textit{compiler-based transformations}, and \textit{dynamic binary
     instrumentation}.
 
@@ -1652,18 +1872,12 @@ Shaman~\cite{demeure_phd} is a C++ library that uses a first-order error model
 to propagate numerical errors. MCAlib~\cite{frechtling2015mcalib} is a C library
 that implements the Monte Carlo Arithmetic (MCA)~\cite{parker1997monte} using
 the MPFR~\cite{fousse2007mpfr} library. ADAPT \mbox{~\cite{menon2018adapt}} uses
-Automatic Differentiation to compute a sensitivity profile for each variable in a
-program. Finally, the work in~\cite{tang2016software} propose\add{s} a
+Automatic Differentiation to compute a sensitivity profile for each variable in
+a program. Finally, the work in~\cite{tang2016software} proposes a
 source-to-source framework for executing targeted code in infinite and fixed
 precision with and without stochastic arithmetic. The main drawback of the
-source-to-source approach is its lack of scalability since rewriting large
-codes can be a tedious task.
-
-% \gkmod{}{Note: similar to the above, this is just a list rather than a
-% highlight of how the compiler-based approach can be more scalable than
-% source-to-source because it requires less manual intervention into a codebase
-% (e.g.), then have your list, and finally say why it is still limited/not a
-% global fix to this problem.}
+source-to-source approach is its lack of scalability since rewriting large codes
+can be a tedious task.
 
 The compiler-based approach instruments floating-point expressions at compile
 time and so allows the user to automatically instrument large codebases.
@@ -1675,17 +1889,15 @@ the Clang compiler that detects floating-point operations responsible for result
 variability using a source-to-source transformation at the Abstract Syntax Tree
 (AST) level to rewrite parts of code with higher precision.
 FPSanitizer~\cite{chowdhary2020debugging,chowdhary2021parallel} and
-NSan~\mbox{\cite{courbet2021nsan}} are compiler-based approaches
-that use shadow execution to detect numerical issues using higher
-precision.
-FLiT~\cite{sawaya2017flit} is a framework to detect variability
-induced by compilers and their optimizations. The work
-in~\cite{wang2012development} proposes a numerical debugger based on
-GDB~\cite{stallman1988debugging} for Discrete Stochastic Arithmetic (DSA) on
-FPGA as an Eclipse plugging. Similarly, Cadtrace~\cite{jezequel2008cadna} and
-Shaman propose a GDB-based tool to use the CADNA and Shaman libraries with GDB,
-respectively. The main limitation of the compiler-based approach is that one
-must have access to the source code.
+NSan~\mbox{\cite{courbet2021nsan}} are compiler-based approaches that use shadow
+execution to detect numerical issues using higher precision.
+FLiT~\cite{sawaya2017flit} is a framework to detect variability induced by
+compilers and their optimizations. The work in~\cite{wang2012development}
+proposes a numerical debugger based on GDB~\cite{stallman1988debugging} for
+Discrete Stochastic Arithmetic (DSA) on FPGA as an Eclipse plugging. Similarly,
+Cadtrace~\cite{jezequel2008cadna} and Shaman propose a GDB-based tool to use the
+CADNA and Shaman libraries with GDB, respectively. The main limitation of the
+compiler-based approach is that one must have access to the source code.
 
 Dynamic Binary Instrumentation (DBI) operates directly on executables, without
 the need for recompilation or manual changes. Therefore, it applies to any
@@ -1695,19 +1907,16 @@ Valgrind~\cite{nethercote2007valgrind} based tool that dynamically replaces
 floating-point operations with their stochastic arithmetic counterparts.
 FPDebug~\cite{benz2012dynamic} uses DBI to detect numerical inaccuracies by
 using shadow computations with higher precision.
-Herbgrind~\cite{sanchez2017finding} is a Valgrind-based tool to
-detect numerical instabilities. It uses a shadow memory to detect  precision
-losses by comparison with results obtained in higher
-precision. It is combined with symbolic computation to backtrack the root of the
-error. We can note that all methods based on a high-precision oracle suppose
-that computing with a large number of bits is sufficient to obtain an accurate
-result, which is not always true (see, for example, the famous Muller's
-sequence~\cite{bajard1996introduction}). Although versatile, the DBI loses
-high-level information useful to understand the source-code logic.
+Herbgrind~\cite{sanchez2017finding} is a Valgrind-based tool to detect numerical
+instabilities. It uses a shadow memory to detect  precision losses by comparison
+with results obtained in higher precision. It is combined with symbolic
+computation to backtrack the root of the error. We can note that all methods
+based on a high-precision oracle suppose that computing with a large number of
+bits is sufficient to obtain an accurate result, which is not always true (see,
+for example, the famous Muller's sequence~\cite{bajard1996introduction}).
+Although versatile, the DBI loses high-level information useful to understand
+the source-code logic.
 
-% \gkmod{}{Note: I like this comparison here, but do think that the comments
-% above about providing some more info when each is mentioned would still help
-% this section.}
 Being agnostic to the programming language is a serious advantage of the DBI
 method compared to source-to-source and compiler-bases methods. However, working
 at the binary level makes it difficult to access high-level information needed
@@ -1731,14 +1940,7 @@ by adding a line over a function declaration. While this method is appropriate
 when targeting specific functions, it is not feasible for large codebases where
 potentially unstable code sections are unknown.
 
-
-
 \section{Conclusion}
-
-
-% \tristan{I moved this from the opening of Section 4, as this reads more like a
-% summary of \pytracer's features than an experiment description. It should be
-% refactored in 1-2 paragraphs summarizing the main properties of \\pytracer.}
 
 Evaluating the numerical stability of scientific Python programs is a tedious
 task that requires substantial expertise. Automatic tools to help users
@@ -1752,32 +1954,15 @@ involving major scientific libraries such as NumPy, SciPy, and Scikit-learn.
 \pytracer enabled the systematic evaluation of 40 examples from the SciPy and
 scikit-learn libraries. Our results show that \pytracer is scalable, with an
 average instrumentation slowdown of $3.5\times$. Moreover, \pytracer's
-visualization interface remains responsive even with traces of up to 1TB.  
+visualization interface remains responsive even with traces of up to 1TB.
 
 In the future, we plan to extend the post-processing analysis to aggregate
-traces obtained with different control flow paths, by leveraging
-techniques used in code coverage analysis. This would also enable larger
-support for multi-threaded applications. Moreover, we would like to extend
-\pytracer to instrument elementary arithmetic operations (+,-,*,/), to
-allow for more detailed analyses. 
+traces obtained with different control flow paths, by leveraging techniques used
+in code coverage analysis. This would also enable larger support for
+multi-threaded applications. Moreover, we would like to extend \pytracer to
+instrument elementary arithmetic operations (+,-,*,/), to allow for more
+detailed analyses.
 
-
-
-% % use section* for acknowledgment
-% \ifCLASSOPTIONcompsoc
-%     % The Computer Society usually uses the plural form
-%     \section*{Acknowledgments}
-% \else
-%     % regular IEEE prefers the singular form
-%     \section*{Acknowledgment}
-% \fi
-
-
-% The authors would like to thank...
-
-
-% Can use something like this to put references on a page
-% by themselves when using endfloat and the captionsoff option.
 \ifCLASSOPTIONcaptionsoff
     \newpage
 \fi
@@ -1785,57 +1970,15 @@ allow for more detailed analyses.
 \bibliographystyle{IEEEtran}
 \bibliography{paper}
 
-
-% trigger a \newpage just before the given reference
-% number - used to balance the columns on the last page
-% adjust value as needed - may need to be readjusted if
-% the document is modified later
-%\IEEEtriggeratref{8}
-% The "triggered" command can be changed if desired:
-%\IEEEtriggercmd{\enlargethispage{-5in}}
-
-% references section
-
-% can use a bibliography generated by BibTeX as a .bbl file
-% BibTeX documentation can be easily obtained at:
-% http://mirror.ctan.org/biblio/bibtex/contrib/doc/
-% The IEEEtran BibTeX style support page is at:
-% http://www.michaelshell.org/tex/ieeetran/bibtex/
-%\bibliographystyle{IEEEtran}
-% argument is your BibTeX string definitions and bibliography database(s)
-%\bibliography{IEEEabrv,../bib/paper}
-%
-% <OR> manually copy in the resultant .bbl file
-% set second argument of \begin to the number of references
-% (used to reserve space for the reference number labels box)
-%% \begin{thebibliography}{1}
-
-%% \bibitem{IEEEhowto:kopka}
-%% H.~Kopka and P.~W. Daly, \emph{A Guide to \LaTeX}, 3rd~ed.\hskip 1em plus
-%%   0.5em minus 0.4em\relax Harlow, England: Addison-Wesley, 1999.
-
-%% \end{thebibliography}
-
-% biography section
-% 
-% If you have an EPS/PDF photo (graphicx package needed) extra braces are
-% needed around the contents of the optional argument to biography to prevent
-% the LaTeX parser from getting confused when it sees the complicated
-% \includegraphics command within an optional argument. (You could create
-% your own custom macro containing the \includegraphics command to make things
-% simpler here.)
-%\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{mshell}}]{Michael Shell}
-% or if you just want to reserve a space for a photo:
-
 \vskip -2\baselineskip plus -1fil
 \begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{photos/yohan.jpg}}]{Yohan
         Chatelain} received his Ph.D. degree from the University of Paris-Saclay
-    (UVSQ), Versailles, France in 2019. He is a postdoctoral researcher in the
-    Big Data Infrastructures for Neuroinformatics lab at the University of
-    Concordia, Montreal, Canada. His research topics include computer
-    arithmetic, high-performance computing, and reproducibility. Yohan aims at
-    democratizing the use of the analysis of stability for scientific computing
-    codes through automatic tools to improve numerical quality. 
+    (UVSQ), Versailles, France in 2019. He is a postdoctoral researcher in
+    the Big Data Infrastructures for Neuroinformatics lab at the University
+    of Concordia, Montreal, Canada. His research topics include computer
+    arithmetic, high-performance computing, and reproducibility. Yohan aims
+    at democratizing the use of the analysis of stability for scientific
+    computing codes through automatic tools to improve numerical quality.
 \end{IEEEbiography}
 
 \vskip -2\baselineskip plus -1fil
@@ -1848,48 +1991,26 @@ allow for more detailed analyses.
 %% % if you will not have a photo at all:
 \vskip -2\baselineskip plus -1fil
 \begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{photos/greg_kiar.png}}]{Gregory
-        Kiar} is a research scientist at the Child Mind Institute. Throughout his
-    degrees in Biomedical Engineering, Greg has developed techniques to study
-    biosignal data, a turn-key tool that allows researchers to generate maps of
-    brain connectivity from diffusion MRI data, and techniques to assess and
-    improve the stability of research in neuroscience. Greg’s research bridges
-    the fields of numerical analysis and brain imaging to evaluate and improve
-    the trustworthiness of techniques used to study the brain. 
+        Kiar} is a research scientist at the Child Mind Institute. Throughout
+    his degrees in Biomedical Engineering, Greg has developed techniques to
+    study biosignal data, a turn-key tool that allows researchers to
+    generate maps of brain connectivity from diffusion MRI data, and
+    techniques to assess and improve the stability of research in
+    neuroscience. Greg’s research bridges the fields of numerical analysis
+    and brain imaging to evaluate and improve the trustworthiness of
+    techniques used to study the brain.
 \end{IEEEbiography}
 
 \vskip -2\baselineskip plus -1fil
 \begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{photos/glatard_tristan.jpg}}]{Tristan
-        Glatard} is Associate Professor in the Department of Computer Science and
-    Software Engineering at Concordia University in Montreal, and Canada
-    Research Chair (Tier II) on Big Data Infrastructures for Neuroinformatics.
-    Before that, he was research scientist at the French National Centre for
-    Scientific Research and Visiting Scholar at McGill University. 
+        Glatard} is Associate Professor in the Department of Computer Science
+    and Software Engineering at Concordia University in Montreal, and Canada
+    Research Chair (Tier II) on Big Data Infrastructures for
+    Neuroinformatics. Before that, he was research scientist at the French
+    National Centre for Scientific Research and Visiting Scholar at McGill
+    University.
 \end{IEEEbiography}
 
-%% % insert where needed to balance the two columns on the last page with
-%% % biographies
-%% %\newpage
-
-%% \begin{IEEEbiographynophoto}{Jane Doe}
-%% Biography text here.
-%% \end{IEEEbiographynophoto}
-
-% You can push biographies down or up by placing
-% a \vfill before or after them. The appropriate
-% use of \vfill depends on what kind of text is
-% on the last page and whether or not the columns
-% are being equalized.
-
-%\vfill
-
-% Can be used to pull up biographies so that the bottom of the last one
-% is flush with the other column.
-%\enlargethispage{-5in}
-
-% \appendix
-% \include{annex}
-
-% that's all folks
 \end{document}
 
 
